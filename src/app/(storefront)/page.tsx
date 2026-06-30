@@ -1,23 +1,14 @@
 import React from "react";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Star,
-  Leaf,
-  Award,
-  Shield,
-  Sparkles,
-  TrendingUp,
-  Clock,
-} from "lucide-react";
+import { ArrowRight, Leaf, Award, Shield, Sparkles } from "lucide-react";
 import Button from "@/components/ui/Button";
 import ProductCard from "@/components/storefront/ProductCard";
 
-// Demo products - will be replaced with database
+// Demo products
 const FEATURED_PRODUCTS = [
   {
     id: "1",
-    name: "Madhu Balance Capsules - For Maintaining Healthy Metabolism",
+    name: "Madhu Balance Capsules",
     slug: "madhu-balance-capsules",
     image: "",
     mrp: 2799,
@@ -26,11 +17,12 @@ const FEATURED_PRODUCTS = [
     reviewCount: 128,
     stock: 50,
     isFeatured: true,
+    category: "Sugar",
   },
   {
     id: "2",
-    name: "Ashwagandha Gold Capsules - Stress Relief & Vitality",
-    slug: "ashwagandha-gold-capsules",
+    name: "BPM Capsules",
+    slug: "bpm-capsules",
     image: "",
     mrp: 1499,
     sellingPrice: 899,
@@ -38,11 +30,12 @@ const FEATURED_PRODUCTS = [
     reviewCount: 245,
     stock: 35,
     isFeatured: true,
+    category: "BP",
   },
   {
     id: "3",
-    name: "Triphala Churna - Digestive Health & Detox",
-    slug: "triphala-churna",
+    name: "G-Liv Care DS Capsule",
+    slug: "g-liv-care-ds-capsule",
     image: "",
     mrp: 599,
     sellingPrice: 449,
@@ -50,11 +43,12 @@ const FEATURED_PRODUCTS = [
     reviewCount: 89,
     stock: 100,
     isFeatured: false,
+    category: "Liver Support",
   },
   {
     id: "4",
-    name: "Brahmi Memory Booster - Cognitive Wellness",
-    slug: "brahmi-memory-booster",
+    name: "Sandhimukta Capsules",
+    slug: "sandhimukta-capsules",
     image: "",
     mrp: 1999,
     sellingPrice: 1299,
@@ -62,6 +56,7 @@ const FEATURED_PRODUCTS = [
     reviewCount: 67,
     stock: 25,
     isFeatured: true,
+    category: "Joint Care",
   },
 ];
 
@@ -78,126 +73,123 @@ const TESTIMONIALS = [
   {
     name: "Priya Sharma",
     location: "Delhi",
-    rating: 5,
     text: "Madhu Balance capsules have significantly improved my metabolism. I feel healthier and more energetic after 2 months of use.",
-    product: "Madhu Balance Capsules",
   },
   {
     name: "Rajesh Kumar",
     location: "Mumbai",
-    rating: 5,
     text: "Quality products with genuine Ayurvedic ingredients. The packaging and delivery were excellent. Highly recommended!",
-    product: "Ashwagandha Gold",
   },
   {
     name: "Anita Verma",
     location: "Jaipur",
-    rating: 4,
-    text: "Great results with Triphala Churna. Natural and effective. Will definitely order again.",
-    product: "Triphala Churna",
+    text: "Great results with G-Liv Care. Natural and effective. Will definitely order again for the whole family.",
   },
 ];
 
 export default function HomePage() {
   return (
     <div>
-      {/* Announcement bar */}
-      <div className="bg-secondary/10 border-b border-secondary/20 py-2 text-center">
-        <p className="text-sm text-primary font-medium">
-          🎉 FLAT 10% OFF on first order | Use Code:{" "}
-          <span className="font-bold text-cta">SHIVARA10</span> |{" "}
-          <Link href="/offers" className="underline hover:text-cta transition">
-            View All Offers
-          </Link>
-        </p>
-      </div>
-
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-accent via-white to-primary-50">
-        <div className="ayurveda-pattern absolute inset-0 opacity-50" />
-        <div className="max-w-7xl mx-auto px-4 py-16 md:py-24 relative">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6 animate-fade-in">
-              <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur px-4 py-2 rounded-full border border-primary/10">
-                <Leaf size={16} className="text-primary" />
-                <span className="text-sm font-medium text-primary">
-                  AYUSH Certified | 100% Natural
-                </span>
-              </div>
-
-              <h1 className="text-4xl md:text-6xl font-bold text-primary-dark leading-tight">
-                Pure Ayurvedic
-                <br />
-                <span className="text-gradient">Wellness</span>
-                <br />
-                For Your Life
-              </h1>
-
-              <p className="text-lg text-gray-600 max-w-lg">
-                Discover the ancient wisdom of Ayurveda with Shivara&apos;s
-                premium herbal products. Crafted with care to support your
-                health naturally.
-              </p>
-
-              <div className="flex flex-wrap gap-4">
-                <Link href="/products">
-                  <Button variant="cta" size="lg">
-                    Shop Now <ArrowRight size={20} className="ml-2" />
-                  </Button>
-                </Link>
-                <Link href="/blog">
-                  <Button variant="outline" size="lg">
-                    Learn Ayurveda
-                  </Button>
-                </Link>
-              </div>
-
-              {/* Stats */}
-              <div className="flex gap-8 pt-4">
-                <div>
-                  <p className="text-2xl font-bold text-primary">10K+</p>
-                  <p className="text-xs text-gray-500">Happy Customers</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-primary">50+</p>
-                  <p className="text-xs text-gray-500">Products</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-primary">4.8⭐</p>
-                  <p className="text-xs text-gray-500">Average Rating</p>
-                </div>
-              </div>
+      {/* Hero Section - Minimal luxury */}
+      <section className="relative bg-accent">
+        <div className="max-w-7xl mx-auto px-4 py-20 md:py-32">
+          <div className="max-w-3xl mx-auto text-center animate-fade-in-up">
+            <p className="section-label mb-6">Heritage Ayurveda</p>
+            <h1 className="heading-editorial text-4xl md:text-6xl lg:text-7xl text-secondary mb-6">
+              Ancient wisdom.
+              <br />
+              Modern purity.
+            </h1>
+            <p className="text-muted text-base md:text-lg max-w-xl mx-auto mb-10 leading-relaxed">
+              Formulations rooted in 5,000 years of Ayurvedic tradition,
+              crafted with single-origin herbs from the farms of Rajasthan.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link href="/products">
+                <Button variant="dark" size="lg">
+                  Explore Collection
+                </Button>
+              </Link>
+              <Link href="/blog">
+                <Button variant="outline" size="lg">
+                  Our Philosophy
+                </Button>
+              </Link>
             </div>
 
-            {/* Hero Image placeholder */}
-            <div className="relative">
-              <div className="relative aspect-square max-w-md mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-full animate-pulse-glow" />
-                <div className="absolute inset-8 bg-gradient-to-br from-accent to-white rounded-full flex items-center justify-center shadow-xl">
-                  <div className="text-center">
-                    <span className="text-8xl">🌿</span>
-                    <p className="text-primary font-semibold mt-4">
-                      Ancient Wisdom
-                    </p>
-                    <p className="text-sm text-gray-500">Modern Wellness</p>
-                  </div>
-                </div>
-              </div>
+            {/* Scroll indicator */}
+            <p className="text-[10px] uppercase tracking-[0.3em] text-muted mt-16">
+              Scroll
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Trust Badges - matching reference */}
+      <section className="bg-accent/60 border-y border-border">
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="flex flex-col items-center text-center gap-3">
+              <Leaf className="text-primary" size={24} strokeWidth={1.5} />
+              <h3 className="font-serif text-sm text-secondary">Single-Origin Herbs</h3>
+              <p className="text-xs text-muted">Sourced from heritage farms in Rajasthan</p>
+            </div>
+            <div className="flex flex-col items-center text-center gap-3">
+              <Shield className="text-primary" size={24} strokeWidth={1.5} />
+              <h3 className="font-serif text-sm text-secondary">GMP Certified</h3>
+              <p className="text-xs text-muted">Crafted in audited facilities</p>
+            </div>
+            <div className="flex flex-col items-center text-center gap-3">
+              <Sparkles className="text-primary" size={24} strokeWidth={1.5} />
+              <h3 className="font-serif text-sm text-secondary">Free Shipping</h3>
+              <p className="text-xs text-muted">On all orders within India</p>
+            </div>
+            <div className="flex flex-col items-center text-center gap-3">
+              <Award className="text-primary" size={24} strokeWidth={1.5} />
+              <h3 className="font-serif text-sm text-secondary">Lab Tested</h3>
+              <p className="text-xs text-muted">Purity verified in certified labs</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Categories */}
-      <section className="py-16 bg-white">
+      {/* Featured Products - Editorial style */}
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-primary-dark">
-              Shop by Category
+          <div className="text-center mb-14">
+            <p className="section-label mb-4">Editor&apos;s Selection</p>
+            <h2 className="heading-editorial text-3xl md:text-5xl text-secondary">
+              Amazing deals.
             </h2>
-            <p className="text-gray-500 mt-2">
-              Explore our range of pure Ayurvedic products
+            <p className="text-muted text-sm mt-4 max-w-md mx-auto">
+              Our most-loved formulations, currently offered at heritage prices.
             </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+            {FEATURED_PRODUCTS.map((product) => (
+              <ProductCard key={product.id} {...product} />
+            ))}
+          </div>
+
+          <div className="mt-12 text-center">
+            <Link href="/products">
+              <Button variant="outline" size="lg">
+                View All Products <ArrowRight size={14} className="ml-2" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Categories */}
+      <section className="py-20 bg-accent/40">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-14">
+            <p className="section-label mb-4">Shop by Concern</p>
+            <h2 className="heading-editorial text-3xl md:text-5xl text-secondary">
+              Find your balance.
+            </h2>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -205,15 +197,15 @@ export default function HomePage() {
               <Link
                 key={cat.slug}
                 href={`/products?category=${cat.slug}`}
-                className="group text-center p-6 rounded-2xl border border-border hover:border-primary/30 hover:shadow-medium transition-all duration-300 bg-white"
+                className="group text-center p-6 bg-white border border-border hover:border-primary/30 transition-all duration-300"
               >
-                <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">
+                <div className="text-3xl mb-3 group-hover:scale-110 transition-transform duration-300">
                   {cat.icon}
                 </div>
-                <h3 className="text-sm font-semibold text-gray-800 group-hover:text-primary transition">
+                <h3 className="text-xs font-medium uppercase tracking-wider text-secondary group-hover:text-primary transition">
                   {cat.name}
                 </h3>
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-[10px] text-muted mt-1">
                   {cat.count} products
                 </p>
               </Link>
@@ -222,141 +214,69 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured Products */}
-      <section className="py-16 bg-accent/30 ayurveda-pattern">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between mb-10">
-            <div>
-              <h2 className="text-3xl font-bold text-primary-dark">
-                Bestselling Products
-              </h2>
-              <p className="text-gray-500 mt-1">
-                Most loved by our customers
-              </p>
+      {/* Story / About */}
+      <section className="py-20 bg-white">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <p className="section-label mb-4">Our Story</p>
+          <h2 className="heading-editorial text-3xl md:text-5xl text-secondary mb-8">
+            Purity you can trust.
+          </h2>
+          <p className="text-muted leading-relaxed max-w-2xl mx-auto mb-6">
+            At Shivara, we believe that wellness begins with what nature provides.
+            Every product is a testament to our commitment — sourcing the finest
+            single-origin herbs from Rajasthan, processing them in GMP-certified
+            facilities, and delivering them with the integrity your health deserves.
+          </p>
+          <p className="text-muted leading-relaxed max-w-2xl mx-auto">
+            No shortcuts. No compromises. Just Ayurveda in its purest form.
+          </p>
+          <div className="luxury-divider mt-10 mb-10" />
+          <div className="flex justify-center gap-12">
+            <div className="text-center">
+              <p className="text-3xl font-serif text-secondary">5,000+</p>
+              <p className="text-[10px] uppercase tracking-widest text-muted mt-1">Happy Customers</p>
             </div>
-            <Link
-              href="/products"
-              className="hidden md:flex items-center gap-1 text-primary font-medium hover:text-primary-light transition"
-            >
-              View All <ArrowRight size={18} />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {FEATURED_PRODUCTS.map((product) => (
-              <ProductCard key={product.id} {...product} />
-            ))}
-          </div>
-
-          <div className="mt-8 text-center md:hidden">
-            <Link href="/products">
-              <Button variant="outline">
-                View All Products <ArrowRight size={16} className="ml-1" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Why Shivara */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-primary-dark">
-              Why Choose Shivara?
-            </h2>
-            <p className="text-gray-500 mt-2">
-              We are committed to purity, quality, and your wellness
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-6 rounded-2xl bg-accent/50 border border-primary/10 text-center group hover:shadow-medium transition">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition">
-                <Leaf className="text-primary" size={28} />
-              </div>
-              <h3 className="font-semibold text-gray-800 mb-2">
-                100% Natural
-              </h3>
-              <p className="text-sm text-gray-500">
-                Pure Ayurvedic herbs sourced directly from organic farms across
-                India
-              </p>
+            <div className="text-center">
+              <p className="text-3xl font-serif text-secondary">50+</p>
+              <p className="text-[10px] uppercase tracking-widest text-muted mt-1">Formulations</p>
             </div>
-            <div className="p-6 rounded-2xl bg-accent/50 border border-primary/10 text-center group hover:shadow-medium transition">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition">
-                <Award className="text-primary" size={28} />
-              </div>
-              <h3 className="font-semibold text-gray-800 mb-2">
-                GMP Certified
-              </h3>
-              <p className="text-sm text-gray-500">
-                Manufactured in AYUSH-approved, WHO-GMP certified facility
-              </p>
-            </div>
-            <div className="p-6 rounded-2xl bg-accent/50 border border-primary/10 text-center group hover:shadow-medium transition">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition">
-                <Shield className="text-primary" size={28} />
-              </div>
-              <h3 className="font-semibold text-gray-800 mb-2">
-                Quality Tested
-              </h3>
-              <p className="text-sm text-gray-500">
-                Every batch tested for purity, potency, and safety in certified
-                labs
-              </p>
-            </div>
-            <div className="p-6 rounded-2xl bg-accent/50 border border-primary/10 text-center group hover:shadow-medium transition">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition">
-                <Sparkles className="text-primary" size={28} />
-              </div>
-              <h3 className="font-semibold text-gray-800 mb-2">
-                Proven Results
-              </h3>
-              <p className="text-sm text-gray-500">
-                Thousands of satisfied customers with real health improvements
-              </p>
+            <div className="text-center">
+              <p className="text-3xl font-serif text-secondary">4.8</p>
+              <p className="text-[10px] uppercase tracking-widest text-muted mt-1">Average Rating</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Testimonials */}
-      <section className="py-16 bg-primary-dark text-white">
+      <section className="py-20 bg-accent">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold">What Our Customers Say</h2>
-            <p className="text-gray-300 mt-2">
-              Real reviews from real people
-            </p>
+          <div className="text-center mb-14">
+            <p className="section-label mb-4">Testimonials</p>
+            <h2 className="heading-editorial text-3xl md:text-5xl text-secondary">
+              What they say.
+            </h2>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
             {TESTIMONIALS.map((t, i) => (
               <div
                 key={i}
-                className="bg-white/10 backdrop-blur p-6 rounded-2xl border border-white/10"
+                className="bg-white p-8 border border-border"
               >
-                <div className="flex gap-1 mb-3">
-                  {Array.from({ length: t.rating }).map((_, j) => (
-                    <Star
-                      key={j}
-                      size={16}
-                      className="fill-secondary text-secondary"
-                    />
-                  ))}
-                </div>
-                <p className="text-gray-200 text-sm mb-4 italic">
+                <p className="text-secondary/80 text-sm leading-relaxed italic mb-6">
                   &ldquo;{t.text}&rdquo;
                 </p>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold text-white">{t.name}</p>
-                    <p className="text-xs text-gray-400">{t.location}</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                    <span className="text-xs font-medium text-primary">
+                      {t.name.split(" ").map((n) => n[0]).join("")}
+                    </span>
                   </div>
-                  <span className="text-xs bg-secondary/20 text-secondary px-2 py-1 rounded-full">
-                    {t.product}
-                  </span>
+                  <div>
+                    <p className="text-xs font-medium text-secondary">{t.name}</p>
+                    <p className="text-[10px] text-muted">{t.location}</p>
+                  </div>
                 </div>
               </div>
             ))}
@@ -365,24 +285,25 @@ export default function HomePage() {
       </section>
 
       {/* Newsletter */}
-      <section className="py-16 bg-accent">
-        <div className="max-w-3xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-primary-dark mb-4">
-            Join the Wellness Community
+      <section className="py-20 bg-white border-t border-border">
+        <div className="max-w-xl mx-auto px-4 text-center">
+          <p className="section-label mb-4">Stay Connected</p>
+          <h2 className="heading-editorial text-3xl text-secondary mb-4">
+            Join the community.
           </h2>
-          <p className="text-gray-600 mb-8">
-            Get exclusive offers, Ayurvedic tips, and new product updates
+          <p className="text-muted text-sm mb-8">
+            Exclusive offers, Ayurvedic wisdom, and new product launches
             delivered to your inbox.
           </p>
-          <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+          <form className="flex flex-col sm:flex-row gap-3">
             <input
               type="email"
-              placeholder="Enter your email"
-              className="flex-1 px-5 py-3 rounded-full border border-border bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+              placeholder="Your email address"
+              className="flex-1 px-5 py-3 border border-border bg-white text-sm focus:outline-none focus:border-primary/50 placeholder:text-muted"
             />
-            <Button variant="cta">Subscribe</Button>
+            <Button variant="dark">Subscribe</Button>
           </form>
-          <p className="text-xs text-gray-400 mt-3">
+          <p className="text-[10px] text-muted mt-3 uppercase tracking-wider">
             No spam. Unsubscribe anytime.
           </p>
         </div>

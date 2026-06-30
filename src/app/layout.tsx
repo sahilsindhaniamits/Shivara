@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Inter, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 
@@ -8,14 +8,15 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-const playfair = Playfair_Display({
+const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  variable: "--font-playfair",
+  variable: "--font-serif",
+  weight: ["300", "400", "500", "600"],
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "Shivara - Pure Ayurvedic Wellness | Natural Herbal Products",
+    default: "Shivara — Ayurvedic Purity, Elevated",
     template: "%s | Shivara",
   },
   description:
@@ -77,21 +78,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+    <html lang="en" className={`${inter.variable} ${cormorant.variable}`}>
       <head>
         <link rel="icon" href="/favicon.ico" />
         <meta name="theme-color" content="#1B5E20" />
       </head>
-      <body className="min-h-screen bg-background text-gray-900 antialiased">
+      <body className="min-h-screen bg-background text-secondary antialiased">
         {children}
         <Toaster
           position="top-center"
           toastOptions={{
             duration: 3000,
             style: {
-              background: "#2D2D2D",
+              background: "#2C2C2C",
               color: "#fff",
-              borderRadius: "12px",
+              borderRadius: "100px",
+              fontSize: "13px",
+              padding: "12px 20px",
             },
           }}
         />

@@ -1,8 +1,8 @@
 export const SITE_CONFIG = {
   name: "Shivara",
-  tagline: "Pure Ayurvedic Wellness",
+  tagline: "Ayurvedic Purity, Elevated",
   description:
-    "Shivara offers natural herbal products crafted with care to support wellness, purity, and everyday health.",
+    "Shivara offers natural herbal products crafted with care to support wellness, purity, and everyday health, bringing the goodness of traditional ingredients to your lifestyle.",
   url: "https://theshivara.com",
   email: "Info@theshivara.com",
   phone: "+91-9828385808",
@@ -25,22 +25,24 @@ export const SITE_CONFIG = {
 
 export const THEME = {
   colors: {
-    primary: "#1B5E20", // Deep Forest Green
-    primaryLight: "#2E7D32",
-    primaryDark: "#0D3B13",
-    secondary: "#D4A017", // Gold / Turmeric
-    secondaryLight: "#E6B422",
-    accent: "#FFF8E7", // Warm Cream
-    background: "#FAFAF5", // Off-White
+    primary: "#B7925C", // Antique Gold
+    primaryLight: "#C9A46C",
+    primaryDark: "#96743A",
+    secondary: "#2C2C2C", // Dark Charcoal
+    secondaryLight: "#4A4A4A",
+    accent: "#F5F0E8", // Light Beige
+    background: "#F7F4EF", // Warm Cream
     surface: "#FFFFFF",
-    text: "#2D2D2D", // Dark Charcoal
-    textLight: "#666666",
-    cta: "#E65100", // Saffron Orange
-    ctaHover: "#BF360C",
-    success: "#2E7D32",
-    warning: "#F57C00",
-    error: "#C62828",
-    border: "#E8E5DE",
+    text: "#2A2A2A", // Near Black
+    textLight: "#7A7A7A", // Muted Gray
+    textMuted: "#9B9B9B",
+    cta: "#B7925C", // Gold as CTA
+    ctaHover: "#96743A",
+    success: "#4A7C59",
+    warning: "#B7925C",
+    error: "#8B4513", // Rust/Terracotta
+    border: "#E8E3DB",
+    dark: "#1A1A1A",
   },
 };
 

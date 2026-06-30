@@ -4,7 +4,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "outline" | "ghost" | "cta" | "danger";
+  variant?: "primary" | "secondary" | "outline" | "ghost" | "cta" | "danger" | "dark";
   size?: "sm" | "md" | "lg";
   loading?: boolean;
   fullWidth?: boolean;
@@ -22,27 +22,29 @@ export default function Button({
   ...props
 }: ButtonProps) {
   const baseStyles =
-    "inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+    "inline-flex items-center justify-center font-medium transition-all duration-300 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed";
 
   const variants = {
     primary:
-      "bg-primary text-white hover:bg-primary-light focus:ring-primary shadow-md hover:shadow-lg",
+      "bg-primary text-white hover:bg-primary-dark rounded-full uppercase tracking-wider text-xs",
     secondary:
-      "bg-secondary text-white hover:bg-secondary-light focus:ring-secondary shadow-md hover:shadow-lg",
+      "bg-secondary text-white hover:bg-secondary-light rounded-full uppercase tracking-wider text-xs",
     outline:
-      "border-2 border-primary text-primary hover:bg-primary hover:text-white focus:ring-primary",
+      "border border-secondary text-secondary hover:bg-secondary hover:text-white rounded-full uppercase tracking-wider text-xs",
     ghost:
-      "text-primary hover:bg-primary-50 focus:ring-primary",
+      "text-secondary hover:text-primary uppercase tracking-wider text-xs",
     cta:
-      "bg-cta text-white hover:bg-cta-hover focus:ring-cta shadow-md hover:shadow-lg",
+      "bg-primary text-white hover:bg-primary-dark rounded-full uppercase tracking-wider text-xs",
     danger:
-      "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-md",
+      "bg-[#8B4513] text-white hover:bg-[#6B3410] rounded-full uppercase tracking-wider text-xs",
+    dark:
+      "bg-secondary text-white hover:bg-secondary-dark rounded-full uppercase tracking-wider text-xs",
   };
 
   const sizes = {
-    sm: "text-sm px-4 py-2",
-    md: "text-base px-6 py-3",
-    lg: "text-lg px-8 py-4",
+    sm: "px-5 py-2.5",
+    md: "px-7 py-3",
+    lg: "px-9 py-3.5",
   };
 
   return (
