@@ -1,0 +1,242 @@
+<?php
+
+namespace App\Http\Controllers\Storefront;
+
+use App\Http\Controllers\Controller;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Address;
+use App\Models\CartItem;
+use App\Models\Coupon;
+use Illuminate\Http\Request;
+use Razorpay\Api\Api;
+
+class CheckoutController extends Controller
+{
+    public function index()
+    {
+        $cartItems = $this->getCartItems();
+
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
+        }
+
+        $addresses = auth()->check() ? auth()->user()->addresses : collect();
+        $indianStates = config('shivara.indian_states');
+
+        return view('storefront.checkout', compact('cartItems', 'addresses', 'indianStates'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'full_name' => 'required|string|max:255',
+            'phone' => 'required|string|max:15',
+            'email' => 'required|email',
+            'address_line1' => 'required|string|max:500',
+            'city' => 'required|string|max:255',
+            'state' => 'required|string|max:255',
+            'pincode' => 'required|string|size:6',
+            'payment_method' => 'required|in:razorpay,cod',
+            'shipping_method' => 'required|in:standard,express',
+        ]);
+
+        $cartItems = $this->getCartItems();
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
+        }
+
+        // Create or reuse address
+        $address = Address::create([
+            'user_id' => auth()->id(),
+            'full_name' => $request->full_name,
+            'phone' => $request->phone,
+            'address_line1' => $request->address_line1,
+            'address_line2' => $request->address_line2,
+            'city' => $request->city,
+            'state' => $request->state,
+            'pincode' => $request->pincode,
+            'landmark' => $request->landmark,
+        ]);
+
+        // Calculate totals
+        $subtotal = $cartItems->sum(function ($item) {
+            $price = $item->variant ? $item->variant->selling_price : $item->product->selling_price;
+            return $price * $item->quantity;
+        });
+
+        $shippingCharge = $subtotal >= config('shivara.free_shipping_threshold')
+            ? 0
+            : ($request->shipping_method === 'express' ? config('shivara.express_rate') : config('shivara.standard_rate'));
+
+        $codCharge = $request->payment_method === 'cod' ? config('shivara.cod_charge') : 0;
+        $discount = 0;
+        $couponId = null;
+        $couponCode = null;
+
+        // Apply coupon if exists
+        if (session()->has('coupon')) {
+            $couponData = session('coupon');
+            $coupon = Coupon::find($couponData['id']);
+            if ($coupon && $coupon->isValid()) {
+                $discount = $coupon->calculateDiscount($subtotal);
+                $couponId = $coupon->id;
+                $couponCode = $coupon->code;
+                $coupon->increment('usage_count');
+            }
+        }
+
+        $totalAmount = $subtotal - $discount + $shippingCharge + $codCharge;
+
+        // Create order
+        $order = Order::create([
+            'order_number' => Order::generateOrderNumber(),
+            'user_id' => auth()->id(),
+            'address_id' => $address->id,
+            'status' => 'pending',
+            'payment_status' => 'pending',
+            'payment_method' => $request->payment_method,
+            'subtotal' => $subtotal,
+            'discount' => $discount,
+            'shipping_charge' => $shippingCharge,
+            'total_amount' => $totalAmount,
+            'coupon_id' => $couponId,
+            'coupon_code' => $couponCode,
+            'shipping_method' => $request->shipping_method,
+        ]);
+
+        // Create order items
+        foreach ($cartItems as $item) {
+            $price = $item->variant ? $item->variant->selling_price : $item->product->selling_price;
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $item->product->id,
+                'variant_id' => $item->variant?->id,
+                'product_name' => $item->product->name,
+                'variant_name' => $item->variant?->name,
+                'quantity' => $item->quantity,
+                'price' => $price,
+                'total_price' => $price * $item->quantity,
+                'gst_rate' => $item->product->gst_rate,
+                'gst_amount' => ($price * $item->quantity) * ($item->product->gst_rate / (100 + $item->product->gst_rate)),
+            ]);
+
+            // Decrease stock
+            if ($item->variant) {
+                $item->variant->decrement('stock', $item->quantity);
+            } else {
+                $item->product->decrement('stock', $item->quantity);
+            }
+        }
+
+        // Clear cart
+        if (auth()->check()) {
+            CartItem::where('user_id', auth()->id())->delete();
+        }
+        session()->forget('cart');
+        session()->forget('coupon');
+
+        // Handle payment
+        if ($request->payment_method === 'razorpay') {
+            return $this->initiateRazorpay($order);
+        }
+
+        // COD - confirm directly
+        $order->update(['status' => 'confirmed']);
+
+        return redirect()->route('order.success', $order->order_number)
+            ->with('success', 'Order placed successfully!');
+    }
+
+    private function initiateRazorpay(Order $order)
+    {
+        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+
+        $razorpayOrder = $api->order->create([
+            'receipt' => $order->order_number,
+            'amount' => (int)($order->total_amount * 100), // Amount in paise
+            'currency' => 'INR',
+        ]);
+
+        $order->update(['razorpay_order_id' => $razorpayOrder['id']]);
+
+        return view('storefront.payment', [
+            'order' => $order,
+            'razorpayOrderId' => $razorpayOrder['id'],
+            'razorpayKey' => config('services.razorpay.key'),
+            'amount' => (int)($order->total_amount * 100),
+        ]);
+    }
+
+    public function verifyPayment(Request $request)
+    {
+        $request->validate([
+            'razorpay_order_id' => 'required',
+            'razorpay_payment_id' => 'required',
+            'razorpay_signature' => 'required',
+        ]);
+
+        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+
+        $attributes = [
+            'razorpay_order_id' => $request->razorpay_order_id,
+            'razorpay_payment_id' => $request->razorpay_payment_id,
+            'razorpay_signature' => $request->razorpay_signature,
+        ];
+
+        try {
+            $api->utility->verifyPaymentSignature($attributes);
+
+            $order = Order::where('razorpay_order_id', $request->razorpay_order_id)->firstOrFail();
+            $order->update([
+                'razorpay_payment_id' => $request->razorpay_payment_id,
+                'razorpay_signature' => $request->razorpay_signature,
+                'payment_status' => 'paid',
+                'status' => 'confirmed',
+                'paid_at' => now(),
+            ]);
+
+            return redirect()->route('order.success', $order->order_number)
+                ->with('success', 'Payment successful! Order confirmed.');
+
+        } catch (\Exception $e) {
+            return redirect()->route('cart.index')
+                ->with('error', 'Payment verification failed. Please contact support.');
+        }
+    }
+
+    public function success(string $orderNumber)
+    {
+        $order = Order::where('order_number', $orderNumber)
+            ->with('items')
+            ->firstOrFail();
+
+        return view('storefront.order-success', compact('order'));
+    }
+
+    private function getCartItems()
+    {
+        if (auth()->check()) {
+            return CartItem::where('user_id', auth()->id())
+                ->with(['product.primaryImage', 'variant'])
+                ->get();
+        }
+
+        $cart = session()->get('cart', []);
+        $items = collect();
+
+        foreach ($cart as $key => $item) {
+            $product = \App\Models\Product::with('primaryImage')->find($item['product_id']);
+            if ($product) {
+                $items->push((object) [
+                    'id' => $key,
+                    'product' => $product,
+                    'variant' => $item['variant_id'] ? \App\Models\ProductVariant::find($item['variant_id']) : null,
+                    'quantity' => $item['quantity'],
+                ]);
+            }
+        }
+
+        return $items;
+    }
+}
