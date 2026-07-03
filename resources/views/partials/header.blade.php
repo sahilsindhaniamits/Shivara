@@ -1,119 +1,134 @@
-<header class="sticky top-0 z-50" x-data="{ mobileMenu: false, searchOpen: false }">
-    <!-- Announcement Bar -->
-    <div class="bg-secondary text-white overflow-hidden">
-        <div class="py-2.5 flex">
-            <div class="animate-marquee flex items-center gap-8 whitespace-nowrap text-xs tracking-wide">
-                <span>10% OFF UPTO ₹200 — CODE: WOW10</span>
-                <span class="text-primary">·</span>
-                <span>15% OFF UPTO ₹500 — CODE: EXTRA15</span>
-                <span class="text-primary">·</span>
-                <span>FREE SHIPPING ON ALL ORDERS</span>
-                <span class="text-primary">·</span>
-                <span>AYURVEDA, CRAFTED WITH CARE</span>
-                <span class="text-primary mx-8">10% OFF UPTO ₹200 — CODE: WOW10</span>
-                <span class="text-primary">·</span>
-                <span>15% OFF UPTO ₹500 — CODE: EXTRA15</span>
-                <span class="text-primary">·</span>
-                <span>FREE SHIPPING ON ALL ORDERS</span>
-            </div>
+<!-- Announcement Bar -->
+<div class="bg-dark text-white overflow-hidden">
+    <div class="flex py-2">
+        <div class="animate-marquee flex items-center gap-10 whitespace-nowrap text-[11px] tracking-widest uppercase font-medium">
+            <span>Free Shipping on All Orders</span>
+            <span class="text-gold">✦</span>
+            <span>Use Code WOW10 for 10% Off</span>
+            <span class="text-gold">✦</span>
+            <span>100% Natural Ayurvedic Products</span>
+            <span class="text-gold">✦</span>
+            <span>GMP Certified Facility</span>
+            <span class="text-gold">✦</span>
+            <span>Free Shipping on All Orders</span>
+            <span class="text-gold">✦</span>
+            <span>Use Code WOW10 for 10% Off</span>
+            <span class="text-gold">✦</span>
+            <span>100% Natural Ayurvedic Products</span>
+            <span class="text-gold">✦</span>
+            <span>GMP Certified Facility</span>
         </div>
     </div>
+</div>
 
-    <!-- Main Header -->
-    <div class="bg-white/95 backdrop-blur-md border-b border-border">
-        <div class="max-w-7xl mx-auto px-4 py-4">
-            <div class="flex items-center justify-between gap-4">
-                <!-- Mobile Menu Toggle -->
-                <button @click="mobileMenu = !mobileMenu" class="lg:hidden text-secondary">
-                    <i data-lucide="menu" class="w-5 h-5" x-show="!mobileMenu"></i>
-                    <i data-lucide="x" class="w-5 h-5" x-show="mobileMenu" x-cloak></i>
+<!-- Main Header -->
+<header class="sticky top-0 z-50 bg-white/98 backdrop-blur-lg border-b border-gray-100 shadow-sm" x-data="{ mobileMenu: false, searchOpen: false }">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="flex items-center justify-between h-16 md:h-[72px]">
+
+            <!-- Mobile Menu Button -->
+            <button @click="mobileMenu = !mobileMenu" class="lg:hidden p-2 -ml-2 text-gray-700 hover:text-dark transition">
+                <svg x-show="!mobileMenu" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                <svg x-show="mobileMenu" x-cloak class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+
+            <!-- Desktop Navigation Left -->
+            <nav class="hidden lg:flex items-center gap-8">
+                <a href="{{ route('home') }}" class="text-[13px] font-semibold uppercase tracking-wider text-gray-700 hover:text-dark transition">Home</a>
+                <div class="relative group">
+                    <button class="text-[13px] font-semibold uppercase tracking-wider text-gray-700 hover:text-dark transition flex items-center gap-1">
+                        Shop
+                        <svg class="w-3.5 h-3.5 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 p-2">
+                        <a href="{{ route('products.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-700 rounded-lg transition">All Products</a>
+                        <a href="{{ route('products.index', ['category' => 'capsules']) }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-700 rounded-lg transition">Capsules & Tablets</a>
+                        <a href="{{ route('products.index', ['category' => 'powders']) }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-700 rounded-lg transition">Herbal Powders</a>
+                        <a href="{{ route('products.index', ['category' => 'oils']) }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-700 rounded-lg transition">Oils & Syrups</a>
+                        <a href="{{ route('products.index', ['category' => 'skincare']) }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-700 rounded-lg transition">Skin & Hair Care</a>
+                        <a href="{{ route('products.index', ['category' => 'immunity']) }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-700 rounded-lg transition">Immunity Boosters</a>
+                    </div>
+                </div>
+                <a href="{{ route('contact') }}" class="text-[13px] font-semibold uppercase tracking-wider text-gray-700 hover:text-dark transition">Contact</a>
+            </nav>
+
+            <!-- Logo -->
+            <a href="{{ route('home') }}" class="flex flex-col items-center group">
+                <span class="text-2xl md:text-[28px] font-display font-bold tracking-wide text-dark group-hover:text-brand-700 transition">SHIVARA</span>
+                <span class="text-[9px] uppercase tracking-[0.35em] text-gray-400 -mt-0.5 hidden sm:block">{{ config('shivara.tagline') }}</span>
+            </a>
+
+            <!-- Actions Right -->
+            <div class="flex items-center gap-1 sm:gap-3">
+                <!-- Search Toggle -->
+                <button @click="searchOpen = !searchOpen" class="p-2 text-gray-600 hover:text-dark transition rounded-full hover:bg-gray-50">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </button>
 
-                <!-- Desktop Nav Left -->
-                <nav class="hidden lg:flex items-center gap-8">
-                    <a href="{{ route('home') }}" class="text-xs font-medium uppercase tracking-widest text-secondary hover:text-primary transition">Home</a>
-                    <div class="relative group">
-                        <button class="flex items-center gap-1 text-xs font-medium uppercase tracking-widest text-secondary hover:text-primary transition">
-                            Shop <i data-lucide="chevron-down" class="w-3 h-3"></i>
-                        </button>
-                        <div class="absolute top-full left-0 mt-3 w-52 bg-white rounded-lg shadow-lg border border-border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                            <div class="p-4 space-y-1">
-                                <a href="{{ route('products.index') }}" class="block px-3 py-2.5 rounded-lg hover:bg-accent text-sm text-secondary hover:text-primary transition">All Products</a>
-                                <a href="{{ route('products.index', ['category' => 'capsules']) }}" class="block px-3 py-2.5 rounded-lg hover:bg-accent text-sm text-secondary hover:text-primary transition">Capsules & Tablets</a>
-                                <a href="{{ route('products.index', ['category' => 'oils']) }}" class="block px-3 py-2.5 rounded-lg hover:bg-accent text-sm text-secondary hover:text-primary transition">Oils & Syrups</a>
-                                <a href="{{ route('products.index', ['category' => 'powders']) }}" class="block px-3 py-2.5 rounded-lg hover:bg-accent text-sm text-secondary hover:text-primary transition">Herbal Powders</a>
-                                <a href="{{ route('products.index', ['category' => 'skincare']) }}" class="block px-3 py-2.5 rounded-lg hover:bg-accent text-sm text-secondary hover:text-primary transition">Skin & Hair Care</a>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="{{ route('products.index') }}" class="text-xs font-medium uppercase tracking-widest text-primary hover:text-primary-dark transition">Offers</a>
-                </nav>
-
-                <!-- Logo -->
-                <a href="{{ route('home') }}" class="flex flex-col items-center">
-                    <h1 class="text-2xl md:text-3xl font-serif tracking-wide text-secondary">SHIVARA</h1>
-                    <p class="text-[9px] uppercase tracking-[0.3em] text-muted mt-0.5">{{ config('shivara.tagline') }}</p>
+                <!-- Account -->
+                @auth
+                <a href="{{ route('account.dashboard') }}" class="hidden sm:flex p-2 text-gray-600 hover:text-dark transition rounded-full hover:bg-gray-50">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                 </a>
+                @else
+                <a href="{{ route('login') }}" class="hidden sm:flex p-2 text-gray-600 hover:text-dark transition rounded-full hover:bg-gray-50">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                </a>
+                @endauth
 
-                <!-- Actions Right -->
-                <div class="flex items-center gap-4">
-                    <button @click="searchOpen = !searchOpen" class="text-secondary hover:text-primary transition">
-                        <i data-lucide="search" class="w-5 h-5"></i>
-                    </button>
+                <!-- Wishlist -->
+                @auth
+                <a href="{{ route('account.wishlist') }}" class="hidden sm:flex p-2 text-gray-600 hover:text-dark transition rounded-full hover:bg-gray-50">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                </a>
+                @endauth
 
-                    @auth
-                        <a href="{{ auth()->user()->isAdmin() ? route('admin.dashboard') : '#' }}" class="hidden sm:block text-secondary hover:text-primary transition">
-                            <i data-lucide="user" class="w-5 h-5"></i>
-                        </a>
-                    @else
-                        <a href="{{ route('login') }}" class="hidden sm:block text-secondary hover:text-primary transition">
-                            <i data-lucide="user" class="w-5 h-5"></i>
-                        </a>
-                    @endauth
-
-                    <a href="{{ route('cart.index') }}" class="relative text-secondary hover:text-primary transition">
-                        <i data-lucide="shopping-cart" class="w-5 h-5"></i>
-                        @php $cartCount = auth()->check() ? \App\Models\CartItem::where('user_id', auth()->id())->sum('quantity') : collect(session('cart', []))->sum('quantity'); @endphp
-                        @if($cartCount > 0)
-                        <span class="absolute -top-1.5 -right-1.5 bg-primary text-white text-[9px] font-medium w-4 h-4 rounded-full flex items-center justify-center">{{ $cartCount }}</span>
-                        @endif
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bottom Nav (Desktop) -->
-        <div class="hidden lg:block border-t border-border/50">
-            <div class="max-w-7xl mx-auto px-4">
-                <ul class="flex items-center justify-center gap-10 py-2.5">
-                    <li><a href="{{ route('contact') }}" class="text-xs font-medium uppercase tracking-widest text-muted hover:text-secondary transition">Contact</a></li>
-                    <li><a href="{{ route('products.index') }}" class="text-xs font-medium uppercase tracking-widest text-muted hover:text-secondary transition">Track Order</a></li>
-                </ul>
+                <!-- Cart -->
+                <a href="{{ route('cart.index') }}" class="relative p-2 text-gray-600 hover:text-dark transition rounded-full hover:bg-gray-50">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                    @php $cartCount = auth()->check() ? \App\Models\CartItem::where('user_id', auth()->id())->sum('quantity') : collect(session('cart', []))->sum('quantity'); @endphp
+                    @if($cartCount > 0)
+                    <span class="absolute -top-0.5 -right-0.5 bg-brand-600 text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1">{{ $cartCount }}</span>
+                    @endif
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- Search Bar -->
-    <div x-show="searchOpen" x-transition class="bg-white border-b border-border p-4">
-        <form action="{{ route('products.index') }}" method="GET" class="relative max-w-xl mx-auto">
-            <input type="text" name="search" placeholder="Search for products..." class="w-full px-5 py-3 rounded-full border border-border bg-accent/50 text-sm focus:outline-none focus:ring-1 focus:ring-primary/30 placeholder:text-muted">
-            <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 text-primary"><i data-lucide="search" class="w-4 h-4"></i></button>
+    <!-- Search Overlay -->
+    <div x-show="searchOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" x-cloak
+         class="absolute top-full left-0 right-0 bg-white border-b border-gray-100 shadow-lg p-4 md:p-6">
+        <form action="{{ route('products.index') }}" method="GET" class="max-w-2xl mx-auto relative">
+            <input type="text" name="search" placeholder="Search for products, ingredients, concerns..."
+                   class="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 placeholder:text-gray-400" autofocus>
+            <svg class="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <button type="button" @click="searchOpen = false" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
         </form>
     </div>
 
     <!-- Mobile Menu -->
-    <div x-show="mobileMenu" x-transition class="lg:hidden fixed inset-0 top-[105px] bg-white z-50 overflow-y-auto">
-        <nav class="p-8 space-y-1">
-            <a href="{{ route('home') }}" class="block text-sm uppercase tracking-widest text-secondary py-4 border-b border-border">Home</a>
-            <a href="{{ route('products.index') }}" class="block text-sm uppercase tracking-widest text-secondary py-4 border-b border-border">All Products</a>
-            <a href="{{ route('contact') }}" class="block text-sm uppercase tracking-widest text-secondary py-4 border-b border-border">Contact</a>
-            @guest
-            <a href="{{ route('login') }}" class="block text-sm uppercase tracking-widest text-primary py-4 border-b border-border">Login / Register</a>
-            @else
+    <div x-show="mobileMenu" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-cloak
+         class="lg:hidden fixed inset-0 top-[calc(64px+32px)] bg-white z-50 overflow-y-auto">
+        <nav class="p-6 space-y-1">
+            <a href="{{ route('home') }}" class="block px-4 py-3.5 text-base font-medium text-gray-800 border-b border-gray-100">Home</a>
+            <a href="{{ route('products.index') }}" class="block px-4 py-3.5 text-base font-medium text-gray-800 border-b border-gray-100">All Products</a>
+            <a href="{{ route('products.index', ['category' => 'capsules']) }}" class="block px-4 py-3.5 text-sm text-gray-600 border-b border-gray-50 pl-8">Capsules & Tablets</a>
+            <a href="{{ route('products.index', ['category' => 'powders']) }}" class="block px-4 py-3.5 text-sm text-gray-600 border-b border-gray-50 pl-8">Herbal Powders</a>
+            <a href="{{ route('products.index', ['category' => 'oils']) }}" class="block px-4 py-3.5 text-sm text-gray-600 border-b border-gray-50 pl-8">Oils & Syrups</a>
+            <a href="{{ route('products.index', ['category' => 'skincare']) }}" class="block px-4 py-3.5 text-sm text-gray-600 border-b border-gray-50 pl-8">Skin & Hair Care</a>
+            <a href="{{ route('contact') }}" class="block px-4 py-3.5 text-base font-medium text-gray-800 border-b border-gray-100">Contact Us</a>
+            @auth
+            <a href="{{ route('account.dashboard') }}" class="block px-4 py-3.5 text-base font-medium text-gray-800 border-b border-gray-100">My Account</a>
+            <a href="{{ route('account.orders') }}" class="block px-4 py-3.5 text-sm text-gray-600 border-b border-gray-50 pl-8">My Orders</a>
+            <a href="{{ route('account.wishlist') }}" class="block px-4 py-3.5 text-sm text-gray-600 border-b border-gray-50 pl-8">Wishlist</a>
             <form method="POST" action="{{ route('logout') }}">@csrf
-                <button class="block text-sm uppercase tracking-widest text-secondary py-4 border-b border-border w-full text-left">Logout</button>
+                <button class="block w-full text-left px-4 py-3.5 text-base font-medium text-red-600 border-b border-gray-100">Logout</button>
             </form>
-            @endguest
+            @else
+            <a href="{{ route('login') }}" class="block px-4 py-3.5 text-base font-medium text-brand-700 border-b border-gray-100">Login / Register</a>
+            @endauth
         </nav>
     </div>
 </header>
