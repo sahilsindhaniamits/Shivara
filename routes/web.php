@@ -5,11 +5,16 @@ use App\Http\Controllers\Storefront\HomeController;
 use App\Http\Controllers\Storefront\ProductController;
 use App\Http\Controllers\Storefront\CartController;
 use App\Http\Controllers\Storefront\CheckoutController;
+use App\Http\Controllers\Storefront\AccountController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\CouponController as AdminCouponController;
+use App\Http\Controllers\Admin\BannerController as AdminBannerController;
+use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,10 +57,27 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->midd
 */
 
 Route::middleware('auth')->group(function () {
+    // Checkout & Payment
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
     Route::post('/payment/verify', [CheckoutController::class, 'verifyPayment'])->name('payment.verify');
     Route::get('/order/success/{orderNumber}', [CheckoutController::class, 'success'])->name('order.success');
+
+    // My Account
+    Route::prefix('account')->name('account.')->group(function () {
+        Route::get('/', [AccountController::class, 'dashboard'])->name('dashboard');
+        Route::get('/orders', [AccountController::class, 'orders'])->name('orders');
+        Route::get('/orders/{orderNumber}', [AccountController::class, 'orderDetail'])->name('orders.show');
+        Route::get('/profile', [AccountController::class, 'profile'])->name('profile');
+        Route::put('/profile', [AccountController::class, 'updateProfile'])->name('profile.update');
+        Route::put('/password', [AccountController::class, 'updatePassword'])->name('password.update');
+        Route::get('/addresses', [AccountController::class, 'addresses'])->name('addresses');
+        Route::post('/addresses', [AccountController::class, 'storeAddress'])->name('addresses.store');
+        Route::delete('/addresses/{address}', [AccountController::class, 'deleteAddress'])->name('addresses.destroy');
+        Route::get('/wishlist', [AccountController::class, 'wishlist'])->name('wishlist');
+        Route::post('/wishlist', [AccountController::class, 'addToWishlist'])->name('wishlist.add');
+        Route::delete('/wishlist/{wishlistItem}', [AccountController::class, 'removeFromWishlist'])->name('wishlist.remove');
+    });
 });
 
 /*
@@ -71,8 +93,22 @@ Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\AdminMiddleware
     // Products
     Route::resource('products', AdminProductController::class);
 
+    // Categories
+    Route::resource('categories', AdminCategoryController::class);
+
     // Orders
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
+
+    // Coupons
+    Route::resource('coupons', AdminCouponController::class);
+
+    // Banners
+    Route::resource('banners', AdminBannerController::class);
+
+    // Customers
+    Route::get('/customers', [AdminCustomerController::class, 'index'])->name('customers.index');
+    Route::get('/customers/{customer}', [AdminCustomerController::class, 'show'])->name('customers.show');
+    Route::patch('/customers/{customer}/toggle-status', [AdminCustomerController::class, 'toggleStatus'])->name('customers.toggleStatus');
 });
