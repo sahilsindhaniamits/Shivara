@@ -55,7 +55,7 @@
 </section>
 
 <!-- Trust Bar -->
-<section class="bg-cream-100 border-y border-gold-100/50 py-8">
+<section class="border-y border-gold-200/50 py-8" style="background-color: #FBF7F0;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div class="flex items-center gap-3 justify-center">
@@ -87,7 +87,7 @@
 </section>
 
 <!-- Shop by Category -->
-<section class="py-16 md:py-20 bg-cream-50 scroll-reveal">
+<section class="py-16 md:py-20 scroll-reveal" style="background-color: #F5EFE6;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="text-center mb-12">
             <span class="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-500">Shop by Concern</span>
@@ -108,7 +108,7 @@
 </section>
 
 <!-- Amazing Deals -->
-<section class="py-16 md:py-20 bg-white scroll-reveal">
+<section class="py-16 md:py-20 scroll-reveal" style="background-color: #FFFDF8;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="flex items-end justify-between mb-10">
             <div>
@@ -130,7 +130,7 @@
 </section>
 
 <!-- About Us Banner -->
-<section class="py-16 md:py-24 bg-cream-200 scroll-reveal">
+<section class="py-16 md:py-24 scroll-reveal" style="background-color: #F5EFE6;">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
         <div class="grid md:grid-cols-2 gap-12 items-center">
             <div class="order-2 md:order-1">
@@ -168,7 +168,7 @@
 </section>
 
 <!-- Testimonials -->
-<section class="py-16 md:py-20 bg-espresso-700 scroll-reveal">
+<section class="py-16 md:py-20 scroll-reveal" style="background-color: rgb(44, 36, 24);">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="text-center mb-12">
             <span class="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-400">Customer Love</span>
@@ -196,7 +196,7 @@
 </section>
 
 <!-- FAQ Section -->
-<section class="py-16 md:py-20 bg-cream-100 scroll-reveal">
+<section class="py-16 md:py-20 scroll-reveal" style="background-color: #FBF7F0;">
     <div class="max-w-3xl mx-auto px-4 sm:px-6">
         <div class="text-center mb-12">
             <span class="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-500">Have Questions?</span>
@@ -226,7 +226,7 @@
 </section>
 
 <!-- Newsletter -->
-<section class="py-16 md:py-20 bg-cream-50 scroll-reveal">
+<section class="py-16 md:py-20 scroll-reveal" style="background-color: #F5EFE6;">
     <div class="max-w-xl mx-auto px-4 sm:px-6 text-center">
         <span class="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-500">Stay Connected</span>
         <h2 class="font-display text-3xl md:text-4xl font-bold text-espresso-700 mt-3 mb-4">Join the community.</h2>

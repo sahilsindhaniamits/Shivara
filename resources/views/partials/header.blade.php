@@ -1,21 +1,21 @@
 <!-- Announcement Marquee -->
-<div class="bg-espresso-700 text-cream-200 overflow-hidden">
+<div class="text-white overflow-hidden" style="background-color: rgb(183, 146, 92);">
     <div class="flex py-2.5">
         <div class="animate-marquee flex items-center gap-8 whitespace-nowrap text-[11px] tracking-[0.2em] uppercase font-medium">
             <span>Free Shipping Pan-India</span>
-            <span class="text-gold-400">✦</span>
+            <span class="opacity-60">✦</span>
             <span>10% Off — Code: WOW10</span>
-            <span class="text-gold-400">✦</span>
+            <span class="opacity-60">✦</span>
             <span>100% Natural Ayurvedic</span>
-            <span class="text-gold-400">✦</span>
+            <span class="opacity-60">✦</span>
             <span>GMP Certified Lab Tested</span>
-            <span class="text-gold-400">✦</span>
+            <span class="opacity-60">✦</span>
             <span>Free Shipping Pan-India</span>
-            <span class="text-gold-400">✦</span>
+            <span class="opacity-60">✦</span>
             <span>10% Off — Code: WOW10</span>
-            <span class="text-gold-400">✦</span>
+            <span class="opacity-60">✦</span>
             <span>100% Natural Ayurvedic</span>
-            <span class="text-gold-400">✦</span>
+            <span class="opacity-60">✦</span>
             <span>GMP Certified Lab Tested</span>
         </div>
     </div>
