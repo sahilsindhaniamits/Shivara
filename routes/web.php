@@ -116,10 +116,4 @@ Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\AdminMiddleware
     // Free Gift
     Route::get('/free-gift', [\App\Http\Controllers\Admin\FreeGiftController::class, 'index'])->name('free-gift.index');
     Route::post('/free-gift', [\App\Http\Controllers\Admin\FreeGiftController::class, 'update'])->name('free-gift.update');
-
-    // Product Banners
-    Route::get('/product-banners', [\App\Http\Controllers\Admin\ProductBannerController::class, 'index'])->name('product-banners.index');
-    Route::get('/product-banners/create', [\App\Http\Controllers\Admin\ProductBannerController::class, 'create'])->name('product-banners.create');
-    Route::post('/product-banners', [\App\Http\Controllers\Admin\ProductBannerController::class, 'store'])->name('product-banners.store');
-    Route::delete('/product-banners/{productBanner}', [\App\Http\Controllers\Admin\ProductBannerController::class, 'destroy'])->name('product-banners.destroy');
 });

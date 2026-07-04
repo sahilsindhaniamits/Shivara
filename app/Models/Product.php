@@ -10,7 +10,7 @@ class Product extends Model
         'name', 'slug', 'description', 'short_description', 'ingredients',
         'how_to_use', 'benefits', 'mrp', 'selling_price', 'cost_price',
         'sku', 'hsn_code', 'gst_rate', 'weight', 'stock', 'low_stock_alert',
-        'is_active', 'is_featured', 'meta_title', 'meta_description', 'category_id',
+        'is_active', 'is_featured', 'meta_title', 'meta_description', 'category_id', 'banners',
     ];
 
     protected $casts = [
@@ -21,6 +21,7 @@ class Product extends Model
         'weight' => 'decimal:2',
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
+        'banners' => 'array',
     ];
 
     public function category()

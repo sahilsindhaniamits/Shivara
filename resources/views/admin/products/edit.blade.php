@@ -62,9 +62,23 @@
         </div>
 
         <div class="bg-white p-6 rounded-2xl border border-gray-200">
-            <h2 class="font-bold text-gray-900 mb-3">Images</h2>
+            <h2 class="font-bold text-gray-900 mb-3">Product Images</h2>
             <input type="file" name="images[]" multiple accept="image/*" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm">
-            <p class="text-xs text-gray-400 mt-2">Upload additional images.</p>
+            <p class="text-xs text-gray-400 mt-2">Upload additional product images.</p>
+        </div>
+
+        <!-- Product Page Banners -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-200">
+            <h2 class="font-bold text-gray-900 mb-2">Product Page Banners</h2>
+            <p class="text-xs text-gray-500 mb-3">Banners shown as a slider on this product's page (1200×400px recommended).</p>
+            @if($product->banners && count($product->banners))
+            <div class="flex gap-2 flex-wrap mb-3">
+                @foreach($product->banners as $b)
+                <div class="w-32 h-12 rounded-lg overflow-hidden border border-gray-200"><img src="{{ $b }}" class="w-full h-full object-cover"></div>
+                @endforeach
+            </div>
+            @endif
+            <input type="file" name="banners[]" multiple accept="image/*" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm">
         </div>
 
         <div class="bg-white p-6 rounded-2xl border border-gray-200">

@@ -98,9 +98,16 @@
 
         <!-- Images -->
         <div class="bg-white p-6 rounded-2xl border border-gray-200 space-y-4">
-            <h2 class="font-bold text-gray-900">Images</h2>
+            <h2 class="font-bold text-gray-900">Product Images</h2>
             <input type="file" name="images[]" multiple accept="image/*" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm">
             <p class="text-xs text-gray-400">Upload multiple images. First image will be the primary.</p>
+        </div>
+
+        <!-- Product Banners -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 space-y-4">
+            <h2 class="font-bold text-gray-900">Product Page Banners</h2>
+            <p class="text-xs text-gray-500">These banners will appear as a slider on this product's detail page (recommended: 1200×400px).</p>
+            <input type="file" name="banners[]" multiple accept="image/*" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm">
         </div>
 
         <!-- Options -->
