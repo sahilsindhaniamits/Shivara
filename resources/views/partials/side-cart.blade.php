@@ -26,31 +26,32 @@
         </div>
 
         <!-- Unified Progress Bar -->
+        @php
+            $fgEnabled = \App\Models\Setting::get('free_gift_enabled', 'false') === 'true';
+            $fgThreshold = (float) \App\Models\Setting::get('free_gift_threshold', config('shivara.free_gift_threshold', 1499));
+            $fsThreshold = config('shivara.free_shipping_threshold');
+        @endphp
         <div class="px-5 py-3 bg-gray-50 border-b border-gray-100">
 
-            @if(config('shivara.free_gift_enabled'))
-            <!-- Combined progress: Free Shipping (₹999) → Free Gift (₹1499) -->
+            @if($fgEnabled)
             <div class="relative">
                 <div class="flex items-center justify-between mb-2">
                     <p class="text-xs font-semibold text-espresso-600" x-text="progressMessage"></p>
                 </div>
-                <!-- Bar -->
                 <div class="h-2.5 bg-gray-200 rounded-full overflow-hidden relative">
                     <div class="h-full rounded-full transition-all duration-700 ease-out"
-                         :class="subtotal >= {{ config('shivara.free_gift_threshold') }} ? 'bg-gradient-to-r from-green-400 to-purple-500' : subtotal >= {{ config('shivara.free_shipping_threshold') }} ? 'bg-gradient-to-r from-green-400 to-green-500' : 'bg-gradient-to-r from-gold-400 to-gold-500'"
-                         :style="'width:' + Math.min(100, (subtotal / {{ config('shivara.free_gift_threshold') }}) * 100) + '%'">
+                         :class="subtotal >= {{ $fgThreshold }} ? 'bg-gradient-to-r from-green-400 to-purple-500' : subtotal >= {{ $fsThreshold }} ? 'bg-gradient-to-r from-green-400 to-green-500' : 'bg-gradient-to-r from-gold-400 to-gold-500'"
+                         :style="'width:' + Math.min(100, (subtotal / {{ $fgThreshold }}) * 100) + '%'">
                     </div>
-                    <!-- Milestone markers -->
                     <div class="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2 border-white shadow-sm transition-colors duration-300"
-                         :class="subtotal >= {{ config('shivara.free_shipping_threshold') }} ? 'bg-green-500' : 'bg-gray-300'"
-                         style="left: {{ (config('shivara.free_shipping_threshold') / config('shivara.free_gift_threshold')) * 100 }}%"></div>
+                         :class="subtotal >= {{ $fsThreshold }} ? 'bg-green-500' : 'bg-gray-300'"
+                         style="left: {{ ($fsThreshold / $fgThreshold) * 100 }}%"></div>
                     <div class="absolute top-1/2 -translate-y-1/2 right-0 w-3 h-3 rounded-full border-2 border-white shadow-sm transition-colors duration-300"
-                         :class="subtotal >= {{ config('shivara.free_gift_threshold') }} ? 'bg-purple-500' : 'bg-gray-300'"></div>
+                         :class="subtotal >= {{ $fgThreshold }} ? 'bg-purple-500' : 'bg-gray-300'"></div>
                 </div>
-                <!-- Labels -->
                 <div class="flex items-center justify-between mt-1.5">
-                    <span class="text-[9px] font-semibold uppercase tracking-wider" :class="subtotal >= {{ config('shivara.free_shipping_threshold') }} ? 'text-green-600' : 'text-gray-400'">🚚 Free Ship</span>
-                    <span class="text-[9px] font-semibold uppercase tracking-wider" :class="subtotal >= {{ config('shivara.free_gift_threshold') }} ? 'text-purple-600' : 'text-gray-400'">🎁 Free Gift</span>
+                    <span class="text-[9px] font-semibold uppercase tracking-wider" :class="subtotal >= {{ $fsThreshold }} ? 'text-green-600' : 'text-gray-400'">🚚 Free Ship</span>
+                    <span class="text-[9px] font-semibold uppercase tracking-wider" :class="subtotal >= {{ $fgThreshold }} ? 'text-purple-600' : 'text-gray-400'">🎁 Free Gift</span>
                 </div>
             </div>
             @else
@@ -109,17 +110,23 @@
                 </template>
 
                 <!-- Free Gift (when unlocked) -->
-                @if(config('shivara.free_gift_enabled'))
-                <template x-if="subtotal >= {{ config('shivara.free_gift_threshold') }}">
+                @php
+                    $fgEnabled = \App\Models\Setting::get('free_gift_enabled', 'false') === 'true';
+                    $fgThreshold = (float) \App\Models\Setting::get('free_gift_threshold', config('shivara.free_gift_threshold'));
+                    $fgProductId = \App\Models\Setting::get('free_gift_product_id');
+                    $fgProduct = $fgProductId ? \App\Models\Product::with('primaryImage')->find($fgProductId) : null;
+                @endphp
+                @if($fgEnabled && $fgProduct)
+                <template x-if="subtotal >= {{ $fgThreshold }}">
                     <div class="flex gap-3 p-3 bg-purple-50 rounded-xl border border-purple-200 relative">
                         <span class="absolute -top-1.5 -right-1.5 bg-purple-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md uppercase">Free</span>
                         <div class="w-14 h-14 bg-white rounded-lg overflow-hidden shrink-0 border border-purple-100">
-                            <img src="{{ config('shivara.free_gift_image') }}" alt="Free Gift" class="w-full h-full object-cover">
+                            <img src="{{ $fgProduct->primaryImage?->url ?? 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=100&h=100&fit=crop' }}" alt="{{ $fgProduct->name }}" class="w-full h-full object-cover">
                         </div>
                         <div class="flex-1">
-                            <p class="text-xs font-semibold text-purple-700">🎁 {{ config('shivara.free_gift_name') }}</p>
+                            <p class="text-xs font-semibold text-purple-700">🎁 {{ $fgProduct->name }}</p>
                             <p class="text-[10px] text-purple-500 mt-0.5">Complimentary with your order</p>
-                            <p class="text-xs font-bold text-green-600 mt-1">FREE <span class="text-gray-400 line-through text-[10px]">₹299</span></p>
+                            <p class="text-xs font-bold text-green-600 mt-1">FREE <span class="text-gray-400 line-through text-[10px]">₹{{ number_format($fgProduct->selling_price) }}</span></p>
                         </div>
                     </div>
                 </template>
@@ -327,10 +334,10 @@ function sideCart() {
         get subtotal() { return this.items.reduce((s, i) => s + (i.price * i.quantity), 0); },
         get total() { return this.items.length === 0 ? 0 : this.subtotal + (this.subtotal >= {{ config('shivara.free_shipping_threshold') }} ? 0 : {{ config('shivara.standard_rate') }}); },
         get progressMessage() {
-            if (this.items.length === 0) return '🚚 Add ₹{{ config('shivara.free_shipping_threshold') }} for free delivery';
-            if (this.subtotal >= {{ config('shivara.free_gift_threshold') }}) return '🎉 All rewards unlocked!';
-            if (this.subtotal >= {{ config('shivara.free_shipping_threshold') }}) return '🎁 Add ₹' + ({{ config('shivara.free_gift_threshold') }} - this.subtotal).toLocaleString() + ' more to get a FREE gift!';
-            return '🚚 Add ₹' + ({{ config('shivara.free_shipping_threshold') }} - this.subtotal).toLocaleString() + ' for free delivery';
+            if (this.items.length === 0) return '🚚 Add ₹{{ $fsThreshold }} for free delivery';
+            if (this.subtotal >= {{ $fgThreshold }}) return '🎉 All rewards unlocked!';
+            if (this.subtotal >= {{ $fsThreshold }}) return '🎁 Add ₹' + ({{ $fgThreshold }} - this.subtotal).toLocaleString() + ' more to get a FREE gift!';
+            return '🚚 Add ₹' + ({{ $fsThreshold }} - this.subtotal).toLocaleString() + ' for free delivery';
         },
         updateQty(id, qty) {
             if (qty <= 0) { this.removeItem(id); return; }
