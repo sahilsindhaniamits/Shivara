@@ -26,7 +26,7 @@ return [
     ],
 
     // Shipping
-    'free_shipping_threshold' => 999,
+    'free_shipping_threshold' => 299,
     'standard_rate' => 79,
     'express_rate' => 149,
     'cod_charge' => 49,

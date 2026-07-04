@@ -45,14 +45,21 @@ class CartController extends Controller
         $product = Product::findOrFail($request->product_id);
 
         if (auth()->check()) {
-            $cartItem = CartItem::updateOrCreate(
-                [
+            $existing = CartItem::where('user_id', auth()->id())
+                ->where('product_id', $request->product_id)
+                ->where('variant_id', $request->variant_id)
+                ->first();
+
+            if ($existing) {
+                $existing->increment('quantity', $request->quantity ?? 1);
+            } else {
+                CartItem::create([
                     'user_id' => auth()->id(),
                     'product_id' => $request->product_id,
                     'variant_id' => $request->variant_id,
-                ],
-                ['quantity' => \DB::raw('quantity + ' . ($request->quantity ?? 1))]
-            );
+                    'quantity' => $request->quantity ?? 1,
+                ]);
+            }
         } else {
             // Session-based cart for guests
             $cart = session()->get('cart', []);
