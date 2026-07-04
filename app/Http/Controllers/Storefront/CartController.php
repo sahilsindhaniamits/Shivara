@@ -149,6 +149,9 @@ class CartController extends Controller
         $coupon = Coupon::where('code', strtoupper($request->code))->first();
 
         if (!$coupon || !$coupon->isValid()) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Invalid or expired coupon code.'], 422);
+            }
             return back()->with('error', 'Invalid or expired coupon code.');
         }
 
@@ -159,6 +162,19 @@ class CartController extends Controller
             'value' => $coupon->value,
             'max_discount' => $coupon->max_discount,
         ]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Coupon '{$coupon->code}' applied!",
+                'coupon' => [
+                    'code' => $coupon->code,
+                    'type' => $coupon->type,
+                    'value' => (float) $coupon->value,
+                    'max_discount' => $coupon->max_discount ? (float) $coupon->max_discount : null,
+                ],
+            ]);
+        }
 
         return back()->with('success', "Coupon '{$coupon->code}' applied!");
     }
