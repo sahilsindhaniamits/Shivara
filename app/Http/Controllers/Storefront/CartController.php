@@ -81,7 +81,7 @@ class CartController extends Controller
         ]);
 
         if (auth()->check()) {
-            if ($request->quantity === 0) {
+            if ($request->quantity === 0 || $request->quantity == 0) {
                 CartItem::where('id', $request->item_id)->where('user_id', auth()->id())->delete();
             } else {
                 CartItem::where('id', $request->item_id)
@@ -90,7 +90,7 @@ class CartController extends Controller
             }
         } else {
             $cart = session()->get('cart', []);
-            if ($request->quantity === 0) {
+            if ($request->quantity == 0) {
                 unset($cart[$request->item_id]);
             } else {
                 if (isset($cart[$request->item_id])) {
@@ -98,6 +98,10 @@ class CartController extends Controller
                 }
             }
             session()->put('cart', $cart);
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true]);
         }
 
         return back()->with('success', 'Cart updated.');
@@ -111,6 +115,10 @@ class CartController extends Controller
             $cart = session()->get('cart', []);
             unset($cart[$request->item_id]);
             session()->put('cart', $cart);
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true]);
         }
 
         return back()->with('success', 'Item removed from cart.');
