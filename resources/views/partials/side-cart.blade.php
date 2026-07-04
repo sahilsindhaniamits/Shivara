@@ -306,7 +306,10 @@ function sideCart() {
         <div class="border-t border-gray-200 px-5 py-4 bg-white space-y-3">
             <div class="space-y-1 text-xs">
                 <div class="flex justify-between text-gray-500"><span>Subtotal</span><span class="font-bold text-espresso-700">₹<span x-text="subtotal.toLocaleString()"></span></span></div>
-                <div class="flex justify-between text-gray-500"><span>Shipping</span><span :class="subtotal >= {{ config('shivara.free_shipping_threshold') }} ? 'text-green-600 font-bold' : 'font-bold text-espresso-600'" x-text="subtotal >= {{ config('shivara.free_shipping_threshold') }} ? 'FREE' : '₹{{ config("shivara.standard_rate") }}'"></span></div>
+                <div class="flex justify-between text-gray-500">
+                    <span>Shipping</span>
+                    <span :class="(items.length === 0 || subtotal >= {{ config('shivara.free_shipping_threshold') }}) ? 'text-green-600 font-bold' : 'font-bold text-espresso-600'" x-text="items.length === 0 ? '-' : (subtotal >= {{ config('shivara.free_shipping_threshold') }} ? 'FREE' : '₹{{ config("shivara.standard_rate") }}')"></span>
+                </div>
                 <div class="flex justify-between text-base font-bold text-espresso-700 pt-2 border-t border-gray-100"><span>Total</span><span>₹<span x-text="total.toLocaleString()"></span></span></div>
             </div>
             <a href="{{ route('checkout.index') }}" class="block w-full py-3.5 bg-gradient-to-r from-gold-500 to-gold-600 text-white font-bold text-xs uppercase tracking-widest rounded-xl text-center shadow-lg hover:from-gold-600 hover:to-gold-700 transition">
@@ -322,10 +325,11 @@ function sideCart() {
         open: false, items: [],
         get totalItems() { return this.items.reduce((s, i) => s + i.quantity, 0); },
         get subtotal() { return this.items.reduce((s, i) => s + (i.price * i.quantity), 0); },
-        get total() { return this.subtotal + (this.subtotal >= {{ config('shivara.free_shipping_threshold') }} ? 0 : {{ config('shivara.standard_rate') }}); },
+        get total() { return this.items.length === 0 ? 0 : this.subtotal + (this.subtotal >= {{ config('shivara.free_shipping_threshold') }} ? 0 : {{ config('shivara.standard_rate') }}); },
         get progressMessage() {
+            if (this.items.length === 0) return '🚚 Add ₹{{ config('shivara.free_shipping_threshold') }} for free delivery';
             if (this.subtotal >= {{ config('shivara.free_gift_threshold') }}) return '🎉 All rewards unlocked!';
-            if (this.subtotal >= {{ config('shivara.free_shipping_threshold') }}) return '🎁 Add ₹' + ({{ config('shivara.free_gift_threshold') }} - this.subtotal).toLocaleString() + ' for free gift';
+            if (this.subtotal >= {{ config('shivara.free_shipping_threshold') }}) return '🎁 Add ₹' + ({{ config('shivara.free_gift_threshold') }} - this.subtotal).toLocaleString() + ' more to get a FREE gift!';
             return '🚚 Add ₹' + ({{ config('shivara.free_shipping_threshold') }} - this.subtotal).toLocaleString() + ' for free delivery';
         },
         updateQty(id, qty) {
