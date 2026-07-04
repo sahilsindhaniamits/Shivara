@@ -328,8 +328,26 @@ function sideCart() {
             if (this.subtotal >= {{ config('shivara.free_shipping_threshold') }}) return '🎁 Add ₹' + ({{ config('shivara.free_gift_threshold') }} - this.subtotal).toLocaleString() + ' for free gift';
             return '🚚 Add ₹' + ({{ config('shivara.free_shipping_threshold') }} - this.subtotal).toLocaleString() + ' for free delivery';
         },
-        updateQty(id, qty) { if (qty <= 0) { this.removeItem(id); return; } let i = this.items.find(x => x.id === id); if (i) i.quantity = Math.min(10, qty); },
-        removeItem(id) { this.items = this.items.filter(i => i.id !== id); },
+        updateQty(id, qty) {
+            if (qty <= 0) { this.removeItem(id); return; }
+            let item = this.items.find(x => x.id === id);
+            if (item) item.quantity = Math.min(10, qty);
+            // Sync with server
+            fetch('/cart/update', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
+                body: JSON.stringify({ item_id: id, quantity: qty })
+            });
+        },
+        removeItem(id) {
+            this.items = this.items.filter(i => i.id !== id);
+            // Sync with server
+            fetch('/cart/remove', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
+                body: JSON.stringify({ item_id: id })
+            });
+        },
         init() { this.loadCart(); },
         loadCart() { fetch('/cart/data', {headers:{'Accept':'application/json'}}).then(r=>r.json()).then(d=>{if(d.items)this.items=d.items;}).catch(()=>{}); }
     }
