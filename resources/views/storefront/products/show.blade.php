@@ -42,20 +42,14 @@
         @endif
     </div>
 
-    <!-- Offer Banner under image (only if active coupons exist) -->
-    @php $activeCoupon = \App\Models\Coupon::where('is_active', true)->where('end_date', '>', now())->first(); @endphp
-    @if($activeCoupon)
-    <div class="bg-gradient-to-r from-espresso-700 to-espresso-600 rounded-2xl p-4 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-gold-500/20 rounded-xl flex items-center justify-center">
-                <svg class="w-5 h-5 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
-            </div>
-            <div>
-                <p class="text-cream-50 text-xs font-bold">{{ $activeCoupon->description ?? $activeCoupon->value . ($activeCoupon->type == 'percentage' ? '% Off' : ' Off') }}</p>
-                <p class="text-cream-300 text-[10px]">Use code: <span class="text-gold-400 font-bold">{{ $activeCoupon->code }}</span></p>
-            </div>
-        </div>
-        <button onclick="navigator.clipboard.writeText('{{ $activeCoupon->code }}')" class="px-3 py-1.5 bg-gold-500 text-espresso-700 text-[10px] font-bold rounded-lg hover:bg-gold-400 transition uppercase">Copy</button>
+    <!-- Product Image Thumbnails -->
+    @if($product->images->count() > 1)
+    <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+        @foreach($product->images as $i => $img)
+        <button class="w-16 h-16 rounded-lg overflow-hidden shrink-0 border-2 border-gold-100 hover:border-gold-400 transition">
+            <img src="{{ $img->url }}" alt="" class="w-full h-full object-cover">
+        </button>
+        @endforeach
     </div>
     @endif
 </div>

@@ -4,16 +4,16 @@
 @section('content')
 <div class="max-w-2xl">
     <h1 class="text-xl font-bold text-slate-900 mb-6">Add Product Banner</h1>
-    <form method="POST" action="{{ route('admin.product-banners.store') }}" class="bg-white p-6 rounded-2xl border border-slate-100 space-y-4">
+    <form method="POST" action="{{ route('admin.product-banners.store') }}" enctype="multipart/form-data" class="bg-white p-6 rounded-2xl border border-slate-100 space-y-4">
         @csrf
         <div>
             <label class="block text-sm font-semibold text-slate-700 mb-1">Title *</label>
             <input type="text" name="title" value="{{ old('title') }}" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-200 focus:bg-white" placeholder="e.g. Summer Sale Banner">
         </div>
         <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1">Image URL *</label>
-            <p class="text-xs text-slate-400 mb-2">Paste a direct image URL (recommended: 1200×400px)</p>
-            <input type="text" name="image" value="{{ old('image') }}" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-200 focus:bg-white" placeholder="https://images.unsplash.com/...">
+            <label class="block text-sm font-semibold text-slate-700 mb-1">Upload Image * (recommended: 1200×400px)</label>
+            <input type="file" name="image" required accept="image/*" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+            @error('image')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
         </div>
         <div>
             <label class="block text-sm font-semibold text-slate-700 mb-1">Link (optional)</label>
