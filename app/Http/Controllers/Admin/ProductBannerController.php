@@ -23,15 +23,17 @@ class ProductBannerController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'image' => 'required|string|max:500',
+            'image' => 'required|image|max:5120',
             'link' => 'nullable|string|max:500',
             'is_active' => 'boolean',
             'sort_order' => 'integer|min:0',
         ]);
 
+        $path = $request->file('image')->store('product-banners', 'public');
+
         ProductBanner::create([
             'title' => $request->title,
-            'image' => $request->image,
+            'image' => '/storage/' . $path,
             'link' => $request->link,
             'is_active' => $request->has('is_active'),
             'sort_order' => $request->sort_order ?? 0,
