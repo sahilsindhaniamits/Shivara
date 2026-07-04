@@ -2,19 +2,19 @@
 
 @section('content')
 <!-- Hero Banner Slider -->
-<section x-data="{ current: 0, slides: 3 }" x-init="setInterval(() => current = (current + 1) % slides, 5000)" class="relative bg-cream-200 overflow-hidden">
+<section x-data="{ current: 0, slides: 3 }" x-init="setInterval(() => current = (current + 1) % slides, 5000)" class="relative overflow-hidden">
     <!-- Slide 1 -->
-    <div x-show="current === 0" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 scale-105" x-transition:enter-end="opacity-100 scale-100" class="relative">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-20 md:py-32 lg:py-40 flex items-center">
+    <div x-show="current === 0" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 scale-105" x-transition:enter-end="opacity-100 scale-100" class="relative min-h-[500px] md:min-h-[600px] lg:min-h-[650px] flex items-center" style="background: linear-gradient(135deg, rgba(44,36,24,0.7), rgba(44,36,24,0.4)), url('https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=1920&q=80') center/cover;">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-20 w-full">
             <div class="max-w-2xl animate-fadeInUp">
-                <span class="inline-block text-[11px] font-bold uppercase tracking-[0.3em] text-gold-600 bg-gold-100 px-4 py-1.5 rounded-full mb-6">Heritage Ayurveda</span>
-                <h1 class="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-espresso-700 leading-[1.05] mb-6">
-                    Ancient wisdom.<br><span class="text-gold-500">Modern purity.</span>
+                <span class="inline-block text-[11px] font-bold uppercase tracking-[0.3em] text-gold-300 bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full mb-6 border border-white/20">Heritage Ayurveda</span>
+                <h1 class="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.05] mb-6">
+                    Ancient wisdom.<br><span class="text-gold-300">Modern purity.</span>
                 </h1>
-                <p class="text-espresso-400 text-base md:text-lg max-w-lg mb-8 leading-relaxed">
+                <p class="text-cream-200/90 text-base md:text-lg max-w-lg mb-8 leading-relaxed">
                     Formulations rooted in 5,000 years of Ayurvedic tradition, crafted with single-origin herbs from Rajasthan.
                 </p>
-                <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 px-8 py-4 bg-espresso-700 text-cream-50 font-semibold rounded-full hover:bg-espresso-600 transition shadow-xl shadow-espresso-700/20">
+                <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 px-8 py-4 bg-white text-espresso-700 font-bold rounded-full hover:bg-cream-100 transition shadow-2xl">
                     Shop Collection
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                 </a>
@@ -23,33 +23,33 @@
     </div>
 
     <!-- Slide 2 -->
-    <div x-show="current === 1" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 scale-105" x-transition:enter-end="opacity-100 scale-100" x-cloak class="relative bg-gradient-to-r from-gold-50 to-cream-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-20 md:py-32 lg:py-40 text-center">
-            <span class="inline-block text-[11px] font-bold uppercase tracking-[0.3em] text-olive-500 bg-olive-50 px-4 py-1.5 rounded-full mb-6">Limited Offer</span>
-            <h2 class="font-display text-4xl sm:text-5xl md:text-6xl font-bold text-espresso-700 mb-4">Flat 15% Off</h2>
-            <p class="text-espresso-400 text-lg mb-8">Use code <span class="font-bold text-gold-600 text-xl">EXTRA15</span> on orders above ₹999</p>
-            <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 px-8 py-4 bg-gold-500 text-white font-semibold rounded-full hover:bg-gold-600 transition shadow-xl">
+    <div x-show="current === 1" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 scale-105" x-transition:enter-end="opacity-100 scale-100" x-cloak class="relative min-h-[500px] md:min-h-[600px] lg:min-h-[650px] flex items-center" style="background: linear-gradient(135deg, rgba(176,136,64,0.85), rgba(150,112,58,0.75)), url('https://images.unsplash.com/photo-1611241893603-3c359704e0ee?w=1920&q=80') center/cover;">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-20 w-full text-center">
+            <span class="inline-block text-[11px] font-bold uppercase tracking-[0.3em] text-white bg-white/20 backdrop-blur-sm px-4 py-1.5 rounded-full mb-6">Limited Offer</span>
+            <h2 class="font-display text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4">Flat 15% Off</h2>
+            <p class="text-white/90 text-lg mb-8">Use code <span class="font-bold text-white text-2xl bg-white/20 px-3 py-1 rounded-lg">EXTRA15</span> on orders above ₹999</p>
+            <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 px-8 py-4 bg-white text-espresso-700 font-bold rounded-full hover:bg-cream-100 transition shadow-2xl">
                 Claim Offer →
             </a>
         </div>
     </div>
 
     <!-- Slide 3 -->
-    <div x-show="current === 2" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 scale-105" x-transition:enter-end="opacity-100 scale-100" x-cloak class="relative bg-gradient-to-br from-espresso-700 to-espresso-600">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-20 md:py-32 lg:py-40 text-center">
-            <span class="inline-block text-[11px] font-bold uppercase tracking-[0.3em] text-gold-400 bg-gold-400/10 px-4 py-1.5 rounded-full mb-6">New Launch</span>
-            <h2 class="font-display text-4xl sm:text-5xl md:text-6xl font-bold text-cream-50 mb-4">Shilajit Gold Resin</h2>
-            <p class="text-cream-300 text-lg mb-8">Pure Himalayan Shilajit for energy & stamina</p>
-            <a href="{{ route('products.show', 'shilajit-gold-resin') }}" class="inline-flex items-center gap-2 px-8 py-4 bg-gold-500 text-espresso-700 font-bold rounded-full hover:bg-gold-400 transition shadow-xl">
+    <div x-show="current === 2" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 scale-105" x-transition:enter-end="opacity-100 scale-100" x-cloak class="relative min-h-[500px] md:min-h-[600px] lg:min-h-[650px] flex items-center" style="background: linear-gradient(135deg, rgba(44,36,24,0.85), rgba(44,36,24,0.7)), url('https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=1920&q=80') center/cover;">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-20 w-full text-center">
+            <span class="inline-block text-[11px] font-bold uppercase tracking-[0.3em] text-gold-300 bg-gold-400/10 backdrop-blur-sm px-4 py-1.5 rounded-full mb-6 border border-gold-400/20">New Launch</span>
+            <h2 class="font-display text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4">Shilajit Gold Resin</h2>
+            <p class="text-cream-200/90 text-lg mb-8">Pure Himalayan Shilajit for energy & stamina</p>
+            <a href="{{ route('products.show', 'shilajit-gold-resin') }}" class="inline-flex items-center gap-2 px-8 py-4 bg-gold-500 text-white font-bold rounded-full hover:bg-gold-400 transition shadow-2xl">
                 Discover Now →
             </a>
         </div>
     </div>
 
     <!-- Slider Dots -->
-    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2">
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2.5">
         <template x-for="i in slides" :key="i">
-            <button @click="current = i - 1" :class="current === i - 1 ? 'w-8 bg-gold-500' : 'w-2.5 bg-espresso-300/50'" class="h-2.5 rounded-full transition-all duration-300"></button>
+            <button @click="current = i - 1" :class="current === i - 1 ? 'w-10 bg-white' : 'w-3 bg-white/40'" class="h-3 rounded-full transition-all duration-500"></button>
         </template>
     </div>
 </section>
@@ -149,16 +149,8 @@
                 </div>
             </div>
             <div class="order-1 md:order-2 relative">
-                <div class="aspect-[4/5] rounded-3xl bg-gradient-to-br from-gold-200 to-cream-300 overflow-hidden border-4 border-white shadow-2xl">
-                    <div class="w-full h-full flex items-center justify-center">
-                        <div class="text-center p-8">
-                            <div class="w-24 h-24 mx-auto bg-gold-500/10 rounded-full flex items-center justify-center mb-4">
-                                <svg class="w-12 h-12 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
-                            </div>
-                            <p class="font-display text-2xl text-espresso-600 font-bold">Pure Ayurveda</p>
-                            <p class="text-espresso-400 text-sm mt-2">Since 2020</p>
-                        </div>
-                    </div>
+                <div class="aspect-[4/5] rounded-3xl overflow-hidden border-4 border-white shadow-2xl">
+                    <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=600&h=750&fit=crop" alt="Ayurvedic herbs and formulations" class="w-full h-full object-cover">
                 </div>
                 <div class="absolute -bottom-4 -left-4 w-24 h-24 bg-olive-200 rounded-2xl -z-10"></div>
                 <div class="absolute -top-4 -right-4 w-16 h-16 bg-gold-300 rounded-full -z-10"></div>
