@@ -4,9 +4,7 @@
             @if($product->primaryImage && $product->primaryImage->url)
                 <img src="{{ $product->primaryImage->url }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
             @else
-                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-cream-100 to-gold-50">
-                    <svg class="w-16 h-16 text-gold-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="0.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                </div>
+                <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop&q=80" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
             @endif
             @if($product->discount_percent > 0)
             <span class="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-red-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg shadow-sm">-{{ $product->discount_percent }}%</span>

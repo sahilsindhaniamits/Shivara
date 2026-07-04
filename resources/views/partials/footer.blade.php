@@ -31,8 +31,8 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-14">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
             <div class="space-y-5">
-                <a href="{{ route('home') }}">
-                    <img src="/shivaralogo.png" alt="Shivara" class="h-10 w-auto">
+                <a href="{{ route('home') }}" class="inline-block">
+                    <img src="https://i.ibb.co/4Zq3Q7m/shivaralogo.png" alt="Shivara" class="h-10 w-auto brightness-0 invert" onerror="this.onerror=null;this.outerHTML='<span class=\'text-xl font-display font-bold text-cream-50\'>SHIVARA</span>'">
                 </a>
                 <p class="text-sm text-cream-400 leading-relaxed">{{ config('shivara.description') }}</p>
                 <div class="flex gap-3">
