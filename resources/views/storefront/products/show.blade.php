@@ -189,75 +189,45 @@
 </div>
 
 
-<!-- Promo Banner (only if active coupons exist) -->
-@if($activeCoupon)
-<div class="mt-12 rounded-3xl overflow-hidden relative" style="background: linear-gradient(135deg, rgba(183,146,92,0.9), rgba(150,112,58,0.85)), url('https://images.unsplash.com/photo-1611241893603-3c359704e0ee?w=1200&q=80') center/cover;">
-    <div class="px-8 py-10 md:py-12 flex flex-col md:flex-row items-center justify-between gap-6">
-        <div>
-            <p class="text-cream-200 text-xs font-bold uppercase tracking-[0.3em] mb-2">Limited Time Offer</p>
-            <h3 class="text-white font-display text-2xl md:text-3xl font-bold">{{ $activeCoupon->description ?? 'Get ' . $activeCoupon->value . ($activeCoupon->type == 'percentage' ? '%' : '₹') . ' Off' }}</h3>
-            <p class="text-cream-200/80 text-sm mt-2">Use code <span class="text-white font-bold bg-white/20 px-2 py-0.5 rounded">{{ $activeCoupon->code }}</span> at checkout</p>
+
+<!-- Offers Slider -->
+@php $allCoupons = \App\Models\Coupon::where('is_active', true)->where('end_date', '>', now())->get(); @endphp
+@if($allCoupons->count())
+<div class="mt-12" x-data="{ s: 0 }" x-init="setInterval(() => s = (s + 1) % {{ $allCoupons->count() }}, 4000)">
+    <div class="relative rounded-2xl overflow-hidden">
+        @foreach($allCoupons as $i => $coupon)
+        <div x-show="s === {{ $i }}" x-transition {{ $i > 0 ? 'x-cloak' : '' }} class="rounded-2xl p-5 md:p-6 flex flex-col sm:flex-row items-center justify-between gap-4" style="background: linear-gradient(135deg, rgba(183,146,92,0.9), rgba(150,112,58,0.85)), url('https://images.unsplash.com/photo-1611241893603-3c359704e0ee?w=1200&q=60') center/cover;">
+            <div>
+                <p class="text-cream-200 text-[10px] font-bold uppercase tracking-[0.3em] mb-1">Limited Time Offer</p>
+                <h3 class="text-white font-display text-lg md:text-2xl font-bold">{{ $coupon->description ?? $coupon->value . ($coupon->type == 'percentage' ? '% Off' : '₹ Off') }}</h3>
+                <p class="text-cream-200/80 text-xs mt-1">Use code <span class="text-white font-bold bg-white/20 px-2 py-0.5 rounded">{{ $coupon->code }}</span></p>
+            </div>
+            <a href="{{ route('products.index') }}" class="px-5 py-2.5 bg-white text-espresso-700 font-bold text-xs uppercase rounded-full hover:bg-cream-100 transition shadow-lg shrink-0">Shop Now →</a>
         </div>
-        <a href="{{ route('products.index') }}" class="px-8 py-3.5 bg-white text-espresso-700 font-bold text-sm uppercase tracking-wider rounded-full hover:bg-cream-100 transition shadow-xl shrink-0">
-            Shop Now →
-        </a>
+        @endforeach
     </div>
+    @if($allCoupons->count() > 1)
+    <div class="flex justify-center gap-1.5 mt-3">@foreach($allCoupons as $i => $c)<button @click="s={{ $i }}" :class="s==={{ $i }}?'w-6 bg-gold-500':'w-2 bg-gray-300'" class="h-2 rounded-full transition-all"></button>@endforeach</div>
+    @endif
 </div>
 @endif
 
-<!-- Tabs Section -->
-<div class="mt-12 bg-white rounded-3xl border border-gold-100/50 overflow-hidden shadow-sm">
-    <div class="flex border-b border-gold-100 overflow-x-auto scrollbar-hide">
-        <button @click="tab = 'description'" :class="tab === 'description' ? 'border-gold-500 text-gold-700 bg-gold-50' : 'border-transparent text-espresso-400 hover:text-espresso-600'" class="px-6 py-4 text-sm font-bold border-b-2 -mb-px whitespace-nowrap transition">Description</button>
-        <button @click="tab = 'ingredients'" :class="tab === 'ingredients' ? 'border-gold-500 text-gold-700 bg-gold-50' : 'border-transparent text-espresso-400 hover:text-espresso-600'" class="px-6 py-4 text-sm font-bold border-b-2 -mb-px whitespace-nowrap transition">Ingredients</button>
-        <button @click="tab = 'usage'" :class="tab === 'usage' ? 'border-gold-500 text-gold-700 bg-gold-50' : 'border-transparent text-espresso-400 hover:text-espresso-600'" class="px-6 py-4 text-sm font-bold border-b-2 -mb-px whitespace-nowrap transition">How to Use</button>
-        <button @click="tab = 'reviews'" :class="tab === 'reviews' ? 'border-gold-500 text-gold-700 bg-gold-50' : 'border-transparent text-espresso-400 hover:text-espresso-600'" class="px-6 py-4 text-sm font-bold border-b-2 -mb-px whitespace-nowrap transition">Reviews</button>
+<!-- Product Banners Slider -->
+@php $pBanners = \App\Models\ProductBanner::active()->get(); @endphp
+@if($pBanners->count())
+<div class="mt-8" x-data="{ pb: 0 }" x-init="setInterval(() => pb = (pb + 1) % {{ $pBanners->count() }}, 5000)">
+    <div class="relative rounded-2xl overflow-hidden aspect-[3/1]">
+        @foreach($pBanners as $i => $pb)
+        <a href="{{ $pb->link ?? '#' }}" x-show="pb === {{ $i }}" x-transition {{ $i > 0 ? 'x-cloak' : '' }} class="block w-full h-full absolute inset-0">
+            <img src="{{ $pb->image }}" alt="{{ $pb->title }}" class="w-full h-full object-cover rounded-2xl">
+        </a>
+        @endforeach
     </div>
-    <div class="p-6 md:p-8">
-        <div x-show="tab === 'description'">
-            <div class="prose prose-sm max-w-none text-espresso-600 leading-relaxed">{!! nl2br(e($product->description)) !!}</div>
-            @if($product->benefits)
-            <h3 class="text-lg font-bold text-espresso-700 mt-8 mb-4">Key Benefits</h3>
-            <div class="grid sm:grid-cols-2 gap-3">
-                @foreach(explode("\n", $product->benefits) as $benefit)
-                @if(trim($benefit))
-                <div class="flex items-start gap-3 p-3 bg-green-50 rounded-xl border border-green-100">
-                    <svg class="w-5 h-5 text-green-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    <span class="text-sm text-espresso-600">{{ trim(str_replace(['•','-'], '', $benefit)) }}</span>
-                </div>
-                @endif
-                @endforeach
-            </div>
-            @endif
-        </div>
-        <div x-show="tab === 'ingredients'" x-cloak>
-            @if($product->ingredients)
-            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                @foreach(explode(',', $product->ingredients) as $ing)
-                @if(trim($ing))
-                <div class="flex items-center gap-3 p-4 bg-cream-100 rounded-xl border border-gold-100/50">
-                    <div class="w-9 h-9 bg-gold-100 rounded-lg flex items-center justify-center shrink-0"><svg class="w-4 h-4 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></div>
-                    <span class="text-sm font-medium text-espresso-700">{{ trim($ing) }}</span>
-                </div>
-                @endif
-                @endforeach
-            </div>
-            @endif
-        </div>
-        <div x-show="tab === 'usage'" x-cloak>
-            @if($product->how_to_use)
-            <div class="bg-cream-100 rounded-2xl p-6 border border-gold-100/50">
-                <h4 class="font-bold text-espresso-700 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Recommended Usage</h4>
-                <p class="text-espresso-500 leading-relaxed">{{ $product->how_to_use }}</p>
-            </div>
-            @endif
-        </div>
-        <div x-show="tab === 'reviews'" x-cloak>
-            <p class="text-center text-espresso-400 py-8">No reviews yet. Be the first to share your experience!</p>
-        </div>
-    </div>
+    @if($pBanners->count() > 1)
+    <div class="flex justify-center gap-1.5 mt-3">@foreach($pBanners as $i => $pb)<button @click="pb={{ $i }}" :class="pb==={{ $i }}?'w-6 bg-gold-500':'w-2 bg-gray-300'" class="h-2 rounded-full transition-all"></button>@endforeach</div>
+    @endif
 </div>
-
+@endif
 
 <!-- Why Choose Shivara -->
 <div class="mt-12 bg-white rounded-3xl border border-gold-100/50 p-8 shadow-sm">
