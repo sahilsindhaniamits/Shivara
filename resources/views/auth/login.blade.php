@@ -6,7 +6,7 @@
     <div class="w-full max-w-md">
         <div class="text-center mb-8">
             <a href="{{ route('home') }}" class="inline-block">
-                <span class="text-3xl font-display font-bold text-dark">SHIVARA</span>
+                <span class="text-3xl font-display font-bold text-espresso-700">SHIVARA</span>
             </a>
             <p class="text-gray-500 text-sm mt-2">Welcome back. Sign in to continue.</p>
         </div>
@@ -37,7 +37,7 @@
                     </label>
                 </div>
 
-                <button type="submit" class="w-full px-6 py-3.5 bg-dark text-white font-semibold rounded-xl hover:bg-dark-light transition shadow-lg shadow-dark/10">
+                <button type="submit" class="w-full px-6 py-3.5 bg-espresso-700 text-white font-semibold rounded-xl hover:bg-espresso-600 transition shadow-lg">
                     Sign In
                 </button>
             </form>
