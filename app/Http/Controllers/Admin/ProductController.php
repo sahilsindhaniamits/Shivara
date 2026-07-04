@@ -84,6 +84,16 @@ class ProductController extends Controller
             }
         }
 
+        // Handle banner uploads
+        if ($request->hasFile('banners')) {
+            $bannerPaths = [];
+            foreach ($request->file('banners') as $banner) {
+                $path = $banner->store('product-banners', 'public');
+                $bannerPaths[] = '/storage/' . $path;
+            }
+            $product->update(['banners' => $bannerPaths]);
+        }
+
         return redirect()->route('admin.products.index')
             ->with('success', 'Product created successfully.');
     }
@@ -131,6 +141,16 @@ class ProductController extends Controller
                     'sort_order' => $product->images()->count(),
                 ]);
             }
+        }
+
+        // Handle banner uploads (appends to existing)
+        if ($request->hasFile('banners')) {
+            $existing = $product->banners ?? [];
+            foreach ($request->file('banners') as $banner) {
+                $path = $banner->store('product-banners', 'public');
+                $existing[] = '/storage/' . $path;
+            }
+            $product->update(['banners' => $existing]);
         }
 
         return redirect()->route('admin.products.index')
