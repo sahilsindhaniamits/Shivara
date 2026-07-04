@@ -27,22 +27,12 @@ class FreeGiftController extends Controller
         $request->validate([
             'enabled' => 'required|in:true,false',
             'threshold' => 'required|numeric|min:0',
-            'name' => 'required|string|max:255',
-            'image' => 'nullable|string|max:500',
-            'product_id' => 'nullable|exists:products,id',
+            'product_id' => 'required|exists:products,id',
         ]);
 
-        $fields = [
-            'free_gift_enabled' => $request->enabled,
-            'free_gift_threshold' => $request->threshold,
-            'free_gift_name' => $request->name,
-            'free_gift_image' => $request->image,
-            'free_gift_product_id' => $request->product_id,
-        ];
-
-        foreach ($fields as $key => $value) {
-            Setting::updateOrCreate(['key' => $key], ['value' => $value ?? '']);
-        }
+        Setting::set('free_gift_enabled', $request->enabled);
+        Setting::set('free_gift_threshold', $request->threshold);
+        Setting::set('free_gift_product_id', $request->product_id);
 
         return back()->with('success', 'Free gift settings saved!');
     }
