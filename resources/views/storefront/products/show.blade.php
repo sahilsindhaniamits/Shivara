@@ -42,19 +42,22 @@
         @endif
     </div>
 
-    <!-- Offer Banner under image -->
+    <!-- Offer Banner under image (only if active coupons exist) -->
+    @php $activeCoupon = \App\Models\Coupon::where('is_active', true)->where('end_date', '>', now())->first(); @endphp
+    @if($activeCoupon)
     <div class="bg-gradient-to-r from-espresso-700 to-espresso-600 rounded-2xl p-4 flex items-center justify-between">
         <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-gold-500/20 rounded-xl flex items-center justify-center">
                 <svg class="w-5 h-5 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
             </div>
             <div>
-                <p class="text-cream-50 text-xs font-bold">Extra 10% Off</p>
-                <p class="text-cream-300 text-[10px]">Use code: <span class="text-gold-400 font-bold">WOW10</span></p>
+                <p class="text-cream-50 text-xs font-bold">{{ $activeCoupon->description ?? $activeCoupon->value . ($activeCoupon->type == 'percentage' ? '% Off' : ' Off') }}</p>
+                <p class="text-cream-300 text-[10px]">Use code: <span class="text-gold-400 font-bold">{{ $activeCoupon->code }}</span></p>
             </div>
         </div>
-        <button onclick="navigator.clipboard.writeText('WOW10')" class="px-3 py-1.5 bg-gold-500 text-espresso-700 text-[10px] font-bold rounded-lg hover:bg-gold-400 transition uppercase">Copy</button>
+        <button onclick="navigator.clipboard.writeText('{{ $activeCoupon->code }}')" class="px-3 py-1.5 bg-gold-500 text-espresso-700 text-[10px] font-bold rounded-lg hover:bg-gold-400 transition uppercase">Copy</button>
     </div>
+    @endif
 </div>
 
 
@@ -96,12 +99,21 @@
         </div>
         <p class="text-[11px] text-espresso-400 mt-2">Inclusive of all taxes • Free shipping on orders above ₹{{ config('shivara.free_shipping_threshold') }}</p>
 
-        <!-- Offer Tags -->
+        <!-- Offer Tags (dynamic from active coupons) -->
+        @php $coupons = \App\Models\Coupon::where('is_active', true)->where('end_date', '>', now())->take(2)->get(); @endphp
+        @if($coupons->count())
         <div class="mt-3 flex flex-wrap gap-2">
-            <span class="text-[10px] font-bold bg-gold-50 text-gold-700 px-2.5 py-1 rounded-full border border-gold-200">🎁 Extra 10% Off: WOW10</span>
+            @foreach($coupons as $c)
+            <span class="text-[10px] font-bold bg-gold-50 text-gold-700 px-2.5 py-1 rounded-full border border-gold-200">🎁 {{ $c->description ?? $c->code }}</span>
+            @endforeach
+            <span class="text-[10px] font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200">🚚 Free Delivery</span>
+        </div>
+        @else
+        <div class="mt-3 flex flex-wrap gap-2">
             <span class="text-[10px] font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200">🚚 Free Delivery</span>
             <span class="text-[10px] font-bold bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full border border-purple-200">↩ 7-Day Returns</span>
         </div>
+        @endif
     </div>
 
 
@@ -177,19 +189,21 @@
 </div>
 
 
-<!-- Promo Banner -->
+<!-- Promo Banner (only if active coupons exist) -->
+@if($activeCoupon)
 <div class="mt-12 rounded-3xl overflow-hidden relative" style="background: linear-gradient(135deg, rgba(183,146,92,0.9), rgba(150,112,58,0.85)), url('https://images.unsplash.com/photo-1611241893603-3c359704e0ee?w=1200&q=80') center/cover;">
     <div class="px-8 py-10 md:py-12 flex flex-col md:flex-row items-center justify-between gap-6">
         <div>
             <p class="text-cream-200 text-xs font-bold uppercase tracking-[0.3em] mb-2">Limited Time Offer</p>
-            <h3 class="text-white font-display text-2xl md:text-3xl font-bold">Buy 2 Get Extra 15% Off</h3>
-            <p class="text-cream-200/80 text-sm mt-2">Use code <span class="text-white font-bold bg-white/20 px-2 py-0.5 rounded">EXTRA15</span> at checkout</p>
+            <h3 class="text-white font-display text-2xl md:text-3xl font-bold">{{ $activeCoupon->description ?? 'Get ' . $activeCoupon->value . ($activeCoupon->type == 'percentage' ? '%' : '₹') . ' Off' }}</h3>
+            <p class="text-cream-200/80 text-sm mt-2">Use code <span class="text-white font-bold bg-white/20 px-2 py-0.5 rounded">{{ $activeCoupon->code }}</span> at checkout</p>
         </div>
         <a href="{{ route('products.index') }}" class="px-8 py-3.5 bg-white text-espresso-700 font-bold text-sm uppercase tracking-wider rounded-full hover:bg-cream-100 transition shadow-xl shrink-0">
             Shop Now →
         </a>
     </div>
 </div>
+@endif
 
 <!-- Tabs Section -->
 <div class="mt-12 bg-white rounded-3xl border border-gold-100/50 overflow-hidden shadow-sm">

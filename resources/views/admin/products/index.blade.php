@@ -8,8 +8,8 @@
             <h1 class="text-2xl font-bold text-gray-900">Products</h1>
             <p class="text-sm text-gray-500">Manage your product catalog</p>
         </div>
-        <a href="{{ route('admin.products.create') }}" class="px-4 py-2 bg-primary text-white text-sm font-medium rounded-xl hover:bg-primary-dark transition flex items-center gap-1">
-            <i data-lucide="plus" class="w-4 h-4"></i> Add Product
+        <a href="{{ route('admin.products.create') }}" class="px-4 py-2.5 bg-brand-600 text-white text-sm font-semibold rounded-xl hover:bg-brand-700 transition flex items-center gap-1.5">
+            + Add Product
         </a>
     </div>
 
@@ -17,8 +17,8 @@
     <div class="bg-white p-4 rounded-2xl border border-gray-200">
         <form method="GET" action="{{ route('admin.products.index') }}" class="flex flex-col sm:flex-row items-center gap-4">
             <div class="relative flex-1 w-full">
-                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search products by name, SKU..." class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search products by name, SKU..." class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-200">
             </div>
             <select name="category" class="px-3 py-2.5 border border-gray-200 rounded-xl text-sm">
                 <option value="">All Categories</option>
@@ -86,10 +86,10 @@
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-2">
-                                <a href="{{ route('admin.products.edit', $product) }}" class="text-gray-400 hover:text-primary transition"><i data-lucide="edit" class="w-4 h-4"></i></a>
+                                <a href="{{ route('admin.products.edit', $product) }}" class="px-2.5 py-1.5 bg-blue-50 text-blue-600 text-xs font-medium rounded-lg hover:bg-blue-100 transition">Edit</a>
                                 <form method="POST" action="{{ route('admin.products.destroy', $product) }}" onsubmit="return confirm('Delete this product?')">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="text-gray-400 hover:text-red-500 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                    <button type="submit" class="px-2.5 py-1.5 bg-red-50 text-red-600 text-xs font-medium rounded-lg hover:bg-red-100 transition">Delete</button>
                                 </form>
                             </div>
                         </td>
