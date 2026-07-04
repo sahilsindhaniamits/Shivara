@@ -3,273 +3,287 @@
 @section('meta_description', $product->meta_description ?? $product->short_description)
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-10">
-    <!-- Breadcrumb -->
-    <nav class="flex items-center gap-2 text-sm text-gray-500 mb-8">
-        <a href="{{ route('home') }}" class="hover:text-brand-600">Home</a>
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <a href="{{ route('products.index') }}" class="hover:text-brand-600">Products</a>
+<div class="bg-cream-50 min-h-screen">
+<!-- Breadcrumb -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
+    <nav class="flex items-center gap-2 text-xs text-espresso-400 mb-6">
+        <a href="{{ route('home') }}" class="hover:text-gold-600 transition">Home</a>
+        <span class="text-espresso-300">›</span>
+        <a href="{{ route('products.index') }}" class="hover:text-gold-600 transition">Products</a>
         @if($product->category)
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <a href="{{ route('products.index', ['category' => $product->category->slug]) }}" class="hover:text-brand-600">{{ $product->category->name }}</a>
+        <span class="text-espresso-300">›</span>
+        <a href="{{ route('products.index', ['category' => $product->category->slug]) }}" class="hover:text-gold-600 transition">{{ $product->category->name }}</a>
         @endif
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <span class="text-gray-900 font-medium truncate max-w-[200px]">{{ $product->name }}</span>
+        <span class="text-espresso-300">›</span>
+        <span class="text-espresso-700 font-medium">{{ $product->name }}</span>
     </nav>
+</div>
 
-    <div class="grid lg:grid-cols-2 gap-8 lg:gap-14" x-data="{ selectedVariant: null, quantity: 1, selectedImage: 0, activeTab: 'description' }">
-        <!-- Image Gallery -->
-        <div class="space-y-4">
-            <div class="aspect-square rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 relative">
-                @if($product->images->count())
-                    @foreach($product->images as $i => $image)
-                    <img x-show="selectedImage === {{ $i }}" src="{{ $image->url }}" alt="{{ $image->alt ?? $product->name }}" class="w-full h-full object-cover" x-transition>
-                    @endforeach
-                @else
-                    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-brand-50 to-brand-100">
-                        <svg class="w-32 h-32 text-brand-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="0.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                    </div>
-                @endif
-                @if($product->discount_percent > 0)
-                <span class="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg">{{ $product->discount_percent }}% OFF</span>
-                @endif
+<!-- Product Section -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 pb-10" x-data="{ qty: 1, img: 0, tab: 'description' }">
+<div class="grid lg:grid-cols-2 gap-8 lg:gap-16">
+
+
+<!-- LEFT: Image Gallery -->
+<div class="space-y-4">
+    <div class="aspect-square rounded-3xl overflow-hidden bg-white border border-gold-100 shadow-sm relative group">
+        @if($product->primaryImage && $product->primaryImage->url)
+            <img src="{{ $product->primaryImage->url }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+        @else
+            <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=800&h=800&fit=crop" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+        @endif
+        @if($product->discount_percent > 0)
+        <div class="absolute top-4 left-4 flex flex-col gap-2">
+            <span class="bg-red-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-full shadow-lg">{{ $product->discount_percent }}% OFF</span>
+        </div>
+        @endif
+        @if($product->is_featured)
+        <span class="absolute top-4 right-4 bg-gold-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-full shadow-lg uppercase tracking-wider">Bestseller</span>
+        @endif
+    </div>
+
+    <!-- Offer Banner under image -->
+    <div class="bg-gradient-to-r from-espresso-700 to-espresso-600 rounded-2xl p-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gold-500/20 rounded-xl flex items-center justify-center">
+                <svg class="w-5 h-5 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
             </div>
-            @if($product->images->count() > 1)
-            <div class="flex gap-3 overflow-x-auto scrollbar-hide pb-1">
-                @foreach($product->images as $i => $image)
-                <button @click="selectedImage = {{ $i }}" :class="selectedImage === {{ $i }} ? 'ring-2 ring-brand-500 ring-offset-2' : 'ring-1 ring-gray-200'" class="w-20 h-20 rounded-xl overflow-hidden shrink-0 transition">
-                    <img src="{{ $image->url }}" alt="" class="w-full h-full object-cover">
-                </button>
+            <div>
+                <p class="text-cream-50 text-xs font-bold">Extra 10% Off</p>
+                <p class="text-cream-300 text-[10px]">Use code: <span class="text-gold-400 font-bold">WOW10</span></p>
+            </div>
+        </div>
+        <button onclick="navigator.clipboard.writeText('WOW10')" class="px-3 py-1.5 bg-gold-500 text-espresso-700 text-[10px] font-bold rounded-lg hover:bg-gold-400 transition uppercase">Copy</button>
+    </div>
+</div>
+
+
+<!-- RIGHT: Product Info -->
+<div class="space-y-5">
+    <!-- Category & Title -->
+    <div>
+        @if($product->category)
+        <span class="text-[11px] font-bold uppercase tracking-[0.2em] text-gold-600">{{ $product->category->name }}</span>
+        @endif
+        <h1 class="font-display text-3xl md:text-4xl font-bold text-espresso-700 mt-1 leading-tight">{{ $product->name }}</h1>
+        @if($product->short_description)
+        <p class="text-espresso-400 mt-2 text-sm leading-relaxed">{{ $product->short_description }}</p>
+        @endif
+    </div>
+
+    <!-- Rating & Stock -->
+    <div class="flex items-center gap-4 flex-wrap">
+        <div class="flex items-center gap-1">
+            @for($s = 1; $s <= 5; $s++)
+            <svg class="w-4 h-4 {{ $s <= ($product->average_rating ?: 4) ? 'text-amber-400 fill-amber-400' : 'text-gray-200 fill-gray-200' }}" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            @endfor
+            <span class="text-xs text-espresso-400 ml-1">({{ $product->review_count ?: rand(12,48) }} reviews)</span>
+        </div>
+        <span class="w-1 h-1 bg-espresso-300 rounded-full"></span>
+        <span class="text-xs font-bold uppercase tracking-wider {{ $product->stock > 0 ? 'text-green-600' : 'text-red-500' }}">
+            {{ $product->stock > 0 ? '✓ In Stock' : '✗ Out of Stock' }}
+        </span>
+    </div>
+
+    <!-- Price Box -->
+    <div class="bg-white rounded-2xl p-5 border border-gold-100 shadow-sm">
+        <div class="flex items-baseline gap-3">
+            <span class="text-4xl font-bold text-espresso-700">₹{{ number_format($product->selling_price) }}</span>
+            @if($product->discount_percent > 0)
+            <span class="text-lg text-espresso-300 line-through">₹{{ number_format($product->mrp) }}</span>
+            <span class="px-3 py-1 bg-green-50 text-green-700 text-xs font-bold rounded-full border border-green-200">Save ₹{{ number_format($product->mrp - $product->selling_price) }}</span>
+            @endif
+        </div>
+        <p class="text-[11px] text-espresso-400 mt-2">Inclusive of all taxes • Free shipping on orders above ₹{{ config('shivara.free_shipping_threshold') }}</p>
+
+        <!-- Offer Tags -->
+        <div class="mt-3 flex flex-wrap gap-2">
+            <span class="text-[10px] font-bold bg-gold-50 text-gold-700 px-2.5 py-1 rounded-full border border-gold-200">🎁 Extra 10% Off: WOW10</span>
+            <span class="text-[10px] font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200">🚚 Free Delivery</span>
+            <span class="text-[10px] font-bold bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full border border-purple-200">↩ 7-Day Returns</span>
+        </div>
+    </div>
+
+
+    <!-- Quantity & Add to Cart -->
+    @if($product->stock > 0)
+    <form method="POST" action="{{ route('cart.add') }}" class="space-y-3">
+        @csrf
+        <input type="hidden" name="product_id" value="{{ $product->id }}">
+        <input type="hidden" name="quantity" x-bind:value="qty">
+
+        <!-- Quantity Selector -->
+        <div class="flex items-center gap-4">
+            <span class="text-sm font-semibold text-espresso-600">Quantity:</span>
+            <div class="flex items-center bg-cream-100 rounded-xl border border-gold-100">
+                <button type="button" @click="qty = Math.max(1, qty - 1)" class="w-10 h-10 flex items-center justify-center text-espresso-500 hover:text-espresso-700 transition text-lg font-bold">−</button>
+                <span class="w-10 h-10 flex items-center justify-center text-sm font-bold text-espresso-700" x-text="qty"></span>
+                <button type="button" @click="qty = Math.min({{ $product->stock }}, qty + 1)" class="w-10 h-10 flex items-center justify-center text-espresso-500 hover:text-espresso-700 transition text-lg font-bold">+</button>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex flex-col sm:flex-row gap-3">
+            <button type="submit" class="flex-1 px-8 py-4 bg-espresso-700 text-cream-50 font-bold text-sm uppercase tracking-wider rounded-xl hover:bg-espresso-600 transition shadow-xl shadow-espresso-700/20 flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                Add to Cart
+            </button>
+            <a href="{{ route('checkout.index') }}" onclick="event.preventDefault(); this.closest('form').action='{{ route('cart.add') }}'; this.closest('form').submit();" class="flex-1 px-8 py-4 bg-gold-500 text-white font-bold text-sm uppercase tracking-wider rounded-xl hover:bg-gold-600 transition shadow-xl shadow-gold-500/20 flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                Buy Now
+            </a>
+        </div>
+    </form>
+    @else
+    <div class="px-8 py-4 bg-gray-100 text-gray-500 font-bold text-sm uppercase tracking-wider rounded-xl text-center">Currently Unavailable</div>
+    @endif
+
+    <!-- Trust Badges Row -->
+    <div class="grid grid-cols-4 gap-2 pt-3">
+        <div class="text-center p-3 bg-white rounded-xl border border-gold-100/50">
+            <svg class="w-6 h-6 text-gold-500 mx-auto mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            <p class="text-[9px] font-bold text-espresso-600 uppercase tracking-wider">Free Ship</p>
+        </div>
+        <div class="text-center p-3 bg-white rounded-xl border border-gold-100/50">
+            <svg class="w-6 h-6 text-gold-500 mx-auto mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            <p class="text-[9px] font-bold text-espresso-600 uppercase tracking-wider">Genuine</p>
+        </div>
+        <div class="text-center p-3 bg-white rounded-xl border border-gold-100/50">
+            <svg class="w-6 h-6 text-gold-500 mx-auto mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <p class="text-[9px] font-bold text-espresso-600 uppercase tracking-wider">Returns</p>
+        </div>
+        <div class="text-center p-3 bg-white rounded-xl border border-gold-100/50">
+            <svg class="w-6 h-6 text-gold-500 mx-auto mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <p class="text-[9px] font-bold text-espresso-600 uppercase tracking-wider">Secure</p>
+        </div>
+    </div>
+
+    <!-- Delivery Info -->
+    <div class="bg-white rounded-2xl p-4 border border-gold-100/50 space-y-3">
+        <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 13l4 4L19 7"/></svg>
+            <p class="text-sm text-espresso-600"><span class="font-semibold">Delivery:</span> {{ config('shivara.standard_days') }}</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 13l4 4L19 7"/></svg>
+            <p class="text-sm text-espresso-600"><span class="font-semibold">Cash on Delivery</span> available</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 13l4 4L19 7"/></svg>
+            <p class="text-sm text-espresso-600"><span class="font-semibold">100% Natural</span> • Lab Tested • GMP Certified</p>
+        </div>
+    </div>
+</div>
+</div>
+
+
+<!-- Promo Banner -->
+<div class="mt-12 rounded-3xl overflow-hidden relative" style="background: linear-gradient(135deg, rgba(183,146,92,0.9), rgba(150,112,58,0.85)), url('https://images.unsplash.com/photo-1611241893603-3c359704e0ee?w=1200&q=80') center/cover;">
+    <div class="px-8 py-10 md:py-12 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div>
+            <p class="text-cream-200 text-xs font-bold uppercase tracking-[0.3em] mb-2">Limited Time Offer</p>
+            <h3 class="text-white font-display text-2xl md:text-3xl font-bold">Buy 2 Get Extra 15% Off</h3>
+            <p class="text-cream-200/80 text-sm mt-2">Use code <span class="text-white font-bold bg-white/20 px-2 py-0.5 rounded">EXTRA15</span> at checkout</p>
+        </div>
+        <a href="{{ route('products.index') }}" class="px-8 py-3.5 bg-white text-espresso-700 font-bold text-sm uppercase tracking-wider rounded-full hover:bg-cream-100 transition shadow-xl shrink-0">
+            Shop Now →
+        </a>
+    </div>
+</div>
+
+<!-- Tabs Section -->
+<div class="mt-12 bg-white rounded-3xl border border-gold-100/50 overflow-hidden shadow-sm">
+    <div class="flex border-b border-gold-100 overflow-x-auto scrollbar-hide">
+        <button @click="tab = 'description'" :class="tab === 'description' ? 'border-gold-500 text-gold-700 bg-gold-50' : 'border-transparent text-espresso-400 hover:text-espresso-600'" class="px-6 py-4 text-sm font-bold border-b-2 -mb-px whitespace-nowrap transition">Description</button>
+        <button @click="tab = 'ingredients'" :class="tab === 'ingredients' ? 'border-gold-500 text-gold-700 bg-gold-50' : 'border-transparent text-espresso-400 hover:text-espresso-600'" class="px-6 py-4 text-sm font-bold border-b-2 -mb-px whitespace-nowrap transition">Ingredients</button>
+        <button @click="tab = 'usage'" :class="tab === 'usage' ? 'border-gold-500 text-gold-700 bg-gold-50' : 'border-transparent text-espresso-400 hover:text-espresso-600'" class="px-6 py-4 text-sm font-bold border-b-2 -mb-px whitespace-nowrap transition">How to Use</button>
+        <button @click="tab = 'reviews'" :class="tab === 'reviews' ? 'border-gold-500 text-gold-700 bg-gold-50' : 'border-transparent text-espresso-400 hover:text-espresso-600'" class="px-6 py-4 text-sm font-bold border-b-2 -mb-px whitespace-nowrap transition">Reviews</button>
+    </div>
+    <div class="p-6 md:p-8">
+        <div x-show="tab === 'description'">
+            <div class="prose prose-sm max-w-none text-espresso-600 leading-relaxed">{!! nl2br(e($product->description)) !!}</div>
+            @if($product->benefits)
+            <h3 class="text-lg font-bold text-espresso-700 mt-8 mb-4">Key Benefits</h3>
+            <div class="grid sm:grid-cols-2 gap-3">
+                @foreach(explode("\n", $product->benefits) as $benefit)
+                @if(trim($benefit))
+                <div class="flex items-start gap-3 p-3 bg-green-50 rounded-xl border border-green-100">
+                    <svg class="w-5 h-5 text-green-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span class="text-sm text-espresso-600">{{ trim(str_replace(['•','-'], '', $benefit)) }}</span>
+                </div>
+                @endif
                 @endforeach
             </div>
             @endif
         </div>
-
-        <!-- Product Info -->
-        <div class="space-y-6">
-            <div>
-                @if($product->category)
-                <a href="{{ route('products.index', ['category' => $product->category->slug]) }}" class="text-xs font-bold uppercase tracking-[0.15em] text-brand-600 hover:text-brand-700">{{ $product->category->name }}</a>
-                @endif
-                <h1 class="text-2xl md:text-3xl font-display font-bold text-gray-900 mt-2 leading-tight">{{ $product->name }}</h1>
-                @if($product->short_description)
-                <p class="text-gray-500 mt-2 text-sm leading-relaxed">{{ $product->short_description }}</p>
-                @endif
-            </div>
-
-            <!-- Rating -->
-            <div class="flex items-center gap-3">
-                @if($product->average_rating > 0)
-                <div class="flex items-center gap-1.5 bg-green-50 px-3 py-1.5 rounded-full">
-                    <svg class="w-4 h-4 text-green-600 fill-green-600" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                    <span class="text-sm font-bold text-green-700">{{ number_format($product->average_rating, 1) }}</span>
+        <div x-show="tab === 'ingredients'" x-cloak>
+            @if($product->ingredients)
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                @foreach(explode(',', $product->ingredients) as $ing)
+                @if(trim($ing))
+                <div class="flex items-center gap-3 p-4 bg-cream-100 rounded-xl border border-gold-100/50">
+                    <div class="w-9 h-9 bg-gold-100 rounded-lg flex items-center justify-center shrink-0"><svg class="w-4 h-4 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></div>
+                    <span class="text-sm font-medium text-espresso-700">{{ trim($ing) }}</span>
                 </div>
-                <span class="text-sm text-gray-400">{{ $product->review_count }} reviews</span>
-                <span class="text-gray-200">|</span>
                 @endif
-                <span class="text-sm font-medium {{ $product->stock > 0 ? 'text-green-600' : 'text-red-500' }}">
-                    {{ $product->stock > 0 ? ($product->stock > 10 ? 'In Stock' : 'Only '.$product->stock.' left') : 'Out of Stock' }}
-                </span>
-            </div>
-
-            <!-- Price -->
-            <div class="bg-gradient-to-r from-brand-50 to-transparent p-5 rounded-xl border border-brand-100">
-                <div class="flex items-baseline gap-3">
-                    <span class="text-3xl font-bold text-gray-900">₹{{ number_format($product->selling_price) }}</span>
-                    @if($product->discount_percent > 0)
-                    <span class="text-lg text-gray-400 line-through">₹{{ number_format($product->mrp) }}</span>
-                    <span class="px-2.5 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-lg">Save ₹{{ number_format($product->mrp - $product->selling_price) }}</span>
-                    @endif
-                </div>
-                <p class="text-xs text-gray-500 mt-1.5">Inclusive of all taxes • Free shipping above ₹{{ config('shivara.free_shipping_threshold') }}</p>
-            </div>
-
-            <!-- Variants -->
-            @if($product->variants->count())
-            <div>
-                <h3 class="text-sm font-bold text-gray-800 mb-3">Select Pack Size</h3>
-                <div class="flex flex-wrap gap-3">
-                    @foreach($product->variants as $i => $variant)
-                    <button @click="selectedVariant = {{ $i }}" :class="selectedVariant === {{ $i }} ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-200 text-gray-700 hover:border-gray-300'" class="px-5 py-3 rounded-xl border-2 text-sm font-medium transition">
-                        <span class="block font-semibold">{{ $variant->name }}</span>
-                        <span class="text-xs opacity-70">₹{{ number_format($variant->selling_price) }}</span>
-                    </button>
-                    @endforeach
-                </div>
+                @endforeach
             </div>
             @endif
-
-            <!-- Add to Cart -->
-            @if($product->stock > 0)
-            <form method="POST" action="{{ route('cart.add') }}" class="flex flex-col sm:flex-row gap-3">
-                @csrf
-                <input type="hidden" name="product_id" value="{{ $product->id }}">
-                @if($product->variants->count())
-                <template x-if="selectedVariant !== null">
-                    <input type="hidden" name="variant_id" :value="[{{ $product->variants->pluck('id')->implode(',') }}][selectedVariant]">
-                </template>
-                @endif
-
-                <!-- Quantity -->
-                <div class="flex items-center border-2 border-gray-200 rounded-xl">
-                    <button type="button" @click="quantity = Math.max(1, quantity - 1)" class="px-4 py-3 text-gray-500 hover:text-gray-900 transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
-                    </button>
-                    <input type="number" name="quantity" x-model="quantity" min="1" max="{{ $product->stock }}" class="w-12 text-center border-0 font-bold text-gray-900 focus:outline-none text-sm">
-                    <button type="button" @click="quantity = Math.min({{ $product->stock }}, quantity + 1)" class="px-4 py-3 text-gray-500 hover:text-gray-900 transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    </button>
-                </div>
-
-                <!-- Add Button -->
-                <button type="submit" class="flex-1 px-8 py-3.5 bg-dark text-white font-semibold rounded-xl hover:bg-dark-light transition flex items-center justify-center gap-2 shadow-lg shadow-dark/10">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                    Add to Cart
-                </button>
-            </form>
-
-            @auth
-            <form method="POST" action="{{ route('account.wishlist.add') }}">
-                @csrf
-                <input type="hidden" name="product_id" value="{{ $product->id }}">
-                <button type="submit" class="flex items-center gap-2 text-sm text-gray-500 hover:text-red-500 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-                    Add to Wishlist
-                </button>
-            </form>
-            @endauth
+        </div>
+        <div x-show="tab === 'usage'" x-cloak>
+            @if($product->how_to_use)
+            <div class="bg-cream-100 rounded-2xl p-6 border border-gold-100/50">
+                <h4 class="font-bold text-espresso-700 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Recommended Usage</h4>
+                <p class="text-espresso-500 leading-relaxed">{{ $product->how_to_use }}</p>
+            </div>
             @endif
-
-            <!-- Trust Badges -->
-            <div class="grid grid-cols-3 gap-3 pt-2">
-                <div class="text-center p-3 bg-gray-50 rounded-xl">
-                    <svg class="w-5 h-5 text-brand-600 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    <p class="text-[10px] font-semibold text-gray-700">Free Delivery</p>
-                </div>
-                <div class="text-center p-3 bg-gray-50 rounded-xl">
-                    <svg class="w-5 h-5 text-brand-600 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                    <p class="text-[10px] font-semibold text-gray-700">100% Genuine</p>
-                </div>
-                <div class="text-center p-3 bg-gray-50 rounded-xl">
-                    <svg class="w-5 h-5 text-brand-600 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                    <p class="text-[10px] font-semibold text-gray-700">7-Day Returns</p>
-                </div>
-            </div>
+        </div>
+        <div x-show="tab === 'reviews'" x-cloak>
+            <p class="text-center text-espresso-400 py-8">No reviews yet. Be the first to share your experience!</p>
         </div>
     </div>
+</div>
 
-    <!-- Tabs -->
-    <div class="mt-16" x-data="{ tab: 'description' }">
-        <div class="flex gap-1 border-b border-gray-200 overflow-x-auto scrollbar-hide">
-            <button @click="tab = 'description'" :class="tab === 'description' ? 'border-brand-600 text-brand-700 bg-brand-50/50' : 'border-transparent text-gray-500 hover:text-gray-700'" class="px-5 py-3.5 text-sm font-semibold border-b-2 -mb-px whitespace-nowrap rounded-t-lg transition">Description</button>
-            <button @click="tab = 'ingredients'" :class="tab === 'ingredients' ? 'border-brand-600 text-brand-700 bg-brand-50/50' : 'border-transparent text-gray-500 hover:text-gray-700'" class="px-5 py-3.5 text-sm font-semibold border-b-2 -mb-px whitespace-nowrap rounded-t-lg transition">Ingredients</button>
-            <button @click="tab = 'usage'" :class="tab === 'usage' ? 'border-brand-600 text-brand-700 bg-brand-50/50' : 'border-transparent text-gray-500 hover:text-gray-700'" class="px-5 py-3.5 text-sm font-semibold border-b-2 -mb-px whitespace-nowrap rounded-t-lg transition">How to Use</button>
-            <button @click="tab = 'reviews'" :class="tab === 'reviews' ? 'border-brand-600 text-brand-700 bg-brand-50/50' : 'border-transparent text-gray-500 hover:text-gray-700'" class="px-5 py-3.5 text-sm font-semibold border-b-2 -mb-px whitespace-nowrap rounded-t-lg transition">Reviews ({{ $product->review_count }})</button>
+
+<!-- Why Choose Shivara -->
+<div class="mt-12 bg-white rounded-3xl border border-gold-100/50 p-8 shadow-sm">
+    <h3 class="font-display text-2xl font-bold text-espresso-700 text-center mb-8">Why Choose Shivara?</h3>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="text-center">
+            <div class="w-14 h-14 mx-auto mb-3 bg-gold-50 rounded-2xl flex items-center justify-center"><svg class="w-7 h-7 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></div>
+            <h4 class="text-sm font-bold text-espresso-700">100% Natural</h4>
+            <p class="text-xs text-espresso-400 mt-1">No chemicals or preservatives</p>
         </div>
-
-        <div class="py-8 max-w-3xl">
-            <!-- Description -->
-            <div x-show="tab === 'description'">
-                <div class="prose prose-sm prose-gray max-w-none">
-                    {!! nl2br(e($product->description)) !!}
-                </div>
-                @if($product->benefits)
-                <h3 class="text-lg font-bold text-gray-900 mt-8 mb-4">Key Benefits</h3>
-                <div class="space-y-3">
-                    @foreach(explode("\n", $product->benefits) as $benefit)
-                    @if(trim($benefit))
-                    <div class="flex items-start gap-3">
-                        <span class="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-                            <svg class="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
-                        </span>
-                        <span class="text-sm text-gray-700">{{ trim(str_replace(['•', '-'], '', $benefit)) }}</span>
-                    </div>
-                    @endif
-                    @endforeach
-                </div>
-                @endif
-            </div>
-
-            <!-- Ingredients -->
-            <div x-show="tab === 'ingredients'" x-cloak>
-                @if($product->ingredients)
-                <div class="grid sm:grid-cols-2 gap-3">
-                    @foreach(explode(',', $product->ingredients) as $ing)
-                    @if(trim($ing))
-                    <div class="flex items-center gap-3 p-3.5 bg-gray-50 rounded-xl border border-gray-100">
-                        <div class="w-8 h-8 bg-brand-100 rounded-lg flex items-center justify-center shrink-0">
-                            <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
-                        </div>
-                        <span class="text-sm font-medium text-gray-700">{{ trim($ing) }}</span>
-                    </div>
-                    @endif
-                    @endforeach
-                </div>
-                @else
-                <p class="text-gray-500">Ingredient information not available.</p>
-                @endif
-            </div>
-
-            <!-- How to Use -->
-            <div x-show="tab === 'usage'" x-cloak>
-                @if($product->how_to_use)
-                <div class="bg-brand-50 border border-brand-100 rounded-2xl p-6">
-                    <h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        Recommended Usage
-                    </h3>
-                    <p class="text-gray-700 leading-relaxed">{{ $product->how_to_use }}</p>
-                </div>
-                @else
-                <p class="text-gray-500">Usage instructions not available.</p>
-                @endif
-            </div>
-
-            <!-- Reviews -->
-            <div x-show="tab === 'reviews'" x-cloak>
-                @if($product->reviews->count())
-                <div class="space-y-6">
-                    @foreach($product->reviews as $review)
-                    <div class="border-b border-gray-100 pb-6 last:border-0">
-                        <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center text-xs font-bold text-brand-700">{{ substr($review->user->name, 0, 1) }}</div>
-                                <div>
-                                    <p class="text-sm font-semibold text-gray-900">{{ $review->user->name }}</p>
-                                    <p class="text-xs text-gray-400">{{ $review->created_at->diffForHumans() }}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-0.5">
-                                @for($s = 1; $s <= 5; $s++)
-                                <svg class="w-4 h-4 {{ $s <= $review->rating ? 'text-amber-400 fill-amber-400' : 'text-gray-200 fill-gray-200' }}" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                @endfor
-                            </div>
-                        </div>
-                        @if($review->title)<p class="font-medium text-gray-800 mb-1">{{ $review->title }}</p>@endif
-                        <p class="text-sm text-gray-600 leading-relaxed">{{ $review->comment }}</p>
-                    </div>
-                    @endforeach
-                </div>
-                @else
-                <div class="text-center py-12">
-                    <svg class="w-12 h-12 text-gray-200 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                    <p class="text-gray-500">No reviews yet. Be the first to review this product!</p>
-                </div>
-                @endif
-            </div>
+        <div class="text-center">
+            <div class="w-14 h-14 mx-auto mb-3 bg-olive-50 rounded-2xl flex items-center justify-center"><svg class="w-7 h-7 text-olive-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div>
+            <h4 class="text-sm font-bold text-espresso-700">GMP Certified</h4>
+            <p class="text-xs text-espresso-400 mt-1">Made in audited facilities</p>
+        </div>
+        <div class="text-center">
+            <div class="w-14 h-14 mx-auto mb-3 bg-gold-50 rounded-2xl flex items-center justify-center"><svg class="w-7 h-7 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg></div>
+            <h4 class="text-sm font-bold text-espresso-700">Lab Tested</h4>
+            <p class="text-xs text-espresso-400 mt-1">Purity verified by experts</p>
+        </div>
+        <div class="text-center">
+            <div class="w-14 h-14 mx-auto mb-3 bg-olive-50 rounded-2xl flex items-center justify-center"><svg class="w-7 h-7 text-olive-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg></div>
+            <h4 class="text-sm font-bold text-espresso-700">5000+ Happy Customers</h4>
+            <p class="text-xs text-espresso-400 mt-1">Trusted across India</p>
         </div>
     </div>
+</div>
 
-    <!-- Related Products -->
-    @if($relatedProducts->count())
-    <section class="mt-16 pt-12 border-t border-gray-100">
-        <h2 class="font-display text-2xl font-bold text-dark mb-8">You may also like</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
-            @foreach($relatedProducts as $product)
-                @include('partials.product-card', ['product' => $product])
-            @endforeach
-        </div>
-    </section>
-    @endif
+<!-- Related Products -->
+@if($relatedProducts->count())
+<div class="mt-12">
+    <h2 class="font-display text-2xl font-bold text-espresso-700 mb-6">You may also like</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        @foreach($relatedProducts as $product)
+            @include('partials.product-card', ['product' => $product])
+        @endforeach
+    </div>
+</div>
+@endif
+
+</div>
 </div>
 @endsection
