@@ -52,7 +52,7 @@
 
             <!-- Logo -->
             <a href="{{ route('home') }}" class="flex flex-col items-center group">
-                <img src="{{ asset('shivaralogo.png') }}" alt="Shivara" class="h-10 md:h-12 w-auto" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+                <img src="/public/shivaralogo.png" alt="Shivara" class="h-10 md:h-12 w-auto" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
                 <span style="display:none" class="text-[26px] font-display font-bold tracking-wide text-espresso-700">SHIVARA</span>
             </a>
 

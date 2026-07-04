@@ -32,7 +32,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
             <div class="space-y-5">
                 <a href="{{ route('home') }}" class="inline-block">
-                    <img src="{{ asset('shivaralogo.png') }}" alt="Shivara" class="h-10 w-auto brightness-0 invert" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+                    <img src="/public/shivaralogo.png" alt="Shivara" class="h-10 w-auto brightness-0 invert" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
                     <span style="display:none" class="text-xl font-display font-bold text-cream-50">SHIVARA</span>
                 </a>
                 <p class="text-sm text-cream-400 leading-relaxed">{{ config('shivara.description') }}</p>
