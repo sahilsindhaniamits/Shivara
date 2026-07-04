@@ -52,13 +52,7 @@
 
             <!-- Logo -->
             <a href="{{ route('home') }}" class="flex flex-col items-center group">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
-                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-                    </div>
-                    <span class="text-[26px] font-display font-bold tracking-wide text-espresso-700 group-hover:text-gold-600 transition">SHIVARA</span>
-                </div>
-                <span class="text-[9px] uppercase tracking-[0.4em] text-gold-500 -mt-0.5">{{ config('shivara.tagline') }}</span>
+                <img src="/shivaralogo.png" alt="Shivara" class="h-10 md:h-12 w-auto">
             </a>
 
             <!-- Right Actions -->
