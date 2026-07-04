@@ -33,6 +33,13 @@ return [
     'standard_days' => '5-7 business days',
     'express_days' => '2-3 business days',
 
+    // Free Gift Product (above specific amount)
+    'free_gift_enabled' => true,
+    'free_gift_threshold' => 1499, // Cart amount above which free product is added
+    'free_gift_product_id' => null, // Set to a product ID, or null for default
+    'free_gift_name' => 'Herbal Immunity Booster (Sample)',
+    'free_gift_image' => 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=100&h=100&fit=crop',
+
     // GST
     'gst_rates' => [0, 5, 12, 18, 28],
 

@@ -16,6 +16,24 @@ class CartController extends Controller
         return view('storefront.cart', compact('cartItems'));
     }
 
+    public function data()
+    {
+        $cartItems = $this->getCartItems();
+        $items = $cartItems->map(function ($item) {
+            $price = $item->variant ? $item->variant->selling_price : $item->product->selling_price;
+            return [
+                'id' => $item->id,
+                'name' => $item->product->name,
+                'variant' => $item->variant?->name,
+                'price' => (float) $price,
+                'quantity' => (int) $item->quantity,
+                'image' => $item->product->primaryImage?->url ?? 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=100&h=100&fit=crop',
+                'slug' => $item->product->slug,
+            ];
+        });
+        return response()->json(['items' => $items]);
+    }
+
     public function add(Request $request)
     {
         $request->validate([
@@ -52,7 +70,7 @@ class CartController extends Controller
             session()->put('cart', $cart);
         }
 
-        return back()->with('success', "{$product->name} added to cart!");
+        return back()->with('success', "{$product->name} added to cart!")->with('open_cart', true);
     }
 
     public function update(Request $request)

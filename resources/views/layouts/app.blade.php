@@ -106,6 +106,7 @@
     </main>
 
     @include('partials.footer')
+    @include('partials.side-cart')
 
     <!-- Welcome Popup -->
     <div x-data="{ popup: !sessionStorage.getItem('shivara_popup_closed') }" x-show="popup" x-cloak
@@ -148,6 +149,11 @@
                 });
             }, { threshold: 0.1 });
             document.querySelectorAll('.scroll-reveal').forEach(el => observer.observe(el));
+
+            // Auto-open cart after adding product
+            @if(session('open_cart'))
+            setTimeout(() => window.dispatchEvent(new CustomEvent('open-cart')), 300);
+            @endif
         });
     </script>
     @stack('scripts')
