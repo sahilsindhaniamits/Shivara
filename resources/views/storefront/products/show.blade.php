@@ -20,13 +20,41 @@
 </div>
 
 <!-- Product Section -->
-<div class="max-w-7xl mx-auto px-4 sm:px-6 pb-10" x-data="{ qty: 1, img: 0, tab: 'description' }">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 pb-10" x-data="{ qty: 1, img: 0, tab: 'description', lightbox: false }">
 <div class="grid lg:grid-cols-2 gap-8 lg:gap-16">
+
+<!-- Image Lightbox Modal -->
+<div x-show="lightbox" x-cloak x-transition.opacity class="fixed inset-0 z-[200] bg-black/90 flex items-center justify-center p-4" @click.self="lightbox = false" @keydown.escape.window="lightbox = false">
+    <button @click="lightbox = false" class="absolute top-4 right-4 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white z-10">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+    <button @click="img = (img - 1 + {{ $product->images->count() ?: 1 }}) % {{ $product->images->count() ?: 1 }}" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    <button @click="img = (img + 1) % {{ $product->images->count() ?: 1 }}" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </button>
+    <div class="max-w-3xl max-h-[85vh] w-full">
+        @if($product->images->count())
+        @foreach($product->images as $i => $lbImg)
+        <img x-show="img === {{ $i }}" x-transition src="{{ str_starts_with($lbImg->url, '/storage/') ? '/public' . $lbImg->url : $lbImg->url }}" alt="{{ $product->name }}" class="w-full h-full object-contain rounded-xl">
+        @endforeach
+        @endif
+    </div>
+    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+        @if($product->images->count() > 1)
+        @foreach($product->images as $i => $dot)
+        <button @click="img = {{ $i }}" :class="img === {{ $i }} ? 'w-8 bg-white' : 'w-3 bg-white/40'" class="h-3 rounded-full transition-all"></button>
+        @endforeach
+        @endif
+    </div>
+    <p class="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs text-white/50" x-text="(img + 1) + ' / {{ $product->images->count() ?: 1 }}'"></p>
+</div>
 
 
 <!-- LEFT: Image Gallery -->
 <div class="space-y-4">
-    <div class="aspect-square rounded-3xl overflow-hidden bg-white border border-gray-200 shadow-sm relative group select-none cursor-grab active:cursor-grabbing" x-init="initSwipe($el, () => img = (img+1) % {{ $product->images->count() ?: 1 }}, () => img = (img-1+{{ $product->images->count() ?: 1 }}) % {{ $product->images->count() ?: 1 }})">
+    <div @click="lightbox = true" class="aspect-square rounded-3xl overflow-hidden bg-white border border-gray-200 shadow-sm relative group select-none cursor-zoom-in" x-init="initSwipe($el, () => img = (img+1) % {{ $product->images->count() ?: 1 }}, () => img = (img-1+{{ $product->images->count() ?: 1 }}) % {{ $product->images->count() ?: 1 }})">
         @if($product->images->count())
             @foreach($product->images as $i => $image)
             <img x-show="img === {{ $i }}" x-transition src="{{ str_starts_with($image->url, '/storage/') ? '/public' . $image->url : $image->url }}" alt="{{ $product->name }}" class="w-full h-full object-cover absolute inset-0 transition-transform duration-500 group-hover:scale-110">
@@ -109,43 +137,25 @@
         </div>
         <p class="text-[11px] text-espresso-400 mt-2">Inclusive of all taxes • Free shipping on orders above ₹{{ config('shivara.free_shipping_threshold') }}</p>
 
-        <!-- Offer Tags (dynamic from active coupons) -->
-        @php $coupons = \App\Models\Coupon::where('is_active', true)->where('end_date', '>', now())->take(4)->get(); @endphp
-        @if($coupons->count())
-        <div class="mt-4">
-            <p class="text-xs font-bold text-espresso-700 mb-2">Active Offers</p>
-            <div class="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
-                @foreach($coupons as $c)
-                <div class="shrink-0 w-44 border border-indigo-200 rounded-xl overflow-hidden bg-gradient-to-b from-indigo-50 to-white">
-                    <div class="p-3 text-center" style="background-color: rgba(129,104,255,0.15);">
-                        <p class="text-[10px] font-bold text-indigo-800 uppercase tracking-wider">CODE: {{ $c->code }}</p>
-                    </div>
-                    <div class="p-3 text-center">
-                        <p class="text-xs text-gray-700 leading-tight">{{ $c->description ?? ($c->type == 'percentage' ? $c->value.'% off' : '₹'.$c->value.' off') }}</p>
-                    </div>
-                    <div class="px-3 pb-3 text-center border-t border-dashed border-indigo-200 pt-2">
-                        <button onclick="navigator.clipboard.writeText('{{ $c->code }}'); this.textContent='COPIED!'; setTimeout(()=>this.textContent='📋 COPY CODE',1500)" class="text-[10px] font-bold text-gray-600 hover:text-indigo-700 transition cursor-pointer">📋 COPY CODE</button>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </div>
-        @endif
     </div>
 
     <!-- Pack/Variant Selector -->
     @if($product->variants->count())
-    <div>
+    <div x-data="{ selectedPack: 0 }">
         <p class="text-sm font-bold text-espresso-700 mb-3">Select Pack</p>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" x-data="{ selectedPack: 0 }">
+        <div class="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
             @foreach($product->variants as $i => $variant)
-            <button type="button" @click="selectedPack = {{ $i }}" :class="selectedPack === {{ $i }} ? 'border-espresso-700 bg-espresso-700 text-white' : 'border-gray-200 bg-white text-espresso-700 hover:border-gray-300'" class="relative border-2 rounded-xl p-3 text-center transition-all cursor-pointer">
+            <button type="button" @click="selectedPack = {{ $i }}" :class="selectedPack === {{ $i }} ? 'ring-2 ring-offset-2' : ''" class="shrink-0 w-36 border border-gray-200 rounded-xl overflow-hidden text-center transition-all cursor-pointer" style="ring-color: #B08840;">
                 @if($variant->mrp > $variant->selling_price)
-                <span class="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold text-white px-2 py-0.5 rounded-full" style="background-color:#16a34a;">Save ₹{{ number_format($variant->mrp - $variant->selling_price) }}</span>
+                <div class="relative"><span class="absolute -top-0 left-1/2 -translate-x-1/2 text-[9px] font-bold text-white px-2.5 py-0.5 rounded-b-lg" style="background-color:#16a34a;">Save ₹{{ number_format($variant->mrp - $variant->selling_price) }}</span></div>
                 @endif
-                <p class="text-lg font-bold mt-1">₹{{ number_format($variant->selling_price) }}</p>
-                <p class="text-xs opacity-60 line-through">₹{{ number_format($variant->mrp) }}</p>
-                <p class="text-xs font-semibold mt-1.5 border-t pt-1.5" :class="selectedPack === {{ $i }} ? 'border-white/30' : 'border-gray-100'">{{ $variant->name }}</p>
+                <div class="p-3 pt-5 bg-cream-50">
+                    <p class="text-xl font-bold text-espresso-700">₹{{ number_format($variant->selling_price) }}</p>
+                    <p class="text-xs text-espresso-400 line-through">₹{{ number_format($variant->mrp) }}</p>
+                </div>
+                <div class="p-2.5 text-center text-white" style="background-color:#1a1a1a;">
+                    <p class="text-xs font-bold">{{ $variant->name }}</p>
+                </div>
             </button>
             @endforeach
         </div>
@@ -221,6 +231,29 @@
             <p class="text-sm text-espresso-600"><span class="font-semibold">100% Natural</span> • Lab Tested • GMP Certified</p>
         </div>
     </div>
+
+    <!-- Active Offers -->
+    @php $activeCoupons = \App\Models\Coupon::where('is_active', true)->where('end_date', '>', now())->take(4)->get(); @endphp
+    @if($activeCoupons->count())
+    <div>
+        <p class="text-sm font-bold text-espresso-700 mb-3">Active Offers</p>
+        <div class="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+            @foreach($activeCoupons as $coupon)
+            <div class="shrink-0 w-48 border-2 border-gold-200 rounded-xl overflow-hidden bg-white">
+                <div class="p-2.5 text-center" style="background-color: rgba(176,136,64,0.1);">
+                    <p class="text-[10px] font-bold uppercase tracking-wider" style="color:#7A5A30;">CODE: {{ $coupon->code }}</p>
+                </div>
+                <div class="p-3 text-center">
+                    <p class="text-xs text-espresso-600 leading-tight">{{ $coupon->description ?? ($coupon->type == 'percentage' ? $coupon->value.'% off' : '₹'.$coupon->value.' off') }}</p>
+                </div>
+                <div class="px-3 pb-2.5 text-center border-t border-dashed border-gold-200 pt-2">
+                    <button onclick="navigator.clipboard.writeText('{{ $coupon->code }}'); this.textContent='✓ COPIED!'; setTimeout(()=>this.textContent='📋 COPY CODE',1500)" class="text-[10px] font-bold hover:opacity-70 transition cursor-pointer" style="color:#7A5A30;">📋 COPY CODE</button>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
 </div>
 </div>
 
