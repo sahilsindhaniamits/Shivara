@@ -1,4 +1,4 @@
-<div class="product-card group bg-white rounded-2xl border border-gold-100/50 overflow-hidden">
+<div class="product-card group bg-white rounded-2xl border border-gold-100/50 overflow-hidden flex flex-col">
     <a href="{{ route('products.show', $product->slug) }}" class="block">
         <div class="relative aspect-square overflow-hidden bg-cream-100">
             @if($product->primaryImage && $product->primaryImage->url)
@@ -14,19 +14,8 @@
                 <span class="text-xs font-bold uppercase tracking-widest text-espresso-500 bg-white px-4 py-2 rounded-full border border-espresso-200">Sold Out</span>
             </div>
             @endif
-            @if($product->stock > 0)
-            <div class="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-400">
-                <form method="POST" action="{{ route('cart.add') }}">@csrf
-                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                    <input type="hidden" name="quantity" value="1">
-                    <button type="submit" class="w-full text-white hover:opacity-90" style="background-color:#2C2418;" text-xs font-bold uppercase tracking-wider py-3 rounded-xl transition shadow-lg">
-                        Add to Cart
-                    </button>
-                </form>
-            </div>
-            @endif
         </div>
-        <div class="p-4">
+        <div class="p-4 flex-1 flex flex-col">
             @if($product->category)
             <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-gold-500 mb-1.5">{{ $product->category->name }}</p>
             @endif
@@ -37,6 +26,30 @@
                 <span class="text-xs text-espresso-300 line-through">₹{{ number_format($product->mrp) }}</span>
                 @endif
             </div>
+            <!-- Star Rating -->
+            <div class="flex items-center gap-0.5 mt-2">
+                @for($s = 1; $s <= 5; $s++)
+                <svg class="w-3.5 h-3.5 {{ $s <= ($product->average_rating ?: 4) ? 'text-amber-400 fill-amber-400' : 'text-gray-200 fill-gray-200' }}" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                @endfor
+            </div>
         </div>
     </a>
+    <!-- Always-visible Add to Cart Button -->
+    @if($product->stock > 0)
+    <div class="px-4 pb-4">
+        <form method="POST" action="{{ route('cart.add') }}">@csrf
+            <input type="hidden" name="product_id" value="{{ $product->id }}">
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit" class="w-full text-white text-xs font-bold uppercase tracking-wider py-3 rounded-xl transition hover:opacity-90" style="background-color:#2C2418;">
+                Add to Cart
+            </button>
+        </form>
+    </div>
+    @else
+    <div class="px-4 pb-4">
+        <div class="w-full text-center text-gray-400 text-xs font-bold uppercase tracking-wider py-3 rounded-xl bg-gray-100">
+            Out of Stock
+        </div>
+    </div>
+    @endif
 </div>

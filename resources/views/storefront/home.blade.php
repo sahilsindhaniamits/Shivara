@@ -107,13 +107,13 @@
     </div>
 </section>
 
-<!-- Amazing Deals -->
+<!-- Featured Products (Bestsellers) -->
 <section class="py-16 md:py-20 scroll-reveal" style="background-color: #FFFDF8;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="flex items-end justify-between mb-10">
             <div>
-                <span class="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-500">Limited Time</span>
-                <h2 class="font-display text-3xl md:text-5xl font-bold text-espresso-700 mt-2">Amazing deals.</h2>
+                <span class="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-500">Bestsellers</span>
+                <h2 class="font-display text-3xl md:text-5xl font-bold text-espresso-700 mt-2">Featured Products.</h2>
             </div>
             <a href="{{ route('products.index') }}" class="hidden sm:flex items-center gap-2 px-5 py-2.5 border-2 border-espresso-700 text-espresso-700 text-xs font-bold uppercase tracking-wider rounded-full hover:bg-espresso-700 hover:text-cream-50 transition">
                 View All <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
@@ -128,6 +128,36 @@
         </div>
     </div>
 </section>
+
+<!-- Amazing Deals -->
+@php
+    $amazingDeals = \App\Models\Product::where('is_active', true)
+        ->whereColumn('mrp', '>', 'selling_price')
+        ->orderByRaw('((mrp - selling_price) / mrp) DESC')
+        ->take(4)
+        ->get()
+        ->filter(function($p) { return $p->discount_percent > 20; });
+@endphp
+@if($amazingDeals->count())
+<section class="py-16 md:py-20 scroll-reveal" style="background-color: #F5EFE6;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="flex items-end justify-between mb-10">
+            <div>
+                <span class="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-500">Limited Time</span>
+                <h2 class="font-display text-3xl md:text-5xl font-bold text-espresso-700 mt-2">Amazing Deals.</h2>
+            </div>
+            <a href="{{ route('products.index') }}" class="hidden sm:flex items-center gap-2 px-5 py-2.5 border-2 border-espresso-700 text-espresso-700 text-xs font-bold uppercase tracking-wider rounded-full hover:bg-espresso-700 hover:text-cream-50 transition">
+                View All <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </a>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            @foreach($amazingDeals as $product)
+                @include('partials.product-card', ['product' => $product])
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
 
 <!-- About Us Banner -->
 <section class="py-16 md:py-24 scroll-reveal" style="background-color: #F5EFE6;">
