@@ -28,7 +28,7 @@
 <div class="space-y-4">
     <div class="aspect-square rounded-3xl overflow-hidden bg-white border border-gold-100 shadow-sm relative group">
         @if($product->primaryImage && $product->primaryImage->url)
-            <img src="{{ $product->primaryImage->url }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+            <img src="{{ str_starts_with($product->primaryImage->url, '/storage/') ? '/public' . $product->primaryImage->url : $product->primaryImage->url }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
         @else
             <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=800&h=800&fit=crop" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
         @endif
@@ -47,7 +47,7 @@
     <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
         @foreach($product->images as $i => $img)
         <button class="w-16 h-16 rounded-lg overflow-hidden shrink-0 border-2 border-gold-100 hover:border-gold-400 transition">
-            <img src="{{ $img->url }}" alt="" class="w-full h-full object-cover">
+            <img src="{{ str_starts_with($img->url, '/storage/') ? '/public' . $img->url : $img->url }}" alt="" class="w-full h-full object-cover">
         </button>
         @endforeach
     </div>
@@ -211,7 +211,7 @@
 <div class="mt-8" x-data="{ pb: 0 }" x-init="setInterval(() => pb = (pb + 1) % {{ count($product->banners) }}, 5000)">
     <div class="relative rounded-2xl overflow-hidden aspect-[3/1]">
         @foreach($product->banners as $i => $bannerUrl)
-        <div x-show="pb === {{ $i }}" x-transition class="absolute inset-0"><img src="{{ $bannerUrl }}" alt="Banner" class="w-full h-full object-cover rounded-2xl"></div>
+        <div x-show="pb === {{ $i }}" x-transition class="absolute inset-0"><img src="{{ str_starts_with($bannerUrl, '/storage/') ? '/public' . $bannerUrl : $bannerUrl }}" alt="Banner" class="w-full h-full object-cover rounded-2xl"></div>
         @endforeach
     </div>
     @if(count($product->banners) > 1)
@@ -220,6 +220,23 @@
 </div>
 @endif
 
+<!-- Why Choose Shivara -->
+<div class="mt-12 bg-white rounded-3xl border border-gold-100/50 p-8 shadow-sm">
+    <h3 class="font-display text-2xl font-bold text-espresso-700 text-center mb-8">Why Choose Shivara?</h3>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="text-center">
+            <div class="w-14 h-14 mx-auto mb-3 bg-gold-50 rounded-2xl flex items-center justify-center"><svg class="w-7 h-7 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></div>
+            <h4 class="text-sm font-bold text-espresso-700">100% Natural</h4>
+            <p class="text-xs text-espresso-400 mt-1">No chemicals or preservatives</p>
+        </div>
+        <div class="text-center">
+            <div class="w-14 h-14 mx-auto mb-3 bg-olive-50 rounded-2xl flex items-center justify-center"><svg class="w-7 h-7 text-olive-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div>
+            <h4 class="text-sm font-bold text-espresso-700">GMP Certified</h4>
+            <p class="text-xs text-espresso-400 mt-1">Made in audited facilities</p>
+        </div>
+        <div class="text-center">
+            <div class="w-14 h-14 mx-auto mb-3 bg-gold-50 rounded-2xl flex items-center justify-center"><svg class="w-7 h-7 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg></div>
+            <h4 class="text-sm font-bold text-espresso-700">Lab Tested</h4>
             <p class="text-xs text-espresso-400 mt-1">Purity verified by experts</p>
         </div>
         <div class="text-center">
@@ -234,7 +251,7 @@
 @if($relatedProducts->count())
 <div class="mt-12">
     <h2 class="font-display text-2xl font-bold text-espresso-700 mb-6">You may also like</h2>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
         @foreach($relatedProducts as $product)
             @include('partials.product-card', ['product' => $product])
         @endforeach
