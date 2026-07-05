@@ -118,4 +118,9 @@ Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\AdminMiddleware
     // Free Gift
     Route::get('/free-gift', [\App\Http\Controllers\Admin\FreeGiftController::class, 'index'])->name('free-gift.index');
     Route::post('/free-gift', [\App\Http\Controllers\Admin\FreeGiftController::class, 'update'])->name('free-gift.update');
+
+    // Reviews
+    Route::get('/reviews', [\App\Http\Controllers\Admin\ReviewController::class, 'index'])->name('reviews.index');
+    Route::patch('/reviews/{review}/approve', [\App\Http\Controllers\Admin\ReviewController::class, 'approve'])->name('reviews.approve');
+    Route::delete('/reviews/{review}', [\App\Http\Controllers\Admin\ReviewController::class, 'decline'])->name('reviews.decline');
 });
