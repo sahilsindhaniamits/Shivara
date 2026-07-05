@@ -154,6 +154,38 @@
             @if(session('open_cart'))
             setTimeout(() => window.dispatchEvent(new CustomEvent('open-cart')), 300);
             @endif
+
+            // Touch/Mouse Swipe for sliders
+            document.querySelectorAll('[x-data]').forEach(el => {
+                let startX = 0, startY = 0, isDragging = false;
+                el.addEventListener('touchstart', e => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; }, { passive: true });
+                el.addEventListener('mousedown', e => { startX = e.clientX; startY = e.clientY; isDragging = true; });
+                el.addEventListener('touchend', e => {
+                    let diffX = e.changedTouches[0].clientX - startX;
+                    let diffY = Math.abs(e.changedTouches[0].clientY - startY);
+                    if (Math.abs(diffX) > 50 && diffY < 100) {
+                        if (diffX < 0) el.querySelectorAll('button[class*="right"]')[0]?.click();
+                        else el.querySelectorAll('button[class*="left"]')[0]?.click();
+                    }
+                });
+                el.addEventListener('mouseup', e => {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    let diffX = e.clientX - startX;
+                    if (Math.abs(diffX) > 50) {
+                        // Find Alpine component and advance slider
+                        let comp = el.__x;
+                        if (comp && comp.$data) {
+                            let keys = Object.keys(comp.$data);
+                            let slideKey = keys.find(k => k === 'current' || k === 'pb' || k === 's' || k === 'img' || k === 'slide');
+                            if (slideKey !== undefined) {
+                                if (diffX < 0) comp.$data[slideKey]++;
+                                else comp.$data[slideKey] = Math.max(0, comp.$data[slideKey] - 1);
+                            }
+                        }
+                    }
+                });
+            });
         });
     </script>
     @stack('scripts')

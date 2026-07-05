@@ -163,4 +163,22 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')
             ->with('success', 'Product deleted.');
     }
+
+    public function deleteImage(Product $product, \App\Models\ProductImage $image)
+    {
+        if ($image->product_id === $product->id) {
+            $image->delete();
+        }
+        return back()->with('success', 'Image deleted.');
+    }
+
+    public function deleteBanner(Product $product, $index)
+    {
+        $banners = $product->banners ?? [];
+        if (isset($banners[$index])) {
+            unset($banners[$index]);
+            $product->update(['banners' => array_values($banners)]);
+        }
+        return back()->with('success', 'Banner deleted.');
+    }
 }
