@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/{slug}', [ProductController::class, 'show'])->name('products.show');
+Route::post('/products/{slug}/review', [ProductController::class, 'storeReview'])->name('products.review')->middleware('auth');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
 
 // Cart (works for guests and authenticated users)
