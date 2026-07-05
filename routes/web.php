@@ -96,6 +96,7 @@ Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\AdminMiddleware
     Route::resource('products', AdminProductController::class);
     Route::delete('products/{product}/image/{image}', [AdminProductController::class, 'deleteImage'])->name('products.deleteImage');
     Route::delete('products/{product}/banner/{index}', [AdminProductController::class, 'deleteBanner'])->name('products.deleteBanner');
+    Route::delete('products/{product}/variant/{variant}', [AdminProductController::class, 'deleteVariant'])->name('products.deleteVariant');
 
     // Categories
     Route::resource('categories', AdminCategoryController::class);

@@ -106,6 +106,34 @@
             </div>
         </div>
 
+        <!-- Variants / Packs -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-200">
+            <h2 class="font-bold text-gray-900 mb-2">Packs / Variants</h2>
+            <p class="text-xs text-gray-500 mb-4">Add different pack sizes (e.g., Pack of 1, Pack of 2). These show as selectable options on the product page.</p>
+
+            @if($product->variants->count())
+            <div class="space-y-2 mb-4">
+                @foreach($product->variants as $v)
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                    <div class="flex-1">
+                        <p class="text-sm font-semibold text-gray-900">{{ $v->name }} — ₹{{ number_format($v->selling_price) }} <span class="text-xs text-gray-400 line-through">₹{{ number_format($v->mrp) }}</span></p>
+                        <p class="text-xs text-gray-500">Stock: {{ $v->stock }} | SKU: {{ $v->sku ?? '-' }}</p>
+                    </div>
+                    <button type="button" onclick="if(confirm('Delete this variant?')){fetch('{{ route('admin.products.show', $product) }}/variant/{{ $v->id }}',{method:'POST',headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}','Content-Type':'application/json'},body:JSON.stringify({_method:'DELETE'})}).then(()=>location.reload())}" class="text-xs text-red-500 font-bold hover:underline">Delete</button>
+                </div>
+                @endforeach
+            </div>
+            @endif
+
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 p-4 bg-cream-50 rounded-xl border border-dashed border-gray-300">
+                <div><label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Name *</label><input type="text" name="variant_name" placeholder="Pack of 2" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"></div>
+                <div><label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">MRP *</label><input type="number" name="variant_mrp" placeholder="599" step="0.01" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"></div>
+                <div><label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Selling Price *</label><input type="number" name="variant_selling_price" placeholder="449" step="0.01" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"></div>
+                <div><label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Stock</label><input type="number" name="variant_stock" placeholder="50" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"></div>
+                <div class="flex items-end"><button type="submit" name="add_variant" value="1" class="w-full px-3 py-2 text-white text-xs font-bold rounded-lg hover:opacity-90 transition" style="background-color:#16a34a">+ Add Pack</button></div>
+            </div>
+        </div>
+
         <div class="flex gap-4">
             <button type="submit" class="px-8 py-3 text-white font-medium rounded-xl hover:opacity-90 transition" style="background-color:#c06d22">Update Product</button>
             <a href="{{ route('admin.products.index') }}" class="px-8 py-3 border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition">Cancel</a>
