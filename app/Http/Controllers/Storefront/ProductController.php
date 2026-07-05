@@ -66,4 +66,30 @@ class ProductController extends Controller
 
         return view('storefront.products.show', compact('product', 'relatedProducts'));
     }
+
+    public function storeReview(Request $request, string $slug)
+    {
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'required|string|max:1000',
+        ]);
+
+        $product = Product::where('slug', $slug)->firstOrFail();
+
+        // Check if user already reviewed
+        $existing = \App\Models\Review::where('product_id', $product->id)->where('user_id', auth()->id())->first();
+        if ($existing) {
+            return back()->with('error', 'You have already reviewed this product.');
+        }
+
+        \App\Models\Review::create([
+            'product_id' => $product->id,
+            'user_id' => auth()->id(),
+            'rating' => $request->rating,
+            'comment' => $request->comment,
+            'is_approved' => false, // Needs admin approval
+        ]);
+
+        return back()->with('success', 'Thank you! Your review has been submitted and will appear after approval.');
+    }
 }
