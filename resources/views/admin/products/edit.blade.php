@@ -47,10 +47,7 @@
             <div class="grid md:grid-cols-3 gap-4">
                 <div><label class="block text-sm font-medium text-gray-700 mb-1">MRP (₹) *</label><input type="number" name="mrp" value="{{ old('mrp', $product->mrp) }}" step="0.01" required class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"></div>
                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Selling Price (₹) *</label><input type="number" name="selling_price" value="{{ old('selling_price', $product->selling_price) }}" step="0.01" required class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"></div>
-                <div><label class="block text-sm font-medium text-gray-700 mb-1">Cost Price (₹)</label><input type="number" name="cost_price" value="{{ old('cost_price', $product->cost_price) }}" step="0.01" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"></div>
                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Stock *</label><input type="number" name="stock" value="{{ old('stock', $product->stock) }}" required class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"></div>
-                <div><label class="block text-sm font-medium text-gray-700 mb-1">GST Rate (%)</label><select name="gst_rate" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm">@foreach(config('shivara.gst_rates') as $rate)<option value="{{ $rate }}" {{ $product->gst_rate == $rate ? 'selected' : '' }}>{{ $rate }}%</option>@endforeach</select></div>
-                <div><label class="block text-sm font-medium text-gray-700 mb-1">Weight (g)</label><input type="number" name="weight" value="{{ old('weight', $product->weight) }}" step="0.01" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"></div>
             </div>
         </div>
 
@@ -130,7 +127,16 @@
                 <div><label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">MRP *</label><input type="number" name="variant_mrp" placeholder="599" step="0.01" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"></div>
                 <div><label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Selling Price *</label><input type="number" name="variant_selling_price" placeholder="449" step="0.01" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"></div>
                 <div><label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Stock</label><input type="number" name="variant_stock" placeholder="50" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"></div>
-                <div class="flex items-end"><button type="submit" name="add_variant" value="1" class="w-full px-3 py-2 text-white text-xs font-bold rounded-lg hover:opacity-90 transition" style="background-color:#16a34a">+ Add Pack</button></div>
+                <div class="flex items-end"><button type="button" onclick="
+                    let name = this.closest('.grid').querySelector('[name=variant_name]').value;
+                    let mrp = this.closest('.grid').querySelector('[name=variant_mrp]').value;
+                    let sp = this.closest('.grid').querySelector('[name=variant_selling_price]').value;
+                    let stock = this.closest('.grid').querySelector('[name=variant_stock]').value;
+                    if(!name||!mrp||!sp){alert('Fill Name, MRP, Selling Price');return;}
+                    let form = document.createElement('form');form.method='POST';form.action=window.location.href;
+                    form.innerHTML='@csrf<input name=_method value=PUT><input name=add_variant value=1><input name=variant_name value="'+name+'"><input name=variant_mrp value="'+mrp+'"><input name=variant_selling_price value="'+sp+'"><input name=variant_stock value="'+stock+'"><input name=name value={{ $product->name }}><input name=mrp value={{ $product->mrp }}><input name=selling_price value={{ $product->selling_price }}><input name=stock value={{ $product->stock }}><input name=gst_rate value={{ $product->gst_rate }}>';
+                    document.body.appendChild(form);form.submit();
+                " class="w-full px-3 py-2 text-white text-xs font-bold rounded-lg hover:opacity-90 transition" style="background-color:#16a34a">+ Add Pack</button></div>
             </div>
         </div>
 

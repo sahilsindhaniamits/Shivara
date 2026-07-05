@@ -135,7 +135,10 @@
             <span class="px-3 py-1 bg-green-50 text-green-700 text-xs font-bold rounded-full border border-green-200">Save ₹{{ number_format($product->mrp - $product->selling_price) }}</span>
             @endif
         </div>
-        <p class="text-[11px] text-espresso-400 mt-2">Inclusive of all taxes • Free shipping on orders above ₹{{ config('shivara.free_shipping_threshold') }}</p>
+        <div class="flex items-center gap-3 mt-3 text-[11px] text-espresso-400">
+            <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg> Inclusive of all taxes</span>
+            <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Free shipping above ₹{{ config('shivara.free_shipping_threshold') }}</span>
+        </div>
 
     </div>
 
@@ -145,16 +148,16 @@
         <p class="text-sm font-bold text-espresso-700 mb-3">Select Pack</p>
         <div class="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
             @foreach($product->variants as $i => $variant)
-            <button type="button" @click="selectedPack = {{ $i }}" :class="selectedPack === {{ $i }} ? 'ring-2 ring-offset-2' : ''" class="shrink-0 w-36 border border-gray-200 rounded-xl overflow-hidden text-center transition-all cursor-pointer" style="ring-color: #B08840;">
+            <button type="button" @click="selectedPack = {{ $i }}" :class="selectedPack === {{ $i }} ? 'border-2' : 'border'" class="shrink-0 w-40 rounded-xl overflow-hidden text-center transition-all cursor-pointer" :style="selectedPack === {{ $i }} ? 'border-color:#B08840; box-shadow: 0 0 0 2px rgba(176,136,64,0.2)' : 'border-color:#e5e7eb'">
                 @if($variant->mrp > $variant->selling_price)
-                <div class="relative"><span class="absolute -top-0 left-1/2 -translate-x-1/2 text-[9px] font-bold text-white px-2.5 py-0.5 rounded-b-lg" style="background-color:#16a34a;">Save ₹{{ number_format($variant->mrp - $variant->selling_price) }}</span></div>
+                <div class="relative"><span class="absolute -top-0 left-1/2 -translate-x-1/2 text-[9px] font-bold text-white px-2.5 py-0.5 rounded-b-lg z-10" style="background-color:#16a34a;">Save ₹{{ number_format($variant->mrp - $variant->selling_price) }}</span></div>
                 @endif
-                <div class="p-3 pt-5 bg-cream-50">
-                    <p class="text-xl font-bold text-espresso-700">₹{{ number_format($variant->selling_price) }}</p>
-                    <p class="text-xs text-espresso-400 line-through">₹{{ number_format($variant->mrp) }}</p>
+                <div class="p-4 pt-6" style="background-color:#FFFDF8;">
+                    <p class="text-2xl font-bold text-espresso-700">₹{{ number_format($variant->selling_price) }}</p>
+                    <p class="text-xs text-espresso-400 line-through mt-0.5">₹{{ number_format($variant->mrp) }}</p>
                 </div>
                 <div class="p-2.5 text-center text-white" style="background-color:#1a1a1a;">
-                    <p class="text-xs font-bold">{{ $variant->name }}</p>
+                    <p class="text-xs font-bold tracking-wide">{{ $variant->name }}</p>
                 </div>
             </button>
             @endforeach
