@@ -26,28 +26,29 @@
 
 <!-- LEFT: Image Gallery -->
 <div class="space-y-4">
-    <div class="aspect-square rounded-3xl overflow-hidden bg-white border border-gold-100 shadow-sm relative group">
-        @if($product->primaryImage && $product->primaryImage->url)
-            <img src="{{ str_starts_with($product->primaryImage->url, '/storage/') ? '/public' . $product->primaryImage->url : $product->primaryImage->url }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+    <div class="aspect-square rounded-3xl overflow-hidden bg-white border border-gray-200 shadow-sm relative group">
+        @if($product->images->count())
+            @foreach($product->images as $i => $image)
+            <img x-show="img === {{ $i }}" x-transition src="{{ str_starts_with($image->url, '/storage/') ? '/public' . $image->url : $image->url }}" alt="{{ $product->name }}" class="w-full h-full object-cover absolute inset-0">
+            @endforeach
+        @elseif($product->primaryImage && $product->primaryImage->url)
+            <img src="{{ str_starts_with($product->primaryImage->url, '/storage/') ? '/public' . $product->primaryImage->url : $product->primaryImage->url }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
         @else
-            <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=800&h=800&fit=crop" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+            <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=800&h=800&fit=crop" alt="{{ $product->name }}" class="w-full h-full object-cover">
         @endif
         @if($product->discount_percent > 0)
-        <div class="absolute top-4 left-4 flex flex-col gap-2">
+        <div class="absolute top-4 left-4 z-10">
             <span class="bg-red-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-full shadow-lg">{{ $product->discount_percent }}% OFF</span>
         </div>
         @endif
-        @if($product->is_featured)
-        <span class="absolute top-4 right-4 bg-gold-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-full shadow-lg uppercase tracking-wider">Bestseller</span>
-        @endif
     </div>
 
-    <!-- Product Image Thumbnails -->
+    <!-- Clickable Thumbnails -->
     @if($product->images->count() > 1)
-    <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-        @foreach($product->images as $i => $img)
-        <button class="w-16 h-16 rounded-lg overflow-hidden shrink-0 border-2 border-gold-100 hover:border-gold-400 transition">
-            <img src="{{ str_starts_with($img->url, '/storage/') ? '/public' . $img->url : $img->url }}" alt="" class="w-full h-full object-cover">
+    <div class="flex gap-3 overflow-x-auto scrollbar-hide pb-1">
+        @foreach($product->images as $i => $imgItem)
+        <button @click="img = {{ $i }}" :class="img === {{ $i }} ? 'ring-2 ring-amber-500 ring-offset-2' : 'border-gray-200'" class="w-16 h-16 rounded-xl overflow-hidden shrink-0 border-2 transition-all cursor-pointer">
+            <img src="{{ str_starts_with($imgItem->url, '/storage/') ? '/public' . $imgItem->url : $imgItem->url }}" alt="" class="w-full h-full object-cover">
         </button>
         @endforeach
     </div>
@@ -130,11 +131,11 @@
 
         <!-- Buttons -->
         <div class="flex flex-col sm:flex-row gap-3">
-            <button type="submit" class="flex-1 px-8 py-4 bg-espresso-700 text-cream-50 font-bold text-sm uppercase tracking-wider rounded-xl hover:bg-espresso-600 transition shadow-xl shadow-espresso-700/20 flex items-center justify-center gap-2">
+            <button type="submit" class="flex-1 px-8 py-4 text-white" style="background-color:#2C2418 font-bold text-sm uppercase tracking-wider rounded-xl hover:opacity-90 transition shadow-xl shadow-espresso-700/20 flex items-center justify-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                 Add to Cart
             </button>
-            <a href="{{ route('checkout.index') }}" onclick="event.preventDefault(); this.closest('form').action='{{ route('cart.add') }}'; this.closest('form').submit();" class="flex-1 px-8 py-4 bg-gold-500 text-white font-bold text-sm uppercase tracking-wider rounded-xl hover:bg-gold-600 transition shadow-xl shadow-gold-500/20 flex items-center justify-center gap-2">
+            <a href="{{ route('checkout.index') }}" onclick="event.preventDefault(); this.closest('form').action='{{ route('cart.add') }}'; this.closest('form').submit();" class="flex-1 px-8 py-4 text-white" style="background-color:#B08840 font-bold text-sm uppercase tracking-wider rounded-xl hover:opacity-90 transition shadow-xl shadow-gold-500/20 flex items-center justify-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 Buy Now
             </a>
