@@ -138,55 +138,40 @@
         <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
     </a>
 
-    <!-- Scroll Reveal Script -->
+    <!-- Scroll Reveal + Swipe Script -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Scroll reveal
             const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('revealed');
-                    }
-                });
+                entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('revealed'); });
             }, { threshold: 0.1 });
             document.querySelectorAll('.scroll-reveal').forEach(el => observer.observe(el));
 
-            // Auto-open cart after adding product
+            // Auto-open cart
             @if(session('open_cart'))
             setTimeout(() => window.dispatchEvent(new CustomEvent('open-cart')), 300);
             @endif
-
-            // Touch/Mouse Swipe for sliders
-            document.querySelectorAll('[x-data]').forEach(el => {
-                let startX = 0, startY = 0, isDragging = false;
-                el.addEventListener('touchstart', e => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; }, { passive: true });
-                el.addEventListener('mousedown', e => { startX = e.clientX; startY = e.clientY; isDragging = true; });
-                el.addEventListener('touchend', e => {
-                    let diffX = e.changedTouches[0].clientX - startX;
-                    let diffY = Math.abs(e.changedTouches[0].clientY - startY);
-                    if (Math.abs(diffX) > 50 && diffY < 100) {
-                        if (diffX < 0) el.querySelectorAll('button[class*="right"]')[0]?.click();
-                        else el.querySelectorAll('button[class*="left"]')[0]?.click();
-                    }
-                });
-                el.addEventListener('mouseup', e => {
-                    if (!isDragging) return;
-                    isDragging = false;
-                    let diffX = e.clientX - startX;
-                    if (Math.abs(diffX) > 50) {
-                        // Find Alpine component and advance slider
-                        let comp = el.__x;
-                        if (comp && comp.$data) {
-                            let keys = Object.keys(comp.$data);
-                            let slideKey = keys.find(k => k === 'current' || k === 'pb' || k === 's' || k === 'img' || k === 'slide');
-                            if (slideKey !== undefined) {
-                                if (diffX < 0) comp.$data[slideKey]++;
-                                else comp.$data[slideKey] = Math.max(0, comp.$data[slideKey] - 1);
-                            }
-                        }
-                    }
-                });
-            });
         });
+
+        // Simple swipe handler - attach to any element with data-swipe
+        function initSwipe(el, onLeft, onRight) {
+            let sx = 0, sy = 0, dragging = false;
+            el.addEventListener('touchstart', e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, {passive:true});
+            el.addEventListener('touchend', e => {
+                let dx = e.changedTouches[0].clientX - sx;
+                if (Math.abs(dx) > 40 && Math.abs(e.changedTouches[0].clientY - sy) < 80) {
+                    dx < 0 ? onLeft() : onRight();
+                }
+            });
+            el.addEventListener('mousedown', e => { sx = e.clientX; dragging = true; e.preventDefault(); });
+            el.addEventListener('mousemove', e => { if (dragging) e.preventDefault(); });
+            document.addEventListener('mouseup', e => {
+                if (!dragging) return;
+                dragging = false;
+                let dx = e.clientX - sx;
+                if (Math.abs(dx) > 40) { dx < 0 ? onLeft() : onRight(); }
+            });
+        }
     </script>
     @stack('scripts')
 </body>

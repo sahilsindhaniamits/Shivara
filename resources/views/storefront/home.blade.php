@@ -2,7 +2,7 @@
 
 @section('content')
 <!-- Hero Banner Slider -->
-<section x-data="{ current: 0, slides: 3 }" x-init="setInterval(() => current = (current + 1) % slides, 5000)" class="relative overflow-hidden">
+<section x-data="{ current: 0, slides: 3 }" x-init="setInterval(() => current = (current + 1) % slides, 5000); initSwipe($el, () => current = (current+1)%slides, () => current = (current-1+slides)%slides)" class="relative overflow-hidden select-none cursor-grab active:cursor-grabbing">
     <!-- Slide 1 -->
     <div x-show="current === 0" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 scale-105" x-transition:enter-end="opacity-100 scale-100" class="relative min-h-[500px] md:min-h-[600px] lg:min-h-[650px] flex items-center" style="background: linear-gradient(135deg, rgba(44,36,24,0.7), rgba(44,36,24,0.4)), url('https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=1920&q=80') center/cover;">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-20 w-full">
