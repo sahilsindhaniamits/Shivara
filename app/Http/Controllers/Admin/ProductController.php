@@ -133,6 +133,18 @@ class ProductController extends Controller
 
         $product->update($validated);
 
+        // Handle adding a new variant
+        if ($request->filled('add_variant') && $request->filled('variant_name') && $request->filled('variant_mrp') && $request->filled('variant_selling_price')) {
+            \App\Models\ProductVariant::create([
+                'product_id' => $product->id,
+                'name' => $request->variant_name,
+                'mrp' => $request->variant_mrp,
+                'selling_price' => $request->variant_selling_price,
+                'stock' => $request->variant_stock ?? 0,
+            ]);
+            return redirect()->route('admin.products.edit', $product)->with('success', 'Variant added!');
+        }
+
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $path = $image->store('products', 'public');
@@ -180,5 +192,13 @@ class ProductController extends Controller
             $product->update(['banners' => array_values($banners)]);
         }
         return back()->with('success', 'Banner deleted.');
+    }
+
+    public function deleteVariant(Product $product, \App\Models\ProductVariant $variant)
+    {
+        if ($variant->product_id === $product->id) {
+            $variant->delete();
+        }
+        return back()->with('success', 'Variant deleted.');
     }
 }
