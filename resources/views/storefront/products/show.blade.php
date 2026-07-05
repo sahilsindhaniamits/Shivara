@@ -23,8 +23,6 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 pb-10" x-data="{ qty: 1, img: 0, tab: 'description', lightbox: false }">
 <div class="grid lg:grid-cols-2 gap-8 lg:gap-16">
 
-<div class="grid lg:grid-cols-2 gap-8 lg:gap-16">
-
 <!-- Image Lightbox Modal -->
 <div x-show="lightbox" x-cloak x-transition.opacity class="fixed inset-0 z-[200] bg-black/90 flex items-center justify-center p-4" @click.self="lightbox = false" @keydown.escape.window="lightbox = false">
     <button @click="lightbox = false" class="absolute top-4 right-4 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white z-10">
