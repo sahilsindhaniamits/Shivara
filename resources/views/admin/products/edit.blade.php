@@ -70,10 +70,7 @@
                     <div class="w-20 h-20 rounded-lg overflow-hidden border border-gray-200">
                         <img src="{{ str_starts_with($img->url, '/storage/') ? '/public' . $img->url : $img->url }}" class="w-full h-full object-cover">
                     </div>
-                    <form method="POST" action="{{ route('admin.products.deleteImage', [$product, $img]) }}" class="absolute -top-2 -right-2">
-                        @csrf @method('DELETE')
-                        <button type="submit" onclick="return confirm('Delete this image?')" class="w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs shadow-md hover:bg-red-600">&times;</button>
-                    </form>
+                    <button type="button" onclick="if(confirm('Delete this image?')){fetch('{{ route('admin.products.deleteImage', [$product, $img]) }}',{method:'POST',headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}','Content-Type':'application/json'},body:JSON.stringify({_method:'DELETE'})}).then(()=>this.closest('.relative').remove())}" class="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs shadow-md hover:bg-red-600 cursor-pointer">&times;</button>
                     @if($img->is_primary)<span class="absolute bottom-0 left-0 right-0 bg-green-500 text-white text-[8px] text-center font-bold py-0.5">Primary</span>@endif
                 </div>
                 @endforeach
@@ -94,10 +91,7 @@
                     <div class="w-36 h-14 rounded-lg overflow-hidden border border-gray-200">
                         <img src="{{ str_starts_with($b, '/storage/') ? '/public' . $b : $b }}" class="w-full h-full object-cover">
                     </div>
-                    <form method="POST" action="{{ route('admin.products.deleteBanner', [$product, $idx]) }}" class="absolute -top-2 -right-2">
-                        @csrf @method('DELETE')
-                        <button type="submit" onclick="return confirm('Delete this banner?')" class="w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs shadow-md hover:bg-red-600">&times;</button>
-                    </form>
+                    <button type="button" onclick="if(confirm('Delete this banner?')){fetch('{{ route('admin.products.deleteBanner', [$product, $idx]) }}',{method:'POST',headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}','Content-Type':'application/json'},body:JSON.stringify({_method:'DELETE'})}).then(()=>this.closest('.relative').remove())}" class="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs shadow-md hover:bg-red-600 cursor-pointer">&times;</button>
                 </div>
                 @endforeach
             </div>

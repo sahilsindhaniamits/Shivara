@@ -26,7 +26,7 @@
 
 <!-- LEFT: Image Gallery -->
 <div class="space-y-4">
-    <div class="aspect-square rounded-3xl overflow-hidden bg-white border border-gray-200 shadow-sm relative group">
+    <div class="aspect-square rounded-3xl overflow-hidden bg-white border border-gray-200 shadow-sm relative group select-none cursor-grab active:cursor-grabbing" x-init="initSwipe($el, () => img = (img+1) % {{ $product->images->count() ?: 1 }}, () => img = (img-1+{{ $product->images->count() ?: 1 }}) % {{ $product->images->count() ?: 1 }})">
         @if($product->images->count())
             @foreach($product->images as $i => $image)
             <img x-show="img === {{ $i }}" x-transition src="{{ str_starts_with($image->url, '/storage/') ? '/public' . $image->url : $image->url }}" alt="{{ $product->name }}" class="w-full h-full object-cover absolute inset-0 transition-transform duration-500 group-hover:scale-110">
