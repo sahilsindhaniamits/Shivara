@@ -236,6 +236,98 @@
 </div>
 @endif
 
+<!-- Product Tabs: Description, Ingredients, How to Use, Reviews -->
+<div class="mt-12" x-data="{ activeTab: 'description' }">
+    <!-- Tab Headers -->
+    <div class="flex flex-wrap gap-2 border-b border-gold-100 mb-6">
+        <button @click="activeTab = 'description'" :class="activeTab === 'description' ? 'border-b-2 border-gold-500 text-espresso-700 font-bold' : 'text-espresso-400 hover:text-espresso-600'" class="px-4 py-3 text-sm transition">Description</button>
+        <button @click="activeTab = 'ingredients'" :class="activeTab === 'ingredients' ? 'border-b-2 border-gold-500 text-espresso-700 font-bold' : 'text-espresso-400 hover:text-espresso-600'" class="px-4 py-3 text-sm transition">Ingredients</button>
+        <button @click="activeTab = 'how_to_use'" :class="activeTab === 'how_to_use' ? 'border-b-2 border-gold-500 text-espresso-700 font-bold' : 'text-espresso-400 hover:text-espresso-600'" class="px-4 py-3 text-sm transition">How to Use</button>
+        <button @click="activeTab = 'reviews'" :class="activeTab === 'reviews' ? 'border-b-2 border-gold-500 text-espresso-700 font-bold' : 'text-espresso-400 hover:text-espresso-600'" class="px-4 py-3 text-sm transition">Reviews</button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="bg-white rounded-2xl border border-gold-100/50 p-6 shadow-sm">
+        <!-- Description Tab -->
+        <div x-show="activeTab === 'description'" x-cloak>
+            @if($product->description)
+            <div class="prose prose-sm max-w-none text-espresso-600 leading-relaxed">
+                {!! nl2br(e($product->description)) !!}
+            </div>
+            @endif
+            @if($product->benefits)
+            <div class="mt-6">
+                <h4 class="text-sm font-bold text-espresso-700 mb-3">Key Benefits</h4>
+                <ul class="space-y-2">
+                    @foreach(explode(',', $product->benefits) as $benefit)
+                    <li class="flex items-start gap-2 text-sm text-espresso-600">
+                        <svg class="w-4 h-4 text-green-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        <span>{{ trim($benefit) }}</span>
+                    </li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+            @if(!$product->description && !$product->benefits)
+            <p class="text-sm text-espresso-400">No description available yet.</p>
+            @endif
+        </div>
+
+        <!-- Ingredients Tab -->
+        <div x-show="activeTab === 'ingredients'" x-cloak>
+            @if($product->ingredients)
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                @foreach(explode(',', $product->ingredients) as $ingredient)
+                <div class="bg-cream-50 border border-gold-100/50 rounded-xl p-3 text-center">
+                    <p class="text-sm font-medium text-espresso-700">{{ trim($ingredient) }}</p>
+                </div>
+                @endforeach
+            </div>
+            @else
+            <p class="text-sm text-espresso-400">Ingredients information not available yet.</p>
+            @endif
+        </div>
+
+        <!-- How to Use Tab -->
+        <div x-show="activeTab === 'how_to_use'" x-cloak>
+            @if($product->how_to_use)
+            <div class="prose prose-sm max-w-none text-espresso-600 leading-relaxed">
+                {!! nl2br(e($product->how_to_use)) !!}
+            </div>
+            @else
+            <p class="text-sm text-espresso-400">Usage instructions not available yet.</p>
+            @endif
+        </div>
+
+        <!-- Reviews Tab -->
+        <div x-show="activeTab === 'reviews'" x-cloak>
+            @php $approvedReviews = $product->reviews()->where('is_approved', true)->with('user')->latest()->get(); @endphp
+            @if($approvedReviews->count())
+            <div class="space-y-4">
+                @foreach($approvedReviews as $review)
+                <div class="border-b border-gray-100 pb-4 last:border-0">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="flex items-center gap-0.5">
+                            @for($s = 1; $s <= 5; $s++)
+                            <svg class="w-3.5 h-3.5 {{ $s <= $review->rating ? 'text-amber-400 fill-amber-400' : 'text-gray-200 fill-gray-200' }}" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            @endfor
+                        </div>
+                        <span class="text-xs font-semibold text-espresso-700">{{ $review->user->name ?? 'Customer' }}</span>
+                        <span class="text-[10px] text-espresso-400">{{ $review->created_at->diffForHumans() }}</span>
+                    </div>
+                    @if($review->comment)
+                    <p class="text-sm text-espresso-600">{{ $review->comment }}</p>
+                    @endif
+                </div>
+                @endforeach
+            </div>
+            @else
+            <p class="text-sm text-espresso-400">No reviews yet. Be the first to review this product!</p>
+            @endif
+        </div>
+    </div>
+</div>
+
 <!-- Why Choose Shivara -->
 <div class="mt-12 bg-white rounded-3xl border border-gold-100/50 p-8 shadow-sm">
     <h3 class="font-display text-2xl font-bold text-espresso-700 text-center mb-8">Why Choose Shivara?</h3>
