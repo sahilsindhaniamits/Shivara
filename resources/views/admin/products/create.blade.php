@@ -125,7 +125,7 @@
         </div>
 
         <div class="flex gap-4">
-            <button type="submit" class="px-8 py-3 bg-primary text-white font-medium rounded-xl hover:bg-primary-dark transition">Create Product</button>
+            <button type="submit" class="px-8 py-3 text-white font-medium rounded-xl hover:opacity-90 transition" style="background-color:#c06d22">Create Product</button>
             <a href="{{ route('admin.products.index') }}" class="px-8 py-3 border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition">Cancel</a>
         </div>
     </form>

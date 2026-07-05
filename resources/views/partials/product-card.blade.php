@@ -19,7 +19,7 @@
                 <form method="POST" action="{{ route('cart.add') }}">@csrf
                     <input type="hidden" name="product_id" value="{{ $product->id }}">
                     <input type="hidden" name="quantity" value="1">
-                    <button type="submit" class="w-full text-white hover:opacity-90" style="background-color:#2C2418 text-xs font-bold uppercase tracking-wider py-3 rounded-xl transition shadow-lg">
+                    <button type="submit" class="w-full text-white hover:opacity-90" style="background-color:#2C2418;" text-xs font-bold uppercase tracking-wider py-3 rounded-xl transition shadow-lg">
                         Add to Cart
                     </button>
                 </form>

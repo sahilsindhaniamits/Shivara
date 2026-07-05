@@ -29,16 +29,31 @@
     <div class="aspect-square rounded-3xl overflow-hidden bg-white border border-gray-200 shadow-sm relative group">
         @if($product->images->count())
             @foreach($product->images as $i => $image)
-            <img x-show="img === {{ $i }}" x-transition src="{{ str_starts_with($image->url, '/storage/') ? '/public' . $image->url : $image->url }}" alt="{{ $product->name }}" class="w-full h-full object-cover absolute inset-0">
+            <img x-show="img === {{ $i }}" x-transition src="{{ str_starts_with($image->url, '/storage/') ? '/public' . $image->url : $image->url }}" alt="{{ $product->name }}" class="w-full h-full object-cover absolute inset-0 transition-transform duration-500 group-hover:scale-110">
             @endforeach
         @elseif($product->primaryImage && $product->primaryImage->url)
-            <img src="{{ str_starts_with($product->primaryImage->url, '/storage/') ? '/public' . $product->primaryImage->url : $product->primaryImage->url }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
+            <img src="{{ str_starts_with($product->primaryImage->url, '/storage/') ? '/public' . $product->primaryImage->url : $product->primaryImage->url }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
         @else
             <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=800&h=800&fit=crop" alt="{{ $product->name }}" class="w-full h-full object-cover">
         @endif
         @if($product->discount_percent > 0)
         <div class="absolute top-4 left-4 z-10">
             <span class="bg-red-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-full shadow-lg">{{ $product->discount_percent }}% OFF</span>
+        </div>
+        @endif
+        <!-- Left/Right Arrows -->
+        @if($product->images->count() > 1)
+        <button @click="img = (img - 1 + {{ $product->images->count() }}) % {{ $product->images->count() }}" class="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+            <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <button @click="img = (img + 1) % {{ $product->images->count() }}" class="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+            <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+        <!-- Pagination Dots -->
+        <div class="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+            @foreach($product->images as $i => $dot)
+            <button @click="img = {{ $i }}" :class="img === {{ $i }} ? 'w-5 bg-white' : 'w-2 bg-white/60'" class="h-2 rounded-full transition-all duration-300 shadow-sm"></button>
+            @endforeach
         </div>
         @endif
     </div>
@@ -131,11 +146,11 @@
 
         <!-- Buttons -->
         <div class="flex flex-col sm:flex-row gap-3">
-            <button type="submit" class="flex-1 px-8 py-4 text-white" style="background-color:#2C2418 font-bold text-sm uppercase tracking-wider rounded-xl hover:opacity-90 transition shadow-xl shadow-espresso-700/20 flex items-center justify-center gap-2">
+            <button type="submit" class="flex-1 px-8 py-4 text-white font-bold text-sm uppercase tracking-wider rounded-xl hover:opacity-90 transition shadow-xl flex items-center justify-center gap-2" style="background-color:#2C2418">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                 Add to Cart
             </button>
-            <a href="{{ route('checkout.index') }}" onclick="event.preventDefault(); this.closest('form').action='{{ route('cart.add') }}'; this.closest('form').submit();" class="flex-1 px-8 py-4 text-white" style="background-color:#B08840 font-bold text-sm uppercase tracking-wider rounded-xl hover:opacity-90 transition shadow-xl shadow-gold-500/20 flex items-center justify-center gap-2">
+            <a href="{{ route('checkout.index') }}" onclick="event.preventDefault(); this.closest('form').action='{{ route('cart.add') }}'; this.closest('form').submit();" class="flex-1 px-8 py-4 text-white font-bold text-sm uppercase tracking-wider rounded-xl hover:opacity-90 transition shadow-xl flex items-center justify-center gap-2" style="background-color:#B08840">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 Buy Now
             </a>
