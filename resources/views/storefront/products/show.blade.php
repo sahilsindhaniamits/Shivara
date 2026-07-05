@@ -110,21 +110,47 @@
         <p class="text-[11px] text-espresso-400 mt-2">Inclusive of all taxes • Free shipping on orders above ₹{{ config('shivara.free_shipping_threshold') }}</p>
 
         <!-- Offer Tags (dynamic from active coupons) -->
-        @php $coupons = \App\Models\Coupon::where('is_active', true)->where('end_date', '>', now())->take(2)->get(); @endphp
+        @php $coupons = \App\Models\Coupon::where('is_active', true)->where('end_date', '>', now())->take(4)->get(); @endphp
         @if($coupons->count())
-        <div class="mt-3 flex flex-wrap gap-2">
-            @foreach($coupons as $c)
-            <span class="text-[10px] font-bold bg-gold-50 text-gold-700 px-2.5 py-1 rounded-full border border-gold-200">🎁 {{ $c->description ?? $c->code }}</span>
-            @endforeach
-            <span class="text-[10px] font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200">🚚 Free Delivery</span>
-        </div>
-        @else
-        <div class="mt-3 flex flex-wrap gap-2">
-            <span class="text-[10px] font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200">🚚 Free Delivery</span>
-            <span class="text-[10px] font-bold bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full border border-purple-200">↩ 7-Day Returns</span>
+        <div class="mt-4">
+            <p class="text-xs font-bold text-espresso-700 mb-2">Active Offers</p>
+            <div class="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+                @foreach($coupons as $c)
+                <div class="shrink-0 w-44 border border-indigo-200 rounded-xl overflow-hidden bg-gradient-to-b from-indigo-50 to-white">
+                    <div class="p-3 text-center" style="background-color: rgba(129,104,255,0.15);">
+                        <p class="text-[10px] font-bold text-indigo-800 uppercase tracking-wider">CODE: {{ $c->code }}</p>
+                    </div>
+                    <div class="p-3 text-center">
+                        <p class="text-xs text-gray-700 leading-tight">{{ $c->description ?? ($c->type == 'percentage' ? $c->value.'% off' : '₹'.$c->value.' off') }}</p>
+                    </div>
+                    <div class="px-3 pb-3 text-center border-t border-dashed border-indigo-200 pt-2">
+                        <button onclick="navigator.clipboard.writeText('{{ $c->code }}'); this.textContent='COPIED!'; setTimeout(()=>this.textContent='📋 COPY CODE',1500)" class="text-[10px] font-bold text-gray-600 hover:text-indigo-700 transition cursor-pointer">📋 COPY CODE</button>
+                    </div>
+                </div>
+                @endforeach
+            </div>
         </div>
         @endif
     </div>
+
+    <!-- Pack/Variant Selector -->
+    @if($product->variants->count())
+    <div>
+        <p class="text-sm font-bold text-espresso-700 mb-3">Select Pack</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" x-data="{ selectedPack: 0 }">
+            @foreach($product->variants as $i => $variant)
+            <button type="button" @click="selectedPack = {{ $i }}" :class="selectedPack === {{ $i }} ? 'border-espresso-700 bg-espresso-700 text-white' : 'border-gray-200 bg-white text-espresso-700 hover:border-gray-300'" class="relative border-2 rounded-xl p-3 text-center transition-all cursor-pointer">
+                @if($variant->mrp > $variant->selling_price)
+                <span class="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold text-white px-2 py-0.5 rounded-full" style="background-color:#16a34a;">Save ₹{{ number_format($variant->mrp - $variant->selling_price) }}</span>
+                @endif
+                <p class="text-lg font-bold mt-1">₹{{ number_format($variant->selling_price) }}</p>
+                <p class="text-xs opacity-60 line-through">₹{{ number_format($variant->mrp) }}</p>
+                <p class="text-xs font-semibold mt-1.5 border-t pt-1.5" :class="selectedPack === {{ $i }} ? 'border-white/30' : 'border-gray-100'">{{ $variant->name }}</p>
+            </button>
+            @endforeach
+        </div>
+    </div>
+    @endif
 
 
     <!-- Quantity & Add to Cart -->
@@ -208,7 +234,6 @@
         <button @click="activeTab = 'description'" :class="activeTab === 'description' ? 'border-b-2 border-gold-500 text-espresso-700 font-bold' : 'text-espresso-400 hover:text-espresso-600'" class="px-4 py-3 text-sm transition">Description</button>
         <button @click="activeTab = 'ingredients'" :class="activeTab === 'ingredients' ? 'border-b-2 border-gold-500 text-espresso-700 font-bold' : 'text-espresso-400 hover:text-espresso-600'" class="px-4 py-3 text-sm transition">Ingredients</button>
         <button @click="activeTab = 'how_to_use'" :class="activeTab === 'how_to_use' ? 'border-b-2 border-gold-500 text-espresso-700 font-bold' : 'text-espresso-400 hover:text-espresso-600'" class="px-4 py-3 text-sm transition">How to Use</button>
-        <button @click="activeTab = 'reviews'" :class="activeTab === 'reviews' ? 'border-b-2 border-gold-500 text-espresso-700 font-bold' : 'text-espresso-400 hover:text-espresso-600'" class="px-4 py-3 text-sm transition">Reviews</button>
     </div>
 
     <!-- Tab Content -->
@@ -264,101 +289,10 @@
             @endif
         </div>
 
-        <!-- Reviews Tab -->
-        <div x-show="activeTab === 'reviews'" x-cloak>
-            @php $approvedReviews = $product->reviews()->where('is_approved', true)->with('user')->latest()->get(); @endphp
-
-            <!-- Review Summary -->
-            <div class="flex items-center gap-6 mb-6 pb-6 border-b border-gray-100">
-                <div class="text-center">
-                    <p class="text-4xl font-bold text-espresso-700">{{ number_format($product->average_rating ?: 0, 1) }}</p>
-                    <div class="flex items-center gap-0.5 mt-1 justify-center">
-                        @for($s = 1; $s <= 5; $s++)
-                        <svg class="w-4 h-4 {{ $s <= round($product->average_rating ?: 0) ? 'text-amber-400 fill-amber-400' : 'text-gray-200 fill-gray-200' }}" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                        @endfor
-                    </div>
-                    <p class="text-xs text-espresso-400 mt-1">{{ $approvedReviews->count() }} reviews</p>
-                </div>
-                <div class="flex-1">
-                    <p class="text-sm text-espresso-500">Share your experience with this product to help others.</p>
-                </div>
-            </div>
-
-            <!-- Write Review Form (for logged-in users) -->
-            @auth
-            <div class="mb-8 p-5 bg-cream-50 rounded-2xl border border-gold-100/50" x-data="{ rating: 5 }">
-                <h4 class="text-sm font-bold text-espresso-700 mb-3">Write a Review</h4>
-                <form method="POST" action="{{ route('products.review', $product->slug) }}" class="space-y-3">
-                    @csrf
-                    <!-- Star Rating -->
-                    <div class="flex items-center gap-1">
-                        @for($s = 1; $s <= 5; $s++)
-                        <button type="button" @click="rating = {{ $s }}" :class="{{ $s }} <= rating ? 'text-amber-400' : 'text-gray-300'" class="transition">
-                            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                        </button>
-                        @endfor
-                    </div>
-                    <input type="hidden" name="rating" x-bind:value="rating">
-                    <textarea name="comment" rows="3" placeholder="Share your experience with this product..." class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold-200 placeholder:text-gray-400" required></textarea>
-                    <button type="submit" class="px-5 py-2.5 text-white text-xs font-bold uppercase tracking-wider rounded-lg hover:opacity-90 transition" style="background-color:#2C2418">Submit Review</button>
-                </form>
-            </div>
-            @else
-            <div class="mb-6 p-4 bg-cream-50 rounded-xl border border-gold-100/50 text-center">
-                <p class="text-sm text-espresso-500"><a href="{{ route('login') }}" class="font-bold text-gold-600 hover:underline">Log in</a> to write a review.</p>
-            </div>
-            @endauth
-
-            <!-- Reviews List -->
-            @if($approvedReviews->count())
-            <div class="space-y-4">
-                @foreach($approvedReviews as $review)
-                <div class="border-b border-gray-100 pb-4 last:border-0">
-                    <div class="flex items-center gap-2 mb-2">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white" style="background-color:#B08840">{{ substr($review->user->name ?? 'C', 0, 1) }}</div>
-                        <div>
-                            <p class="text-xs font-semibold text-espresso-700">{{ $review->user->name ?? 'Customer' }}</p>
-                            <div class="flex items-center gap-0.5">
-                                @for($s = 1; $s <= 5; $s++)
-                                <svg class="w-3 h-3 {{ $s <= $review->rating ? 'text-amber-400 fill-amber-400' : 'text-gray-200 fill-gray-200' }}" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                @endfor
-                                <span class="text-[10px] text-espresso-400 ml-1">{{ $review->created_at->diffForHumans() }}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-sm text-espresso-600 pl-10">{{ $review->comment }}</p>
-                </div>
-                @endforeach
-            </div>
-            @else
-            <p class="text-sm text-espresso-400 text-center py-6">No reviews yet. Be the first to share your experience!</p>
-            @endif
-        </div>
+        
     </div>
 </div>
 
-
-<!-- Offers Slider -->
-@php $allCoupons = \App\Models\Coupon::where('is_active', true)->where('end_date', '>', now())->get(); @endphp
-@if($allCoupons->count())
-<div class="mt-12" x-data="{ s: 0 }" x-init="setInterval(() => s = (s + 1) % {{ $allCoupons->count() }}, 4000)">
-    <div class="relative rounded-2xl overflow-hidden">
-        @foreach($allCoupons as $i => $coupon)
-        <div x-show="s === {{ $i }}" x-transition {{ $i > 0 ? 'x-cloak' : '' }} class="rounded-2xl p-5 md:p-6 flex flex-col sm:flex-row items-center justify-between gap-4" style="background: linear-gradient(135deg, rgba(183,146,92,0.9), rgba(150,112,58,0.85)), url('https://images.unsplash.com/photo-1611241893603-3c359704e0ee?w=1200&q=60') center/cover;">
-            <div>
-                <p class="text-cream-200 text-[10px] font-bold uppercase tracking-[0.3em] mb-1">Limited Time Offer</p>
-                <h3 class="text-white font-display text-lg md:text-2xl font-bold">{{ $coupon->description ?? $coupon->value . ($coupon->type == 'percentage' ? '% Off' : '₹ Off') }}</h3>
-                <p class="text-cream-200/80 text-xs mt-1">Use code <span class="text-white font-bold bg-white/20 px-2 py-0.5 rounded">{{ $coupon->code }}</span></p>
-            </div>
-            <a href="{{ route('products.index') }}" class="px-5 py-2.5 bg-white text-espresso-700 font-bold text-xs uppercase rounded-full hover:bg-cream-100 transition shadow-lg shrink-0">Shop Now →</a>
-        </div>
-        @endforeach
-    </div>
-    @if($allCoupons->count() > 1)
-    <div class="flex justify-center gap-1.5 mt-3">@foreach($allCoupons as $i => $c)<button @click="s={{ $i }}" :class="s==={{ $i }}?'w-6 bg-gold-500':'w-2 bg-gray-300'" class="h-2 rounded-full transition-all"></button>@endforeach</div>
-    @endif
-</div>
-@endif
 
 <!-- Product Banners (per-product) -->
 @if($product->banners && count($product->banners))
@@ -373,6 +307,101 @@
     @endif
 </div>
 @endif
+
+
+<!-- Customer Reviews Section -->
+<div class="mt-16 bg-white rounded-3xl border border-gold-100/50 p-6 md:p-8 shadow-sm">
+    <h2 class="font-display text-2xl font-bold text-espresso-700 text-center mb-8">Customer Reviews</h2>
+
+    @php
+        $approvedReviews = $product->reviews()->where('is_approved', true)->with('user')->latest()->get();
+        $totalReviews = $approvedReviews->count();
+        $avgRating = $totalReviews > 0 ? $approvedReviews->avg('rating') : 0;
+        $ratingCounts = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
+        foreach($approvedReviews as $r) { if(isset($ratingCounts[$r->rating])) $ratingCounts[$r->rating]++; }
+    @endphp
+
+    <!-- Rating Summary -->
+    <div class="flex flex-col md:flex-row items-center gap-8 mb-8 pb-8 border-b border-gray-100">
+        <!-- Left: Average -->
+        <div class="text-center">
+            <p class="text-5xl font-bold text-espresso-700">{{ number_format($avgRating, 1) }}</p>
+            <div class="flex items-center gap-0.5 mt-2 justify-center">
+                @for($s = 1; $s <= 5; $s++)
+                <svg class="w-5 h-5 {{ $s <= round($avgRating) ? 'text-amber-400 fill-amber-400' : 'text-gray-200 fill-gray-200' }}" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                @endfor
+            </div>
+            <p class="text-sm text-espresso-400 mt-1">Based on {{ $totalReviews }} reviews</p>
+        </div>
+
+        <!-- Right: Rating Bars -->
+        <div class="flex-1 space-y-2 w-full max-w-sm">
+            @foreach($ratingCounts as $star => $count)
+            <div class="flex items-center gap-2">
+                <div class="flex items-center gap-0.5 w-16 justify-end">
+                    @for($s = 1; $s <= $star; $s++)
+                    <svg class="w-3 h-3 text-amber-400 fill-amber-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    @endfor
+                </div>
+                <div class="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div class="h-full rounded-full" style="width: {{ $totalReviews > 0 ? ($count/$totalReviews)*100 : 0 }}%; background-color: #B08840;"></div>
+                </div>
+                <span class="text-xs text-espresso-400 w-8 text-right">{{ $count }}</span>
+            </div>
+            @endforeach
+        </div>
+    </div>
+
+    <!-- Write Review -->
+    @auth
+    <div class="mb-8 p-5 rounded-2xl border border-gold-100" style="background-color: #FBF7F0;">
+        <h4 class="text-sm font-bold text-espresso-700 mb-3">Write a Review</h4>
+        <form method="POST" action="{{ route('products.review', $product->slug) }}" class="space-y-3" x-data="{ rating: 5 }">
+            @csrf
+            <div class="flex items-center gap-1">
+                @for($s = 1; $s <= 5; $s++)
+                <button type="button" @click="rating = {{ $s }}" :class="{{ $s }} <= rating ? 'text-amber-400' : 'text-gray-300'" class="transition">
+                    <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                </button>
+                @endfor
+            </div>
+            <input type="hidden" name="rating" x-bind:value="rating">
+            <textarea name="comment" rows="3" placeholder="Share your experience..." class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold-200 placeholder:text-gray-400" required></textarea>
+            <button type="submit" class="px-5 py-2.5 text-white text-xs font-bold uppercase tracking-wider rounded-lg hover:opacity-90 transition" style="background-color:#2C2418">Submit Review</button>
+        </form>
+    </div>
+    @else
+    <div class="mb-8 p-4 rounded-xl border border-gold-100 text-center" style="background-color: #FBF7F0;">
+        <p class="text-sm text-espresso-500"><a href="{{ route('login') }}" class="font-bold hover:underline" style="color:#B08840">Log in</a> to write a review</p>
+    </div>
+    @endauth
+
+    <!-- Reviews List -->
+    @if($approvedReviews->count())
+    <div class="space-y-5">
+        @foreach($approvedReviews as $review)
+        <div class="border-b border-gray-100 pb-5 last:border-0 last:pb-0">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-0.5">
+                    @for($s = 1; $s <= 5; $s++)
+                    <svg class="w-4 h-4 {{ $s <= $review->rating ? 'text-amber-400 fill-amber-400' : 'text-gray-200 fill-gray-200' }}" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    @endfor
+                </div>
+                <span class="text-xs text-espresso-400">{{ $review->created_at->format('d/m/Y') }}</span>
+            </div>
+            <div class="flex items-center gap-2 mb-2">
+                <div class="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white" style="background-color:#2C2418">{{ substr($review->user->name ?? 'C', 0, 1) }}</div>
+                <span class="text-sm font-semibold text-espresso-700">{{ $review->user->name ?? 'Customer' }}</span>
+                @if($review->is_verified)<span class="text-[9px] font-bold text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded">Verified</span>@endif
+            </div>
+            <p class="text-sm text-espresso-600 leading-relaxed">{{ $review->comment }}</p>
+        </div>
+        @endforeach
+    </div>
+    @else
+    <p class="text-sm text-espresso-400 text-center py-8">No reviews yet. Be the first to share your experience!</p>
+    @endif
+</div>
 
 <!-- Why Choose Shivara -->
 <div class="mt-12 bg-white rounded-3xl border border-gold-100/50 p-8 shadow-sm">
