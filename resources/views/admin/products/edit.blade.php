@@ -74,7 +74,7 @@
             @if($product->banners && count($product->banners))
             <div class="flex gap-2 flex-wrap mb-3">
                 @foreach($product->banners as $b)
-                <div class="w-32 h-12 rounded-lg overflow-hidden border border-gray-200"><img src="{{ $b }}" class="w-full h-full object-cover"></div>
+                <div class="w-32 h-12 rounded-lg overflow-hidden border border-gray-200"><img src="{{ str_starts_with($b, '/storage/') ? '/public' . $b : $b }}" class="w-full h-full object-cover"></div>
                 @endforeach
             </div>
             @endif
@@ -89,7 +89,7 @@
         </div>
 
         <div class="flex gap-4">
-            <button type="submit" class="px-8 py-3 bg-primary text-white font-medium rounded-xl hover:bg-primary-dark transition">Update Product</button>
+            <button type="submit" class="px-8 py-3 text-white font-medium rounded-xl hover:opacity-90 transition" style="background-color:#c06d22">Update Product</button>
             <a href="{{ route('admin.products.index') }}" class="px-8 py-3 border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition">Cancel</a>
         </div>
     </form>

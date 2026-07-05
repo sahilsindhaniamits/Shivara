@@ -18,7 +18,7 @@
             <div class="flex items-end pb-1"><label class="flex items-center gap-2"><input type="checkbox" name="is_active" value="1" checked class="rounded text-brand-600"><span class="text-sm text-slate-700">Active</span></label></div>
         </div>
         <div class="flex gap-3 pt-2">
-            <button type="submit" class="px-6 py-3 bg-brand-600 text-white font-semibold rounded-xl hover:bg-brand-700 transition text-sm">Create</button>
+            <button type="submit" class="px-6 py-3 text-white" style="background-color:#c06d22 font-semibold rounded-xl hover:opacity-90 transition text-sm">Create</button>
             <a href="{{ route('admin.banners.index') }}" class="px-6 py-3 border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition text-sm">Cancel</a>
         </div>
     </form>

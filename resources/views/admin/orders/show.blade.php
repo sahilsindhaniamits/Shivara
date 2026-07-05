@@ -65,7 +65,7 @@
                         <option value="{{ $status }}" {{ $order->status == $status ? 'selected' : '' }}>{{ ucfirst(str_replace('_', ' ', $status)) }}</option>
                         @endforeach
                     </select>
-                    <button type="submit" class="w-full px-4 py-2.5 bg-primary text-white text-sm font-medium rounded-xl hover:bg-primary-dark transition">Update</button>
+                    <button type="submit" class="w-full px-4 py-2.5 text-white" style="background-color:#c06d22 text-sm font-medium rounded-xl hover:opacity-90 transition">Update</button>
                 </form>
             </div>
 
