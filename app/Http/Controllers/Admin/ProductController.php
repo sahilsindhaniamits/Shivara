@@ -94,8 +94,8 @@ class ProductController extends Controller
             $product->update(['banners' => $bannerPaths]);
         }
 
-        return redirect()->route('admin.products.index')
-            ->with('success', 'Product created successfully.');
+        return redirect()->route('admin.products.edit', $product)
+            ->with('success', 'Product created! Now add variants and banners below.');
     }
 
     public function edit(Product $product)
@@ -134,6 +134,21 @@ class ProductController extends Controller
 
         $product->update($validated);
 
+        // Handle editing an existing variant
+        if ($request->filled('edit_variant_id')) {
+            $variant = \App\Models\ProductVariant::where('id', $request->edit_variant_id)->where('product_id', $product->id)->first();
+            if ($variant) {
+                $variant->update([
+                    'name' => $request->ev_name ?? $variant->name,
+                    'mrp' => $request->ev_mrp ?? $variant->mrp,
+                    'selling_price' => $request->ev_sp ?? $variant->selling_price,
+                    'stock' => $request->ev_stock ?? $variant->stock,
+                    'weight_display' => $request->ev_weight_display ?: $variant->weight_display,
+                ]);
+            }
+            return redirect()->route('admin.products.edit', $product)->with('success', 'Variant updated!');
+        }
+
         // Handle adding a new variant
         if ($request->filled('add_variant') && $request->filled('variant_name') && $request->filled('variant_mrp') && $request->filled('variant_selling_price')) {
             \App\Models\ProductVariant::create([
@@ -168,7 +183,7 @@ class ProductController extends Controller
             $product->update(['banners' => $existing]);
         }
 
-        return redirect()->route('admin.products.index')
+        return redirect()->route('admin.products.edit', $product)
             ->with('success', 'Product updated successfully.');
     }
 
