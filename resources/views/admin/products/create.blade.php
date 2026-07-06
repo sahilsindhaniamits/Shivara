@@ -182,7 +182,7 @@
                     </button>
                 </div>
             </div>
-            <p class="text-xs text-gray-400 mt-3">After creating, you can add pack variants, attributes (color/size), and product page banners from the Edit page.</p>
+            <p class="text-xs text-gray-400 mt-3">After clicking "Create Product", you'll be taken to the edit page where you can immediately add pack variants, product banners, and more details.</p>
         </div>
     </form>
 </div>

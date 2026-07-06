@@ -220,16 +220,38 @@
             @if($product->variants->count())
             <div class="space-y-2">
                 @foreach($product->variants as $v)
-                <div class="flex items-center gap-4 p-4 bg-gradient-to-r from-gray-50 to-white rounded-xl border border-gray-100 hover:border-gray-200 transition">
+                <div class="flex items-center gap-4 p-4 bg-gradient-to-r from-gray-50 to-white rounded-xl border border-gray-100 hover:border-gray-200 transition" x-data="{ editing: false }">
                     <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold text-white" style="background-color:#2C2418">{{ $loop->iteration }}</div>
-                    <div class="flex-1">
-                        <p class="text-sm font-bold text-gray-900">{{ $v->name }}@if($v->weight) <span class="text-gray-400 font-normal text-xs">/ {{ $v->weight >= 1000 ? number_format($v->weight/1000, 1) . ' kg' : intval($v->weight) . ' g' }}</span>@endif</p>
+                    <!-- Display Mode -->
+                    <div class="flex-1" x-show="!editing">
+                        <p class="text-sm font-bold text-gray-900">{{ $v->name }}@if($v->weight_display) <span class="text-gray-400 font-normal text-xs">/ {{ $v->weight_display }}</span>@elseif($v->weight) <span class="text-gray-400 font-normal text-xs">/ {{ $v->weight >= 1000 ? number_format($v->weight/1000, 1) . ' kg' : intval($v->weight) . ' g' }}</span>@endif</p>
                         <p class="text-xs text-gray-500 mt-0.5">₹{{ number_format($v->selling_price) }} <span class="line-through text-gray-400">₹{{ number_format($v->mrp) }}</span> &bull; Stock: {{ $v->stock }}</p>
                     </div>
+                    <!-- Edit Mode -->
+                    <div class="flex-1" x-show="editing" x-cloak>
+                        <form method="POST" action="{{ route('admin.products.update', $product) }}" class="flex flex-wrap items-end gap-2">
+                            @csrf @method('PUT')
+                            <input type="hidden" name="edit_variant_id" value="{{ $v->id }}">
+                            <input type="hidden" name="name" value="{{ $product->name }}">
+                            <input type="hidden" name="mrp" value="{{ $product->mrp }}">
+                            <input type="hidden" name="selling_price" value="{{ $product->selling_price }}">
+                            <input type="hidden" name="stock" value="{{ $product->stock }}">
+                            @if($product->is_active)<input type="hidden" name="is_active" value="1">@endif
+                            @if($product->is_featured)<input type="hidden" name="is_featured" value="1">@endif
+                            <div><label class="text-[9px] font-bold text-gray-400 uppercase">Name</label><input type="text" name="ev_name" value="{{ $v->name }}" class="w-24 px-2 py-1.5 border border-gray-200 rounded-md text-xs"></div>
+                            <div><label class="text-[9px] font-bold text-gray-400 uppercase">MRP</label><input type="number" name="ev_mrp" value="{{ $v->mrp }}" step="0.01" class="w-20 px-2 py-1.5 border border-gray-200 rounded-md text-xs"></div>
+                            <div><label class="text-[9px] font-bold text-gray-400 uppercase">Price</label><input type="number" name="ev_sp" value="{{ $v->selling_price }}" step="0.01" class="w-20 px-2 py-1.5 border border-gray-200 rounded-md text-xs"></div>
+                            <div><label class="text-[9px] font-bold text-gray-400 uppercase">Stock</label><input type="number" name="ev_stock" value="{{ $v->stock }}" class="w-16 px-2 py-1.5 border border-gray-200 rounded-md text-xs"></div>
+                            <div><label class="text-[9px] font-bold text-gray-400 uppercase">Weight</label><input type="text" name="ev_weight_display" value="{{ $v->weight_display }}" placeholder="200 ml" class="w-20 px-2 py-1.5 border border-gray-200 rounded-md text-xs"></div>
+                            <button type="submit" class="px-3 py-1.5 text-white text-[10px] font-bold rounded-md" style="background-color:#16a34a">Save</button>
+                            <button type="button" @click="editing = false" class="px-3 py-1.5 text-gray-500 text-[10px] font-bold rounded-md bg-gray-100">Cancel</button>
+                        </form>
+                    </div>
                     @if($v->mrp > $v->selling_price)
-                    <span class="text-[10px] font-bold text-green-700 bg-green-50 border border-green-200 px-2 py-1 rounded-lg">-{{ round((($v->mrp - $v->selling_price) / $v->mrp) * 100) }}%</span>
+                    <span x-show="!editing" class="text-[10px] font-bold text-green-700 bg-green-50 border border-green-200 px-2 py-1 rounded-lg">-{{ round((($v->mrp - $v->selling_price) / $v->mrp) * 100) }}%</span>
                     @endif
-                    <button type="button" onclick="if(confirm('Delete this variant?')){fetch('{{ route('admin.products.deleteVariant', [$product, $v]) }}',{method:'POST',headers:{'X-CSRF-TOKEN':document.querySelector('meta[name=csrf-token]').content,'Content-Type':'application/json'},body:JSON.stringify({_method:'DELETE'})}).then(()=>location.reload())}" class="text-xs font-bold text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1.5 rounded-lg transition">Delete</button>
+                    <button x-show="!editing" type="button" @click="editing = true" class="text-xs font-bold text-blue-500 hover:text-blue-700 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition">Edit</button>
+                    <button x-show="!editing" type="button" onclick="if(confirm('Delete this variant?')){fetch('{{ route('admin.products.deleteVariant', [$product, $v]) }}',{method:'POST',headers:{'X-CSRF-TOKEN':document.querySelector('meta[name=csrf-token]').content,'Content-Type':'application/json'},body:JSON.stringify({_method:'DELETE'})}).then(()=>location.reload())}" class="text-xs font-bold text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1.5 rounded-lg transition">Delete</button>
                 </div>
                 @endforeach
             </div>
@@ -346,8 +368,22 @@ function productEditor() {
                 'name': '{{ addslashes($product->name) }}',
                 'mrp': '{{ $product->mrp }}',
                 'selling_price': '{{ $product->selling_price }}',
-                'stock': '{{ $product->stock }}'
+                'stock': '{{ $product->stock }}',
+                'is_active': '{{ $product->is_active ? "1" : "0" }}',
+                'is_featured': '{{ $product->is_featured ? "1" : "0" }}'
             };
+
+            // Only include is_active/is_featured if they're checked
+            if (fields['is_active'] === '1') {
+                // keep it
+            } else {
+                delete fields['is_active'];
+            }
+            if (fields['is_featured'] === '1') {
+                // keep it
+            } else {
+                delete fields['is_featured'];
+            }
 
             for (let key in fields) {
                 let input = document.createElement('input');

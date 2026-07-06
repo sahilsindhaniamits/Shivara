@@ -67,15 +67,18 @@ class CategoryController extends Controller
             'description' => 'nullable|string',
             'parent_id' => 'nullable|exists:categories,id',
             'is_active' => 'boolean',
-            'sort_order' => 'integer|min:0',
+            'sort_order' => 'nullable|integer|min:0',
             'image' => 'nullable|image|max:2048',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
         $validated['is_active'] = $request->has('is_active');
+        $validated['sort_order'] = $request->input('sort_order', $category->sort_order);
 
         if ($request->hasFile('image')) {
             $validated['image'] = '/storage/' . $request->file('image')->store('categories', 'public');
+        } else {
+            unset($validated['image']);
         }
 
         $category->update($validated);
