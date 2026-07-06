@@ -27,6 +27,7 @@ class DashboardController extends Controller
 
         $lowStockProducts = Product::where('stock', '<=', \DB::raw('low_stock_alert'))
             ->where('is_active', true)
+            ->with('primaryImage')
             ->take(5)
             ->get();
 
