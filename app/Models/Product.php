@@ -10,7 +10,7 @@ class Product extends Model
         'name', 'slug', 'description', 'short_description', 'ingredients',
         'how_to_use', 'benefits', 'mrp', 'selling_price', 'cost_price',
         'sku', 'hsn_code', 'gst_rate', 'weight', 'stock', 'low_stock_alert',
-        'is_active', 'is_featured', 'meta_title', 'meta_description', 'category_id', 'banners',
+        'is_active', 'is_featured', 'meta_title', 'meta_description', 'category_id', 'banners', 'return_policy',
     ];
 
     protected $casts = [
