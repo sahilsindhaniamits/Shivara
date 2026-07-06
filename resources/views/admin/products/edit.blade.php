@@ -205,8 +205,20 @@
         </div>
 
 
-        <!-- Variants / Packs -->
-        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-5">
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-4 pt-4">
+            <button type="submit" class="px-8 py-3.5 text-white font-bold text-sm rounded-xl hover:opacity-90 transition shadow-lg" style="background-color:#c06d22">
+                <span class="flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    Update Product
+                </span>
+            </button>
+            <a href="{{ route('admin.products.index') }}" class="px-6 py-3.5 border border-gray-200 text-gray-600 font-medium text-sm rounded-xl hover:bg-gray-50 transition">Cancel</a>
+        </div>
+    </form>
+
+    <!-- Variants / Packs (OUTSIDE main form to avoid nested form issues) -->
+    <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-5 mt-6">
             <div class="flex items-center gap-3 pb-4 border-b border-gray-100">
                 <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-50">
                     <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
@@ -338,20 +350,7 @@
                 </button>
             </div>
         </div>
-
-
-        <!-- Action Buttons -->
-        <div class="flex items-center gap-4 pt-4">
-            <button type="submit" class="px-8 py-3.5 text-white font-bold text-sm rounded-xl hover:opacity-90 transition shadow-lg" style="background-color:#c06d22">
-                <span class="flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    Update Product
-                </span>
-            </button>
-            <a href="{{ route('admin.products.index') }}" class="px-6 py-3.5 border border-gray-200 text-gray-600 font-medium text-sm rounded-xl hover:bg-gray-50 transition">Cancel</a>
-        </div>
-    </form>
-</div>
+    </div>
 
 
 <script>
