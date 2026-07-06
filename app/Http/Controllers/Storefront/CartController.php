@@ -21,13 +21,18 @@ class CartController extends Controller
         $cartItems = $this->getCartItems();
         $items = $cartItems->map(function ($item) {
             $price = $item->variant ? $item->variant->selling_price : $item->product->selling_price;
+            $imageUrl = $item->product->primaryImage?->url ?? 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=100&h=100&fit=crop';
+            // Fix image path for Hostinger (storage images need /public prefix)
+            if (str_starts_with($imageUrl, '/storage/')) {
+                $imageUrl = '/public' . $imageUrl;
+            }
             return [
                 'id' => $item->id,
                 'name' => $item->product->name,
                 'variant' => $item->variant?->name,
                 'price' => (float) $price,
                 'quantity' => (int) $item->quantity,
-                'image' => $item->product->primaryImage?->url ?? 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=100&h=100&fit=crop',
+                'image' => $imageUrl,
                 'slug' => $item->product->slug,
             ];
         });
@@ -75,6 +80,10 @@ class CartController extends Controller
                 ];
             }
             session()->put('cart', $cart);
+        }
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'message' => "{$product->name} added to cart!"]);
         }
 
         return back()->with('success', "{$product->name} added to cart!")->with('open_cart', true);
