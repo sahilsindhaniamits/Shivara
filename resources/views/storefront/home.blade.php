@@ -93,18 +93,20 @@
             <span class="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-500">Shop by Concern</span>
             <h2 class="font-display text-3xl md:text-5xl font-bold text-espresso-700 mt-3">Find your balance.</h2>
         </div>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
             @foreach($categories as $cat)
-            <a href="{{ route('products.index', ['category' => $cat->slug]) }}" class="group text-center p-5 md:p-6 bg-white rounded-2xl border border-gold-100/50 hover:border-gold-300 hover:shadow-lg transition-all duration-400 hover:-translate-y-1">
-                <div class="w-14 h-14 mx-auto mb-3 rounded-2xl flex items-center justify-center shadow-sm group-hover:shadow-md group-hover:scale-110 transition-all duration-300 overflow-hidden {{ $cat->image ? '' : 'bg-gradient-to-br from-gold-50 to-gold-100' }}">
+            <a href="{{ route('products.index', ['category' => $cat->slug]) }}" class="group text-center">
+                <div class="relative mx-auto w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 mb-2 sm:mb-3 rounded-full overflow-hidden border-2 border-gold-100 group-hover:border-gold-400 shadow-sm group-hover:shadow-lg transition-all duration-300 group-hover:scale-105">
                     @if($cat->image)
-                    <img src="{{ str_starts_with($cat->image, '/storage/') ? '/public' . $cat->image : $cat->image }}" alt="{{ $cat->name }}" class="w-full h-full object-cover">
+                    <img src="{{ str_starts_with($cat->image, '/storage/') ? '/public' . $cat->image : $cat->image }}" alt="{{ $cat->name }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                     @else
-                    <svg class="w-6 h-6 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                    <div class="w-full h-full bg-gradient-to-br from-gold-50 to-gold-100 flex items-center justify-center">
+                        <svg class="w-7 h-7 sm:w-8 sm:h-8 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                    </div>
                     @endif
                 </div>
-                <h3 class="text-xs font-bold text-espresso-700 group-hover:text-gold-600 transition uppercase tracking-wider">{{ $cat->name }}</h3>
-                <p class="text-[10px] text-espresso-300 mt-1">{{ $cat->products_count }} products</p>
+                <h3 class="text-[10px] sm:text-xs font-bold text-espresso-700 group-hover:text-gold-600 transition uppercase tracking-wider leading-tight">{{ $cat->name }}</h3>
+                <p class="text-[9px] sm:text-[10px] text-espresso-300 mt-0.5">{{ $cat->products_count }} products</p>
             </a>
             @endforeach
         </div>
