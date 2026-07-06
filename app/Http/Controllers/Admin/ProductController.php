@@ -138,12 +138,19 @@ class ProductController extends Controller
         if ($request->filled('edit_variant_id')) {
             $variant = \App\Models\ProductVariant::where('id', $request->edit_variant_id)->where('product_id', $product->id)->first();
             if ($variant) {
+                $weightDisplay = null;
+                if ($request->filled('ev_weight') && $request->filled('ev_unit')) {
+                    $weightDisplay = $request->ev_weight . ' ' . $request->ev_unit;
+                } elseif ($request->filled('ev_weight_display')) {
+                    $weightDisplay = $request->ev_weight_display;
+                }
+
                 $variant->update([
                     'name' => $request->ev_name ?? $variant->name,
                     'mrp' => $request->ev_mrp ?? $variant->mrp,
                     'selling_price' => $request->ev_sp ?? $variant->selling_price,
                     'stock' => $request->ev_stock ?? $variant->stock,
-                    'weight_display' => $request->ev_weight_display ?: $variant->weight_display,
+                    'weight_display' => $weightDisplay ?: $variant->weight_display,
                 ]);
             }
             return redirect()->route('admin.products.edit', $product)->with('success', 'Variant updated!');

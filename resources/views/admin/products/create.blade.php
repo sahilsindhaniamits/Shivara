@@ -52,6 +52,21 @@
                 <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Short Description <span class="text-gray-400 normal-case">(shown on product cards)</span></label>
                 <input type="text" name="short_description" value="{{ old('short_description') }}" placeholder="Brief one-liner, e.g. 'Premium Ayurvedic face oil for glowing skin'" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition" maxlength="500">
             </div>
+            <div class="grid md:grid-cols-2 gap-4 mt-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Return/Exchange Policy</label>
+                    <select name="return_policy" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition">
+                        <option value="">Select Policy</option>
+                        @foreach(['Easy 7 days return','Easy 5 days return','Exchange Only within 5 days','Easy 3 days return','Exchange Only within 3 days','No Return/Exchange'] as $policy)
+                        <option value="{{ $policy }}" {{ old('return_policy') == $policy ? 'selected' : '' }}>{{ $policy }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">SKU <span class="text-gray-400">(optional)</span></label>
+                    <input type="text" name="sku" value="{{ old('sku') }}" placeholder="SHV-001" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition">
+                </div>
+            </div>
         </div>
 
         <!-- Step 2: Images (Visual First!) -->
@@ -96,7 +111,7 @@
                 <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white" style="background-color:#c06d22">3</span>
                 <h2 class="text-base font-bold text-gray-900">Set Your Price</h2>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">MRP (₹) *</label>
                     <input type="number" name="mrp" value="{{ old('mrp') }}" step="0.01" required placeholder="999" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition" x-model="mrp">
@@ -108,10 +123,6 @@
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Stock Quantity *</label>
                     <input type="number" name="stock" value="{{ old('stock', 50) }}" required placeholder="50" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">SKU <span class="text-gray-400">(optional)</span></label>
-                    <input type="text" name="sku" value="{{ old('sku') }}" placeholder="SHV-001" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition">
                 </div>
             </div>
             <!-- Live discount preview -->
@@ -153,6 +164,18 @@
                     <textarea name="benefits" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition" placeholder="One per line: Reduces dark spots, Brightens skin...">{{ old('benefits') }}</textarea>
                 </div>
             </div>
+        </div>
+
+        <!-- Product Page Banners -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+            <div class="flex items-center gap-3 mb-4">
+                <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-gray-200 text-gray-600">5</span>
+                <div>
+                    <h2 class="text-base font-bold text-gray-900">Product Page Banners <span class="text-gray-400 font-normal text-xs">(optional)</span></h2>
+                    <p class="text-xs text-gray-400">Carousel banners on this product's detail page (1200×400px recommended)</p>
+                </div>
+            </div>
+            <input type="file" name="banners[]" multiple accept="image/*" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm">
         </div>
 
         <!-- Status & Submit -->
