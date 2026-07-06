@@ -39,6 +39,18 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">SKU</label>
                     <input type="text" name="sku" value="{{ old('sku', $product->sku) }}" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Return/Exchange Policy</label>
+                    <select name="return_policy" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none">
+                        <option value="">Select Policy</option>
+                        <option value="Easy 7 days return" {{ ($product->return_policy ?? '') == 'Easy 7 days return' ? 'selected' : '' }}>Easy 7 days return</option>
+                        <option value="Easy 5 days return" {{ ($product->return_policy ?? '') == 'Easy 5 days return' ? 'selected' : '' }}>Easy 5 days return</option>
+                        <option value="Exchange Only within 5 days" {{ ($product->return_policy ?? '') == 'Exchange Only within 5 days' ? 'selected' : '' }}>Exchange Only within 5 days</option>
+                        <option value="Easy 3 days return" {{ ($product->return_policy ?? '') == 'Easy 3 days return' ? 'selected' : '' }}>Easy 3 days return</option>
+                        <option value="Exchange Only within 3 days" {{ ($product->return_policy ?? '') == 'Exchange Only within 3 days' ? 'selected' : '' }}>Exchange Only within 3 days</option>
+                        <option value="No Return/Exchange" {{ ($product->return_policy ?? '') == 'No Return/Exchange' ? 'selected' : '' }}>No Return/Exchange</option>
+                    </select>
+                </div>
             </div>
         </div>
 

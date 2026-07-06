@@ -20,7 +20,7 @@
 </div>
 
 <!-- Product Section -->
-<div class="max-w-7xl mx-auto px-4 sm:px-6 pb-10" x-data="{ qty: 1, img: 0, tab: 'description', lightbox: false }">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 pb-10" x-data="{ qty: 1, img: 0, tab: 'description', lightbox: false, selectedPack: -1 }">
 <div class="grid lg:grid-cols-2 gap-8 lg:gap-16">
 
 <!-- Image Lightbox Modal -->
@@ -34,10 +34,10 @@
     <button @click="img = (img + 1) % {{ $product->images->count() ?: 1 }}" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </button>
-    <div class="max-w-3xl max-h-[85vh] w-full">
+    <div class="max-w-lg max-h-[70vh] w-full relative">
         @if($product->images->count())
         @foreach($product->images as $i => $lbImg)
-        <img x-show="img === {{ $i }}" x-transition src="{{ str_starts_with($lbImg->url, '/storage/') ? '/public' . $lbImg->url : $lbImg->url }}" alt="{{ $product->name }}" class="w-full h-full object-contain rounded-xl">
+        <img x-show="img === {{ $i }}" x-transition src="{{ str_starts_with($lbImg->url, '/storage/') ? '/public' . $lbImg->url : $lbImg->url }}" alt="{{ $product->name }}" class="w-full h-auto max-h-[70vh] object-contain rounded-xl mx-auto">
         @endforeach
         @endif
     </div>
@@ -144,7 +144,7 @@
 
     <!-- Pack/Variant Selector -->
     @if($product->variants->count())
-    <div x-data="{ selectedPack: 0 }">
+    <div>
         <p class="text-sm font-bold text-espresso-700 mb-3">Select Pack</p>
         <div class="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
             @foreach($product->variants as $i => $variant)
@@ -172,6 +172,9 @@
         @csrf
         <input type="hidden" name="product_id" value="{{ $product->id }}">
         <input type="hidden" name="quantity" x-bind:value="qty">
+        @if($product->variants->count())
+        <input type="hidden" name="variant_id" x-bind:value="selectedPack >= 0 ? [{{ $product->variants->pluck('id')->implode(',') }}][selectedPack] : ''">
+        @endif
 
         <!-- Quantity Selector -->
         <div class="flex items-center gap-4">
@@ -206,12 +209,12 @@
             <p class="text-[9px] font-bold text-espresso-600 uppercase tracking-wider">Free Ship</p>
         </div>
         <div class="text-center p-3 bg-white rounded-xl border border-gold-100/50">
-            <svg class="w-6 h-6 text-gold-500 mx-auto mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-            <p class="text-[9px] font-bold text-espresso-600 uppercase tracking-wider">Genuine</p>
+            <svg class="w-6 h-6 text-gold-500 mx-auto mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <p class="text-[9px] font-bold text-espresso-600 uppercase tracking-wider">{{ $product->return_policy ?? 'Easy Returns' }}</p>
         </div>
         <div class="text-center p-3 bg-white rounded-xl border border-gold-100/50">
-            <svg class="w-6 h-6 text-gold-500 mx-auto mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-            <p class="text-[9px] font-bold text-espresso-600 uppercase tracking-wider">Returns</p>
+            <svg class="w-6 h-6 text-gold-500 mx-auto mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            <p class="text-[9px] font-bold text-espresso-600 uppercase tracking-wider">Genuine</p>
         </div>
         <div class="text-center p-3 bg-white rounded-xl border border-gold-100/50">
             <svg class="w-6 h-6 text-gold-500 mx-auto mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
