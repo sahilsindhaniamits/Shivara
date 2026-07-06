@@ -60,7 +60,7 @@
         @endif
         @endif
 
-        <button type="submit" class="px-6 py-3 text-white" style="background-color:#c06d22 font-bold rounded-xl hover:opacity-90 transition text-sm">Save Settings</button>
+        <button type="submit" class="px-6 py-3 text-white font-bold rounded-xl hover:opacity-90 transition text-sm" style="background-color:#c06d22">Save Settings</button>
     </form>
 </div>
 @endsection

@@ -4,7 +4,7 @@
 @section('content')
 <div class="flex items-center justify-between mb-6">
     <h1 class="text-xl font-bold text-slate-900">Categories</h1>
-    <a href="{{ route('admin.categories.create') }}" class="px-4 py-2.5 text-white" style="background-color:#c06d22 text-sm font-semibold rounded-xl hover:opacity-90 transition flex items-center gap-1.5">
+    <a href="{{ route('admin.categories.create') }}" class="px-4 py-2.5 text-white text-sm font-semibold rounded-xl hover:opacity-90 transition flex items-center gap-1.5" style="background-color:#c06d22">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg> Add Category
     </a>
 </div>
