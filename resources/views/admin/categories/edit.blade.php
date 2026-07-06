@@ -11,7 +11,16 @@
         <div><label class="block text-sm font-medium text-slate-700 mb-1">Parent Category</label><select name="parent_id" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none"><option value="">None</option>@foreach($parentCategories as $p)<option value="{{ $p->id }}" {{ $category->parent_id == $p->id ? 'selected' : '' }}>{{ $p->name }}</option>@endforeach</select></div>
         <div class="grid grid-cols-2 gap-4">
             <div><label class="block text-sm font-medium text-slate-700 mb-1">Sort Order</label><input type="number" name="sort_order" value="{{ old('sort_order', $category->sort_order) }}" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-200 focus:bg-white"></div>
-            <div><label class="block text-sm font-medium text-slate-700 mb-1">Image</label><input type="file" name="image" accept="image/*" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm"></div>
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Image</label>
+                @if($category->image)
+                <div class="flex items-center gap-3 mb-2">
+                    <img src="{{ str_starts_with($category->image, '/storage/') ? '/public' . $category->image : $category->image }}" alt="{{ $category->name }}" class="w-12 h-12 rounded-lg object-cover border border-gray-200">
+                    <span class="text-xs text-gray-500">Current image</span>
+                </div>
+                @endif
+                <input type="file" name="image" accept="image/*" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+            </div>
         </div>
         <label class="flex items-center gap-2"><input type="checkbox" name="is_active" value="1" {{ $category->is_active ? 'checked' : '' }} class="rounded text-brand-600"><span class="text-sm text-slate-700">Active</span></label>
         <div class="flex gap-3 pt-2">

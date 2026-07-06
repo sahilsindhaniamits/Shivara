@@ -168,29 +168,28 @@
 
     <!-- Product Attributes (Color, Size, Material) -->
     @if($product->attributes && $product->attributes->count())
-    <div class="space-y-4">
+    <div class="flex flex-wrap gap-x-6 gap-y-4">
         @foreach($product->attributes as $attr)
-        <div>
-            <p class="text-sm font-bold text-espresso-700 mb-2">{{ $attr->name }}</p>
+        <div class="min-w-0">
+            <p class="text-xs font-bold text-espresso-700 mb-2">{{ $attr->name }}</p>
             @if($attr->type === 'color_swatch')
             <div class="flex flex-wrap gap-2">
                 @foreach($attr->values as $val)
                 <button type="button"
                     @click="selectedAttrs['{{ $attr->name }}'] = '{{ $val->value }}'"
                     :class="selectedAttrs['{{ $attr->name }}'] === '{{ $val->value }}' ? 'ring-2 ring-offset-2' : 'hover:scale-110'"
-                    class="w-9 h-9 rounded-full border-2 border-gray-200 transition-all cursor-pointer relative"
-                    style="background-color: {{ $val->color_code ?? '#ccc' }}; {{ "ring-color: #B08840;" }}"
+                    class="w-8 h-8 rounded-full border-2 border-gray-200 transition-all cursor-pointer relative"
+                    style="background-color: {{ $val->color_code ?? '#ccc' }}; ring-color: #B08840;"
                     title="{{ $val->value }}">
                     <span x-show="selectedAttrs['{{ $attr->name }}'] === '{{ $val->value }}'" class="absolute inset-0 flex items-center justify-center">
-                        <svg class="w-4 h-4 {{ in_array(strtolower($val->color_code ?? ''), ['#ffffff','#fff','#fffdf8','#fffff0','#fafafa']) ? 'text-gray-700' : 'text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                        <svg class="w-3.5 h-3.5 {{ in_array(strtolower($val->color_code ?? ''), ['#ffffff','#fff','#fffdf8','#fffff0','#fafafa']) ? 'text-gray-700' : 'text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                     </span>
                 </button>
                 @endforeach
             </div>
-            <p class="text-xs text-espresso-400 mt-1" x-show="selectedAttrs['{{ $attr->name }}']" x-text="'Selected: ' + selectedAttrs['{{ $attr->name }}']"></p>
             @elseif($attr->type === 'dropdown')
-            <select @change="selectedAttrs['{{ $attr->name }}'] = $event.target.value" class="w-full max-w-xs px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold-200">
-                <option value="">Choose {{ $attr->name }}</option>
+            <select @change="selectedAttrs['{{ $attr->name }}'] = $event.target.value" class="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold-200 min-w-[120px]">
+                <option value="">Choose</option>
                 @foreach($attr->values as $val)
                 <option value="{{ $val->value }}">{{ $val->value }}@if($val->price_adjustment != 0) ({{ $val->price_adjustment > 0 ? '+' : '' }}₹{{ number_format($val->price_adjustment) }})@endif</option>
                 @endforeach
@@ -200,13 +199,10 @@
                 @foreach($attr->values as $val)
                 <button type="button"
                     @click="selectedAttrs['{{ $attr->name }}'] = '{{ $val->value }}'"
-                    :class="selectedAttrs['{{ $attr->name }}'] === '{{ $val->value }}' ? 'border-2 text-espresso-700 font-bold shadow-sm' : 'border text-espresso-500 hover:border-gray-400'"
+                    :class="selectedAttrs['{{ $attr->name }}'] === '{{ $val->value }}' ? 'border-2 text-espresso-700 font-bold' : 'border text-espresso-500 hover:border-gray-400'"
                     :style="selectedAttrs['{{ $attr->name }}'] === '{{ $val->value }}' ? 'border-color:#B08840; background-color:#FFFDF8' : 'border-color:#e5e7eb'"
-                    class="px-4 py-2 rounded-xl text-sm transition-all cursor-pointer">
+                    class="px-3 py-1.5 rounded-lg text-sm transition-all cursor-pointer">
                     {{ $val->value }}
-                    @if($val->price_adjustment != 0)
-                    <span class="text-xs text-gray-400">({{ $val->price_adjustment > 0 ? '+' : '' }}₹{{ number_format($val->price_adjustment) }})</span>
-                    @endif
                 </button>
                 @endforeach
             </div>
