@@ -158,7 +158,9 @@
                 </div>
                 <div class="p-2.5 text-center text-white" style="background-color:#1a1a1a;">
                     <p class="text-xs font-bold tracking-wide">{{ $variant->name }}</p>
-                    @if($variant->weight)
+                    @if($variant->weight_display)
+                    <p class="text-[10px] text-gray-300 mt-0.5">{{ $variant->weight_display }}</p>
+                    @elseif($variant->weight)
                     <p class="text-[10px] text-gray-300 mt-0.5">{{ $variant->weight >= 1000 ? number_format($variant->weight/1000, 1) . ' kg' : intval($variant->weight) . ' g' }}</p>
                     @endif
                 </div>
@@ -168,52 +170,6 @@
     </div>
     @endif
 
-
-    <!-- Product Attributes (Color, Size, Material) -->
-    @if($product->attributes && $product->attributes->count())
-    <div class="flex flex-wrap gap-x-6 gap-y-4">
-        @foreach($product->attributes as $attr)
-        <div class="min-w-0">
-            <p class="text-xs font-bold text-espresso-700 mb-2">{{ $attr->name }}</p>
-            @if($attr->type === 'color_swatch')
-            <div class="flex flex-wrap gap-2">
-                @foreach($attr->values as $val)
-                <button type="button"
-                    @click="selectedAttrs['{{ $attr->name }}'] = '{{ $val->value }}'"
-                    :class="selectedAttrs['{{ $attr->name }}'] === '{{ $val->value }}' ? 'ring-2 ring-offset-2' : 'hover:scale-110'"
-                    class="w-8 h-8 rounded-full border-2 border-gray-200 transition-all cursor-pointer relative"
-                    style="background-color: {{ $val->color_code ?? '#ccc' }}; ring-color: #B08840;"
-                    title="{{ $val->value }}">
-                    <span x-show="selectedAttrs['{{ $attr->name }}'] === '{{ $val->value }}'" class="absolute inset-0 flex items-center justify-center">
-                        <svg class="w-3.5 h-3.5 {{ in_array(strtolower($val->color_code ?? ''), ['#ffffff','#fff','#fffdf8','#fffff0','#fafafa']) ? 'text-gray-700' : 'text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
-                    </span>
-                </button>
-                @endforeach
-            </div>
-            @elseif($attr->type === 'dropdown')
-            <select @change="selectedAttrs['{{ $attr->name }}'] = $event.target.value" class="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold-200 min-w-[120px]">
-                <option value="">Choose</option>
-                @foreach($attr->values as $val)
-                <option value="{{ $val->value }}">{{ $val->value }}@if($val->price_adjustment != 0) ({{ $val->price_adjustment > 0 ? '+' : '' }}₹{{ number_format($val->price_adjustment) }})@endif</option>
-                @endforeach
-            </select>
-            @else
-            <div class="flex flex-wrap gap-2">
-                @foreach($attr->values as $val)
-                <button type="button"
-                    @click="selectedAttrs['{{ $attr->name }}'] = '{{ $val->value }}'"
-                    :class="selectedAttrs['{{ $attr->name }}'] === '{{ $val->value }}' ? 'border-2 text-espresso-700 font-bold' : 'border text-espresso-500 hover:border-gray-400'"
-                    :style="selectedAttrs['{{ $attr->name }}'] === '{{ $val->value }}' ? 'border-color:#B08840; background-color:#FFFDF8' : 'border-color:#e5e7eb'"
-                    class="px-3 py-1.5 rounded-lg text-sm transition-all cursor-pointer">
-                    {{ $val->value }}
-                </button>
-                @endforeach
-            </div>
-            @endif
-        </div>
-        @endforeach
-    </div>
-    @endif
 
     <!-- Quantity & Add to Cart -->
     @if($product->stock > 0)
@@ -238,9 +194,6 @@
         <input type="hidden" name="quantity" x-bind:value="qty">
         @if($product->variants->count())
         <input type="hidden" name="variant_id" x-bind:value="selectedPack >= 0 ? [{{ $product->variants->pluck('id')->implode(',') }}][selectedPack] : ''">
-        @endif
-        @if($product->attributes && $product->attributes->count())
-        <input type="hidden" name="selected_attributes" x-bind:value="JSON.stringify(selectedAttrs)">
         @endif
 
         <!-- Quantity Selector -->

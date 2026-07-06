@@ -260,8 +260,19 @@
                         <input type="number" x-model="variantSp" placeholder="449" step="0.01" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Weight (g)</label>
-                        <input type="number" x-model="variantWeight" placeholder="100" step="0.01" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300">
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Weight/Volume</label>
+                        <div class="flex gap-1.5">
+                            <input type="number" x-model="variantWeight" placeholder="100" step="0.01" class="flex-1 px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300">
+                            <select x-model="variantUnit" class="px-2 py-2.5 border border-gray-200 rounded-lg text-xs focus:outline-none min-w-[55px]">
+                                <option value="g">g</option>
+                                <option value="kg">kg</option>
+                                <option value="ml">ml</option>
+                                <option value="L">L</option>
+                                <option value="pcs">pcs</option>
+                                <option value="tabs">tabs</option>
+                                <option value="caps">caps</option>
+                            </select>
+                        </div>
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Stock</label>
@@ -271,95 +282,6 @@
                 <p class="text-[10px] text-gray-400">Example: Name="Pack of 2", Weight=200g. This creates a card showing "Pack of 2 / 200 g" on the product page.</p>
                 <button type="button" @click="addVariant()" class="px-5 py-2.5 text-white text-xs font-bold uppercase tracking-wide rounded-lg hover:opacity-90 transition shadow-sm" style="background-color:#16a34a">
                     + Add Pack
-                </button>
-            </div>
-        </div>
-
-
-        <!-- Product Attributes -->
-        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-5">
-            <div class="flex items-center gap-3 pb-4 border-b border-gray-100">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-pink-50">
-                    <svg class="w-4 h-4 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
-                </div>
-                <div>
-                    <h2 class="text-base font-bold text-gray-900">Product Attributes</h2>
-                    <p class="text-xs text-gray-400">Color swatches, size buttons, material options</p>
-                </div>
-            </div>
-
-            @if($product->attributes && $product->attributes->count())
-            <div class="space-y-3">
-                @foreach($product->attributes as $attr)
-                <div class="p-4 bg-gradient-to-r from-gray-50 to-white rounded-xl border border-gray-100">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm font-bold text-gray-800">{{ $attr->name }}</span>
-                            <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold {{ $attr->type === 'color_swatch' ? 'bg-pink-50 text-pink-600' : ($attr->type === 'dropdown' ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-600') }}">
-                                {{ $attr->type === 'color_swatch' ? 'Color Swatch' : ($attr->type === 'dropdown' ? 'Dropdown' : 'Buttons') }}
-                            </span>
-                        </div>
-                        <button type="button" onclick="if(confirm('Delete attribute?')){fetch('{{ route('admin.products.deleteAttribute', [$product, $attr]) }}',{method:'POST',headers:{'X-CSRF-TOKEN':document.querySelector('meta[name=csrf-token]').content,'Content-Type':'application/json'},body:JSON.stringify({_method:'DELETE'})}).then(()=>location.reload())}" class="text-xs text-red-500 font-bold hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded-lg transition">Delete</button>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        @foreach($attr->values as $val)
-                        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-lg border border-gray-200 text-xs shadow-sm">
-                            @if($attr->type === 'color_swatch' && $val->color_code)
-                            <span class="w-4 h-4 rounded-full border border-gray-300 shrink-0" style="background-color: {{ $val->color_code }}"></span>
-                            @endif
-                            <span class="font-medium text-gray-700">{{ $val->value }}</span>
-                            <button type="button" onclick="if(confirm('Delete?')){fetch('{{ route('admin.products.deleteAttributeValue', [$product, $val]) }}',{method:'POST',headers:{'X-CSRF-TOKEN':document.querySelector('meta[name=csrf-token]').content,'Content-Type':'application/json'},body:JSON.stringify({_method:'DELETE'})}).then(()=>location.reload())}" class="text-red-300 hover:text-red-500 ml-1 transition">&times;</button>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-                @endforeach
-            </div>
-            @endif
-
-            <!-- Add Attribute Form -->
-            <div class="p-5 bg-slate-50 rounded-xl border border-gray-200 space-y-4">
-                <p class="text-xs font-bold text-gray-600 uppercase tracking-wide flex items-center gap-2">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    Add New Attribute
-                </p>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Attribute Name *</label>
-                        <select x-model="attrName" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100">
-                            <option value="">Select type...</option>
-                            <option value="Color">Color</option>
-                            <option value="Size">Size</option>
-                            <option value="Weight">Weight</option>
-                            <option value="Material">Material</option>
-                            <option value="Fragrance">Fragrance</option>
-                            <option value="custom">Custom...</option>
-                        </select>
-                        <template x-if="attrName === 'custom'">
-                            <input x-model="customAttrName" type="text" placeholder="Custom name" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm mt-2 focus:outline-none focus:ring-2 focus:ring-orange-100">
-                        </template>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Display Type</label>
-                        <select x-model="attrType" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100">
-                            <option value="button">Buttons</option>
-                            <option value="color_swatch">Color Swatches</option>
-                            <option value="dropdown">Dropdown</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Values (comma separated) *</label>
-                        <input x-model="attrValues" type="text" placeholder="Red, Blue, Green" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100">
-                    </div>
-                </div>
-                <template x-if="attrType === 'color_swatch'">
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Color Codes (hex, same order)</label>
-                        <input x-model="attrColors" type="text" placeholder="#FF0000, #0000FF, #00FF00" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100">
-                    </div>
-                </template>
-                <button type="button" @click="addAttribute()" class="px-5 py-2.5 text-white text-xs font-bold uppercase tracking-wide rounded-lg hover:opacity-90 transition shadow-sm" style="background-color:#16a34a">
-                    + Add Attribute
                 </button>
             </div>
         </div>
@@ -382,26 +304,29 @@
 <script>
 function productEditor() {
     return {
-        // Variant fields
         variantName: '',
         variantMrp: '',
         variantSp: '',
         variantStock: '',
         variantWeight: '',
-
-        // Attribute fields
-        attrName: '',
-        customAttrName: '',
-        attrType: 'button',
-        attrValues: '',
-        attrColors: '',
+        variantUnit: 'g',
 
         addVariant() {
             if (!this.variantName || !this.variantMrp || !this.variantSp) {
                 alert('Please fill Pack Name, MRP, and Selling Price');
                 return;
             }
-            // Submit via hidden form to maintain existing controller logic
+            // Build weight display string (e.g. "200 ml", "1.5 kg")
+            let weightDisplay = this.variantWeight ? (this.variantWeight + ' ' + this.variantUnit) : '';
+
+            // Convert to grams for storage (g/kg/ml/L all stored as number)
+            let weightInGrams = '';
+            if (this.variantWeight) {
+                let w = parseFloat(this.variantWeight);
+                if (this.variantUnit === 'kg' || this.variantUnit === 'L') weightInGrams = w * 1000;
+                else weightInGrams = w;
+            }
+
             let form = document.createElement('form');
             form.method = 'POST';
             form.action = '{{ route("admin.products.update", $product) }}';
@@ -415,7 +340,8 @@ function productEditor() {
                 'variant_mrp': this.variantMrp,
                 'variant_selling_price': this.variantSp,
                 'variant_stock': this.variantStock || '0',
-                'variant_weight': this.variantWeight || '',
+                'variant_weight': weightInGrams || '',
+                'variant_weight_display': weightDisplay,
                 'name': '{{ addslashes($product->name) }}',
                 'mrp': '{{ $product->mrp }}',
                 'selling_price': '{{ $product->selling_price }}',
@@ -432,34 +358,6 @@ function productEditor() {
 
             document.body.appendChild(form);
             form.submit();
-        },
-
-        addAttribute() {
-            let name = this.attrName === 'custom' ? this.customAttrName : this.attrName;
-            if (!name || !this.attrValues.trim()) {
-                alert('Please fill attribute name and values');
-                return;
-            }
-            let formData = new FormData();
-            formData.append('_token', '{{ csrf_token() }}');
-            formData.append('attribute_name', name);
-            formData.append('attribute_type', this.attrType);
-            formData.append('attribute_values', this.attrValues);
-            formData.append('attribute_colors', this.attrColors);
-
-            fetch('{{ route("admin.products.storeAttribute", $product) }}', {
-                method: 'POST',
-                body: formData
-            })
-            .then(r => r.json())
-            .then(d => {
-                if (d.success) {
-                    location.reload();
-                } else {
-                    alert(d.message || 'Error adding attribute');
-                }
-            })
-            .catch(() => alert('Error adding attribute'));
         }
     }
 }
