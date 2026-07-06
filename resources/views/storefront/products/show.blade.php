@@ -158,6 +158,9 @@
                 </div>
                 <div class="p-2.5 text-center text-white" style="background-color:#1a1a1a;">
                     <p class="text-xs font-bold tracking-wide">{{ $variant->name }}</p>
+                    @if($variant->weight)
+                    <p class="text-[10px] text-gray-300 mt-0.5">{{ $variant->weight >= 1000 ? number_format($variant->weight/1000, 1) . ' kg' : intval($variant->weight) . ' g' }}</p>
+                    @endif
                 </div>
             </button>
             @endforeach
