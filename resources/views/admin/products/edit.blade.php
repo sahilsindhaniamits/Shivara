@@ -229,7 +229,7 @@
                     </div>
                     <!-- Edit Mode -->
                     <div class="flex-1" x-show="editing" x-cloak>
-                        <form method="POST" action="{{ route('admin.products.update', $product) }}" class="flex flex-wrap items-end gap-2">
+                        <form method="POST" action="{{ route('admin.products.update', $product) }}" class="grid grid-cols-2 md:grid-cols-6 gap-3 items-end">
                             @csrf @method('PUT')
                             <input type="hidden" name="edit_variant_id" value="{{ $v->id }}">
                             <input type="hidden" name="name" value="{{ $product->name }}">
@@ -238,13 +238,30 @@
                             <input type="hidden" name="stock" value="{{ $product->stock }}">
                             @if($product->is_active)<input type="hidden" name="is_active" value="1">@endif
                             @if($product->is_featured)<input type="hidden" name="is_featured" value="1">@endif
-                            <div><label class="text-[9px] font-bold text-gray-400 uppercase">Name</label><input type="text" name="ev_name" value="{{ $v->name }}" class="w-24 px-2 py-1.5 border border-gray-200 rounded-md text-xs"></div>
-                            <div><label class="text-[9px] font-bold text-gray-400 uppercase">MRP</label><input type="number" name="ev_mrp" value="{{ $v->mrp }}" step="0.01" class="w-20 px-2 py-1.5 border border-gray-200 rounded-md text-xs"></div>
-                            <div><label class="text-[9px] font-bold text-gray-400 uppercase">Price</label><input type="number" name="ev_sp" value="{{ $v->selling_price }}" step="0.01" class="w-20 px-2 py-1.5 border border-gray-200 rounded-md text-xs"></div>
-                            <div><label class="text-[9px] font-bold text-gray-400 uppercase">Stock</label><input type="number" name="ev_stock" value="{{ $v->stock }}" class="w-16 px-2 py-1.5 border border-gray-200 rounded-md text-xs"></div>
-                            <div><label class="text-[9px] font-bold text-gray-400 uppercase">Weight</label><input type="text" name="ev_weight_display" value="{{ $v->weight_display }}" placeholder="200 ml" class="w-20 px-2 py-1.5 border border-gray-200 rounded-md text-xs"></div>
-                            <button type="submit" class="px-3 py-1.5 text-white text-[10px] font-bold rounded-md" style="background-color:#16a34a">Save</button>
-                            <button type="button" @click="editing = false" class="px-3 py-1.5 text-gray-500 text-[10px] font-bold rounded-md bg-gray-100">Cancel</button>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Pack Name *</label>
+                                <input type="text" name="ev_name" value="{{ $v->name }}" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">MRP (₹) *</label>
+                                <input type="number" name="ev_mrp" value="{{ $v->mrp }}" step="0.01" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Selling Price *</label>
+                                <input type="number" name="ev_sp" value="{{ $v->selling_price }}" step="0.01" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Weight/Vol</label>
+                                <input type="text" name="ev_weight_display" value="{{ $v->weight_display }}" placeholder="200 ml" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Stock</label>
+                                <input type="number" name="ev_stock" value="{{ $v->stock }}" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300">
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="submit" class="px-4 py-2.5 text-white text-xs font-bold rounded-lg" style="background-color:#16a34a">Save</button>
+                                <button type="button" @click="editing = false" class="px-4 py-2.5 text-gray-500 text-xs font-bold rounded-lg bg-gray-100 hover:bg-gray-200 transition">Cancel</button>
+                            </div>
                         </form>
                     </div>
                     @if($v->mrp > $v->selling_price)
