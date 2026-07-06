@@ -95,6 +95,7 @@ Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\AdminMiddleware
 
     // Products
     Route::resource('products', AdminProductController::class);
+    Route::post('products/bulk', [AdminProductController::class, 'bulk'])->name('products.bulk');
     Route::delete('products/{product}/image/{image}', [AdminProductController::class, 'deleteImage'])->name('products.deleteImage');
     Route::delete('products/{product}/banner/{index}', [AdminProductController::class, 'deleteBanner'])->name('products.deleteBanner');
     Route::delete('products/{product}/variant/{variant}', [AdminProductController::class, 'deleteVariant'])->name('products.deleteVariant');
@@ -107,6 +108,7 @@ Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\AdminMiddleware
 
     // Orders
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+    Route::post('/orders/bulk-status', [AdminOrderController::class, 'bulkStatus'])->name('orders.bulkStatus');
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
 
