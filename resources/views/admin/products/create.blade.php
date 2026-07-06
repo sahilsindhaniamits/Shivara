@@ -100,6 +100,17 @@
             </div>
         </div>
 
+        <!-- Variants Note -->
+        <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-100 shrink-0">
+                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-amber-800">Packs / Variants</p>
+                <p class="text-xs text-amber-600">You can add pack variants (Pack of 1, Pack of 2, etc.) after creating the product. You'll be redirected to the edit page.</p>
+            </div>
+        </div>
+
         <!-- Ayurvedic Details -->
         <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-5">
             <div class="flex items-center gap-3 pb-4 border-b border-gray-100">
