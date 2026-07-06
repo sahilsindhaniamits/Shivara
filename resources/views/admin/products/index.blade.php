@@ -8,7 +8,7 @@
             <h1 class="text-2xl font-bold text-gray-900">Products</h1>
             <p class="text-sm text-gray-500">Manage your product catalog</p>
         </div>
-        <a href="{{ route('admin.products.create') }}" class="px-4 py-2.5 text-white" style="background-color:#c06d22 text-sm font-semibold rounded-xl hover:opacity-90 transition flex items-center gap-1.5">
+        <a href="{{ route('admin.products.create') }}" class="px-4 py-2.5 text-white text-sm font-semibold rounded-xl hover:opacity-90 transition flex items-center gap-1.5" style="background-color:#c06d22">
             + Add Product
         </a>
     </div>

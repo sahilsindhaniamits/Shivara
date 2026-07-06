@@ -36,7 +36,7 @@
         </div>
         <label class="flex items-center gap-2"><input type="checkbox" name="is_active" value="1" {{ $coupon->is_active ? 'checked' : '' }} class="rounded text-brand-600"><span class="text-sm text-slate-700">Active</span></label>
         <div class="flex gap-3 pt-2">
-            <button type="submit" class="px-6 py-3 text-white" style="background-color:#c06d22 font-semibold rounded-xl hover:opacity-90 transition text-sm">Update</button>
+            <button type="submit" class="px-6 py-3 text-white font-semibold rounded-xl hover:opacity-90 transition text-sm" style="background-color:#c06d22">Update</button>
             <a href="{{ route('admin.coupons.index') }}" class="px-6 py-3 border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition text-sm">Cancel</a>
         </div>
     </form>
