@@ -53,7 +53,7 @@
                            placeholder="••••••••">
                 </div>
 
-                <button type="submit" class="w-full px-6 py-3.5 bg-dark text-white font-semibold rounded-xl hover:bg-dark-light transition shadow-lg shadow-dark/10">
+                <button type="submit" class="w-full px-6 py-3.5 text-white font-semibold rounded-xl hover:opacity-90 transition shadow-lg" style="background-color:#2C2418">
                     Create Account
                 </button>
             </form>

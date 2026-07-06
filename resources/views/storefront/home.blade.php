@@ -96,8 +96,12 @@
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             @foreach($categories as $cat)
             <a href="{{ route('products.index', ['category' => $cat->slug]) }}" class="group text-center p-5 md:p-6 bg-white rounded-2xl border border-gold-100/50 hover:border-gold-300 hover:shadow-lg transition-all duration-400 hover:-translate-y-1">
-                <div class="w-14 h-14 mx-auto mb-3 bg-gradient-to-br from-gold-50 to-gold-100 rounded-2xl flex items-center justify-center shadow-sm group-hover:shadow-md group-hover:scale-110 transition-all duration-300">
+                <div class="w-14 h-14 mx-auto mb-3 rounded-2xl flex items-center justify-center shadow-sm group-hover:shadow-md group-hover:scale-110 transition-all duration-300 overflow-hidden {{ $cat->image ? '' : 'bg-gradient-to-br from-gold-50 to-gold-100' }}">
+                    @if($cat->image)
+                    <img src="{{ str_starts_with($cat->image, '/storage/') ? '/public' . $cat->image : $cat->image }}" alt="{{ $cat->name }}" class="w-full h-full object-cover">
+                    @else
                     <svg class="w-6 h-6 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                    @endif
                 </div>
                 <h3 class="text-xs font-bold text-espresso-700 group-hover:text-gold-600 transition uppercase tracking-wider">{{ $cat->name }}</h3>
                 <p class="text-[10px] text-espresso-300 mt-1">{{ $cat->products_count }} products</p>
