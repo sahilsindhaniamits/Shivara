@@ -202,6 +202,31 @@ class ProductController extends Controller
         return back()->with('success', 'Variant deleted.');
     }
 
+    public function bulk(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:products,id',
+            'action' => 'required|in:activate,deactivate,delete',
+        ]);
+
+        $ids = $request->ids;
+
+        switch ($request->action) {
+            case 'activate':
+                Product::whereIn('id', $ids)->update(['is_active' => true]);
+                break;
+            case 'deactivate':
+                Product::whereIn('id', $ids)->update(['is_active' => false]);
+                break;
+            case 'delete':
+                Product::whereIn('id', $ids)->delete();
+                break;
+        }
+
+        return response()->json(['success' => true, 'message' => ucfirst($request->action) . ' completed for ' . count($ids) . ' products.']);
+    }
+
     public function storeAttribute(Request $request, Product $product)
     {
         $request->validate([
