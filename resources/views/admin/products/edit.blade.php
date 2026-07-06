@@ -246,8 +246,8 @@
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     Add New Pack
                 </p>
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-                    <div>
+                <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+                    <div class="md:col-span-1">
                         <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Pack Name *</label>
                         <input type="text" x-model="variantName" placeholder="Pack of 2" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300">
                     </div>
@@ -256,23 +256,24 @@
                         <input type="number" x-model="variantMrp" placeholder="599" step="0.01" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Selling Price (₹) *</label>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Selling Price *</label>
                         <input type="number" x-model="variantSp" placeholder="449" step="0.01" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Weight/Volume</label>
-                        <div class="flex gap-1.5">
-                            <input type="number" x-model="variantWeight" placeholder="100" step="0.01" class="flex-1 px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300">
-                            <select x-model="variantUnit" class="px-2 py-2.5 border border-gray-200 rounded-lg text-xs focus:outline-none min-w-[55px]">
-                                <option value="g">g</option>
-                                <option value="kg">kg</option>
-                                <option value="ml">ml</option>
-                                <option value="L">L</option>
-                                <option value="pcs">pcs</option>
-                                <option value="tabs">tabs</option>
-                                <option value="caps">caps</option>
-                            </select>
-                        </div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Weight/Vol</label>
+                        <input type="number" x-model="variantWeight" placeholder="100" step="0.01" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Unit</label>
+                        <select x-model="variantUnit" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300">
+                            <option value="g">g (grams)</option>
+                            <option value="kg">kg</option>
+                            <option value="ml">ml</option>
+                            <option value="L">L (litre)</option>
+                            <option value="pcs">pcs</option>
+                            <option value="tabs">tablets</option>
+                            <option value="caps">capsules</option>
+                        </select>
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Stock</label>
