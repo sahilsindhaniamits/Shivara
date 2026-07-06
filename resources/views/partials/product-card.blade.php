@@ -26,6 +26,17 @@
                 <span class="text-xs text-espresso-300 line-through">₹{{ number_format($product->mrp) }}</span>
                 @endif
             </div>
+            <!-- Variant Indicator -->
+            @if($product->variants && $product->variants->count() > 0)
+            <div class="flex items-center gap-1.5 mt-2">
+                <div class="flex -space-x-1">
+                    @foreach($product->variants->take(3) as $v)
+                    <span class="w-2.5 h-2.5 rounded-full border border-white shadow-sm" style="background-color: {{ $loop->index === 0 ? '#B08840' : ($loop->index === 1 ? '#c06d22' : '#2C2418') }}"></span>
+                    @endforeach
+                </div>
+                <span class="text-[10px] text-espresso-400 font-medium">{{ $product->variants->count() }} {{ $product->variants->count() === 1 ? 'pack' : 'packs' }} available</span>
+            </div>
+            @endif
             <!-- Star Rating -->
             <div class="flex items-center gap-0.5 mt-2">
                 @for($s = 1; $s <= 5; $s++)
@@ -37,7 +48,19 @@
     <!-- Always-visible Add to Cart Button -->
     @if($product->stock > 0)
     <div class="px-4 pb-4">
-        <form method="POST" action="{{ route('cart.add') }}">@csrf
+        <form method="POST" action="{{ route('cart.add') }}" @submit.prevent="
+            let formData = new FormData($el);
+            fetch('{{ route('cart.add') }}', {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' },
+                body: formData
+            }).then(r => r.json()).then(d => {
+                if (d.success) {
+                    window.dispatchEvent(new CustomEvent('cart-updated'));
+                    window.dispatchEvent(new CustomEvent('open-cart'));
+                } else { $el.submit(); }
+            }).catch(() => { $el.submit(); });
+        ">
             <input type="hidden" name="product_id" value="{{ $product->id }}">
             <input type="hidden" name="quantity" value="1">
             <button type="submit" class="w-full text-white text-xs font-bold uppercase tracking-wider py-3 rounded-xl transition hover:opacity-90" style="background-color:#2C2418;">

@@ -53,7 +53,10 @@
                         <div class="w-14 h-14 bg-gray-50 rounded-lg overflow-hidden shrink-0"><img :src="item.image" class="w-full h-full object-cover"></div>
                         <div class="flex-1 min-w-0">
                             <div class="flex items-start justify-between gap-1">
-                                <p class="text-[11px] font-semibold text-espresso-700 line-clamp-2" x-text="item.name"></p>
+                                <div class="min-w-0">
+                                    <p class="text-[11px] font-semibold text-espresso-700 line-clamp-2" x-text="item.name"></p>
+                                    <p x-show="item.variant" class="text-[10px] text-gold-600 font-medium mt-0.5" x-text="item.variant"></p>
+                                </div>
                                 <button @click="removeItem(item.id)" class="text-gray-300 hover:text-red-400 shrink-0"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
                             </div>
                             <div class="flex items-center justify-between mt-2">
@@ -183,7 +186,11 @@ function sideCart() {
                 else { this.couponMsg = d.message || 'Invalid coupon'; this.couponError = true; }
             }).catch(() => { this.applying = false; this.couponMsg = 'Error'; this.couponError = true; });
         },
-        init() { this.loadCart(); },
+        init() {
+            this.loadCart();
+            // Listen for cart-updated events (from AJAX add-to-cart)
+            window.addEventListener('cart-updated', () => this.loadCart());
+        },
         loadCart() { fetch('/cart/data', {headers:{'Accept':'application/json'}}).then(r=>r.json()).then(d=>{if(d.items)this.items=d.items;}).catch(()=>{}); }
     }
 }

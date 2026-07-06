@@ -152,10 +152,105 @@
             </div>
         </div>
 
+        <!-- Product Attributes (Color, Size, Material) -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-200" x-data="productAttributes()">
+            <h2 class="font-bold text-gray-900 mb-2">Product Attributes</h2>
+            <p class="text-xs text-gray-500 mb-4">Add selectable options like Color, Size/Weight, Material. These show as swatches/buttons on the product page.</p>
+
+            @if($product->attributes && $product->attributes->count())
+            <div class="space-y-4 mb-4">
+                @foreach($product->attributes as $attr)
+                <div class="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-bold text-gray-800">{{ $attr->name }}</span>
+                            <span class="text-[10px] px-2 py-0.5 bg-blue-50 text-blue-600 font-semibold rounded-full">{{ $attr->type === 'color_swatch' ? 'Color Swatch' : ($attr->type === 'dropdown' ? 'Dropdown' : 'Buttons') }}</span>
+                        </div>
+                        <button type="button" onclick="if(confirm('Delete this attribute and all its values?')){fetch('{{ route('admin.products.show', $product) }}/attribute/{{ $attr->id }}',{method:'POST',headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}','Content-Type':'application/json'},body:JSON.stringify({_method:'DELETE'})}).then(()=>location.reload())}" class="text-xs text-red-500 font-bold hover:underline">Delete</button>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach($attr->values as $val)
+                        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-lg border border-gray-200 text-xs">
+                            @if($attr->type === 'color_swatch' && $val->color_code)
+                            <span class="w-4 h-4 rounded-full border border-gray-300 shrink-0" style="background-color: {{ $val->color_code }}"></span>
+                            @endif
+                            <span class="font-medium text-gray-700">{{ $val->value }}</span>
+                            @if($val->price_adjustment != 0)
+                            <span class="text-gray-400">({{ $val->price_adjustment > 0 ? '+' : '' }}₹{{ number_format($val->price_adjustment) }})</span>
+                            @endif
+                            <button type="button" onclick="if(confirm('Delete this value?')){fetch('{{ route('admin.products.show', $product) }}/attribute-value/{{ $val->id }}',{method:'POST',headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}','Content-Type':'application/json'},body:JSON.stringify({_method:'DELETE'})}).then(()=>location.reload())}" class="text-red-400 hover:text-red-600 ml-1">&times;</button>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            @endif
+
+            <!-- Add New Attribute -->
+            <div class="p-4 bg-cream-50 rounded-xl border border-dashed border-gray-300 space-y-3">
+                <p class="text-xs font-bold text-gray-600 uppercase">Add New Attribute</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Attribute Name *</label>
+                        <select x-model="attrName" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+                            <option value="">Select...</option>
+                            <option value="Color">Color</option>
+                            <option value="Size">Size</option>
+                            <option value="Weight">Weight</option>
+                            <option value="Material">Material</option>
+                            <option value="Fragrance">Fragrance</option>
+                            <option value="custom">Custom...</option>
+                        </select>
+                        <input x-show="attrName === 'custom'" x-model="customAttrName" type="text" placeholder="Custom name" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mt-2">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Display Type</label>
+                        <select x-model="attrType" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+                            <option value="button">Buttons</option>
+                            <option value="color_swatch">Color Swatches</option>
+                            <option value="dropdown">Dropdown</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Values (comma separated) *</label>
+                        <input x-model="attrValues" type="text" placeholder="Red, Blue, Green" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+                    </div>
+                </div>
+                <div x-show="attrType === 'color_swatch'" class="mt-2">
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Color Codes (comma separated, same order as values)</label>
+                    <input x-model="attrColors" type="text" placeholder="#FF0000, #0000FF, #00FF00" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+                </div>
+                <button type="button" @click="addAttribute()" class="px-4 py-2 text-white text-xs font-bold rounded-lg hover:opacity-90 transition" style="background-color:#16a34a">+ Add Attribute</button>
+            </div>
+        </div>
+
         <div class="flex gap-4">
             <button type="submit" class="px-8 py-3 text-white font-medium rounded-xl hover:opacity-90 transition" style="background-color:#c06d22">Update Product</button>
             <a href="{{ route('admin.products.index') }}" class="px-8 py-3 border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition">Cancel</a>
         </div>
     </form>
 </div>
+
+<script>
+function productAttributes() {
+    return {
+        attrName: '', customAttrName: '', attrType: 'button', attrValues: '', attrColors: '',
+        addAttribute() {
+            let name = this.attrName === 'custom' ? this.customAttrName : this.attrName;
+            if (!name || !this.attrValues.trim()) { alert('Fill attribute name and values'); return; }
+            let form = new FormData();
+            form.append('_token', '{{ csrf_token() }}');
+            form.append('attribute_name', name);
+            form.append('attribute_type', this.attrType);
+            form.append('attribute_values', this.attrValues);
+            form.append('attribute_colors', this.attrColors);
+            fetch('{{ route("admin.products.show", $product) }}/attributes', { method: 'POST', body: form })
+            .then(r => r.json())
+            .then(d => { if(d.success) location.reload(); else alert(d.message || 'Error'); })
+            .catch(() => alert('Error adding attribute'));
+        }
+    }
+}
+</script>
 @endsection

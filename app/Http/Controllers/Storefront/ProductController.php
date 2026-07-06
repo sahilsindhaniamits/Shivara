@@ -11,7 +11,7 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::active()->with(['primaryImage', 'category']);
+        $query = Product::active()->with(['primaryImage', 'category', 'variants']);
 
         // Category filter
         if ($request->filled('category')) {
@@ -54,7 +54,7 @@ class ProductController extends Controller
     {
         $product = Product::where('slug', $slug)
             ->active()
-            ->with(['images', 'variants', 'category', 'reviews.user'])
+            ->with(['images', 'variants', 'category', 'reviews.user', 'attributes.values'])
             ->firstOrFail();
 
         $relatedProducts = Product::active()
@@ -72,6 +72,7 @@ class ProductController extends Controller
         $request->validate([
             'rating' => 'required|integer|min:1|max:5',
             'comment' => 'required|string|max:1000',
+            'review_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $product = Product::where('slug', $slug)->firstOrFail();
@@ -82,11 +83,21 @@ class ProductController extends Controller
             return back()->with('error', 'You have already reviewed this product.');
         }
 
+        // Handle image uploads
+        $imagePaths = [];
+        if ($request->hasFile('review_images')) {
+            foreach (array_slice($request->file('review_images'), 0, 5) as $image) {
+                $path = $image->store('reviews', 'public');
+                $imagePaths[] = '/storage/' . $path;
+            }
+        }
+
         \App\Models\Review::create([
             'product_id' => $product->id,
             'user_id' => auth()->id(),
             'rating' => $request->rating,
             'comment' => $request->comment,
+            'images' => count($imagePaths) ? $imagePaths : null,
             'is_approved' => false, // Needs admin approval
         ]);
 

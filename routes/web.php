@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\CouponController as AdminCouponController;
 use App\Http\Controllers\Admin\BannerController as AdminBannerController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
+use App\Http\Controllers\Admin\ReportController as AdminReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -97,6 +98,9 @@ Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\AdminMiddleware
     Route::delete('products/{product}/image/{image}', [AdminProductController::class, 'deleteImage'])->name('products.deleteImage');
     Route::delete('products/{product}/banner/{index}', [AdminProductController::class, 'deleteBanner'])->name('products.deleteBanner');
     Route::delete('products/{product}/variant/{variant}', [AdminProductController::class, 'deleteVariant'])->name('products.deleteVariant');
+    Route::post('products/{product}/attributes', [AdminProductController::class, 'storeAttribute'])->name('products.storeAttribute');
+    Route::delete('products/{product}/attribute/{attribute}', [AdminProductController::class, 'deleteAttribute'])->name('products.deleteAttribute');
+    Route::delete('products/{product}/attribute-value/{attributeValue}', [AdminProductController::class, 'deleteAttributeValue'])->name('products.deleteAttributeValue');
 
     // Categories
     Route::resource('categories', AdminCategoryController::class);
@@ -125,4 +129,8 @@ Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\AdminMiddleware
     Route::get('/reviews', [\App\Http\Controllers\Admin\ReviewController::class, 'index'])->name('reviews.index');
     Route::patch('/reviews/{review}/approve', [\App\Http\Controllers\Admin\ReviewController::class, 'approve'])->name('reviews.approve');
     Route::delete('/reviews/{review}', [\App\Http\Controllers\Admin\ReviewController::class, 'decline'])->name('reviews.decline');
+
+    // Reports & Analytics
+    Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/revenue-chart', [AdminReportController::class, 'revenueChart'])->name('reports.revenueChart');
 });

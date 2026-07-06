@@ -100,7 +100,7 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        $product->load(['images', 'variants']);
+        $product->load(['images', 'variants', 'attributes.values']);
         $categories = Category::active()->orderBy('name')->get();
         return view('admin.products.edit', compact('product', 'categories'));
     }
@@ -200,5 +200,52 @@ class ProductController extends Controller
             $variant->delete();
         }
         return back()->with('success', 'Variant deleted.');
+    }
+
+    public function storeAttribute(Request $request, Product $product)
+    {
+        $request->validate([
+            'attribute_name' => 'required|string|max:100',
+            'attribute_type' => 'required|in:button,color_swatch,dropdown',
+            'attribute_values' => 'required|string',
+        ]);
+
+        $attribute = \App\Models\ProductAttribute::create([
+            'product_id' => $product->id,
+            'name' => $request->attribute_name,
+            'type' => $request->attribute_type,
+            'sort_order' => $product->attributes()->count(),
+        ]);
+
+        $values = array_filter(array_map('trim', explode(',', $request->attribute_values)));
+        $colors = array_filter(array_map('trim', explode(',', $request->attribute_colors ?? '')));
+
+        foreach ($values as $i => $value) {
+            \App\Models\ProductAttributeValue::create([
+                'product_attribute_id' => $attribute->id,
+                'value' => $value,
+                'color_code' => $colors[$i] ?? null,
+                'sort_order' => $i,
+            ]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function deleteAttribute(Product $product, \App\Models\ProductAttribute $attribute)
+    {
+        if ($attribute->product_id === $product->id) {
+            $attribute->delete();
+        }
+        return back()->with('success', 'Attribute deleted.');
+    }
+
+    public function deleteAttributeValue(Product $product, \App\Models\ProductAttributeValue $attributeValue)
+    {
+        $attribute = $attributeValue->attribute;
+        if ($attribute && $attribute->product_id === $product->id) {
+            $attributeValue->delete();
+        }
+        return back()->with('success', 'Attribute value deleted.');
     }
 }
