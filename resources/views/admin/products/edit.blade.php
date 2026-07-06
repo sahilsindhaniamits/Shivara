@@ -229,7 +229,7 @@
                     </div>
                     <!-- Edit Mode -->
                     <div class="flex-1" x-show="editing" x-cloak>
-                        <form method="POST" action="{{ route('admin.products.update', $product) }}" class="grid grid-cols-2 md:grid-cols-6 gap-3 items-end">
+                        <form method="POST" action="{{ route('admin.products.update', $product) }}" class="grid grid-cols-2 md:grid-cols-7 gap-3 items-end">
                             @csrf @method('PUT')
                             <input type="hidden" name="edit_variant_id" value="{{ $v->id }}">
                             <input type="hidden" name="name" value="{{ $product->name }}">
@@ -252,15 +252,28 @@
                             </div>
                             <div>
                                 <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Weight/Vol</label>
-                                <input type="text" name="ev_weight_display" value="{{ $v->weight_display }}" placeholder="200 ml" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300">
+                                <input type="number" name="ev_weight" value="{{ preg_replace('/[^0-9.]/', '', $v->weight_display ?? '') }}" placeholder="100" step="0.01" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Unit</label>
+                                @php $currentUnit = preg_replace('/[0-9.\s]/', '', $v->weight_display ?? 'g'); @endphp
+                                <select name="ev_unit" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300">
+                                    <option value="g" {{ $currentUnit == 'g' ? 'selected' : '' }}>g (grams)</option>
+                                    <option value="kg" {{ $currentUnit == 'kg' ? 'selected' : '' }}>kg</option>
+                                    <option value="ml" {{ $currentUnit == 'ml' ? 'selected' : '' }}>ml</option>
+                                    <option value="L" {{ $currentUnit == 'L' ? 'selected' : '' }}>L (litre)</option>
+                                    <option value="pcs" {{ $currentUnit == 'pcs' ? 'selected' : '' }}>pcs</option>
+                                    <option value="tabs" {{ $currentUnit == 'tabs' ? 'selected' : '' }}>tablets</option>
+                                    <option value="caps" {{ $currentUnit == 'caps' ? 'selected' : '' }}>capsules</option>
+                                </select>
                             </div>
                             <div>
                                 <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Stock</label>
                                 <input type="number" name="ev_stock" value="{{ $v->stock }}" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300">
                             </div>
-                            <div class="flex gap-2">
-                                <button type="submit" class="px-4 py-2.5 text-white text-xs font-bold rounded-lg" style="background-color:#16a34a">Save</button>
-                                <button type="button" @click="editing = false" class="px-4 py-2.5 text-gray-500 text-xs font-bold rounded-lg bg-gray-100 hover:bg-gray-200 transition">Cancel</button>
+                            <div class="flex gap-2 md:col-span-7">
+                                <button type="submit" class="px-5 py-2.5 text-white text-xs font-bold rounded-lg" style="background-color:#16a34a">Save Changes</button>
+                                <button type="button" @click="editing = false" class="px-5 py-2.5 text-gray-500 text-xs font-bold rounded-lg bg-gray-100 hover:bg-gray-200 transition">Cancel</button>
                             </div>
                         </form>
                     </div>
