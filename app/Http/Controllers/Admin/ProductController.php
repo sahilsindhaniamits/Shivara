@@ -142,6 +142,7 @@ class ProductController extends Controller
                 'mrp' => $request->variant_mrp,
                 'selling_price' => $request->variant_selling_price,
                 'stock' => $request->variant_stock ?? 0,
+                'weight' => $request->variant_weight ?: null,
             ]);
             return redirect()->route('admin.products.edit', $product)->with('success', 'Variant added!');
         }
