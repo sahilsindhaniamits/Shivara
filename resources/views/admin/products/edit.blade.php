@@ -223,7 +223,7 @@
                 <div class="flex items-center gap-4 p-4 bg-gradient-to-r from-gray-50 to-white rounded-xl border border-gray-100 hover:border-gray-200 transition">
                     <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold text-white" style="background-color:#2C2418">{{ $loop->iteration }}</div>
                     <div class="flex-1">
-                        <p class="text-sm font-bold text-gray-900">{{ $v->name }}</p>
+                        <p class="text-sm font-bold text-gray-900">{{ $v->name }}@if($v->weight) <span class="text-gray-400 font-normal text-xs">/ {{ $v->weight >= 1000 ? number_format($v->weight/1000, 1) . ' kg' : intval($v->weight) . ' g' }}</span>@endif</p>
                         <p class="text-xs text-gray-500 mt-0.5">₹{{ number_format($v->selling_price) }} <span class="line-through text-gray-400">₹{{ number_format($v->mrp) }}</span> &bull; Stock: {{ $v->stock }}</p>
                     </div>
                     @if($v->mrp > $v->selling_price)
@@ -246,7 +246,7 @@
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     Add New Pack
                 </p>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
                     <div>
                         <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Pack Name *</label>
                         <input type="text" x-model="variantName" placeholder="Pack of 2" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300">
@@ -260,10 +260,15 @@
                         <input type="number" x-model="variantSp" placeholder="449" step="0.01" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300">
                     </div>
                     <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Weight (g)</label>
+                        <input type="number" x-model="variantWeight" placeholder="100" step="0.01" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300">
+                    </div>
+                    <div>
                         <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Stock</label>
                         <input type="number" x-model="variantStock" placeholder="50" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300">
                     </div>
                 </div>
+                <p class="text-[10px] text-gray-400">Example: Name="Pack of 2", Weight=200g. This creates a card showing "Pack of 2 / 200 g" on the product page.</p>
                 <button type="button" @click="addVariant()" class="px-5 py-2.5 text-white text-xs font-bold uppercase tracking-wide rounded-lg hover:opacity-90 transition shadow-sm" style="background-color:#16a34a">
                     + Add Pack
                 </button>
@@ -382,6 +387,7 @@ function productEditor() {
         variantMrp: '',
         variantSp: '',
         variantStock: '',
+        variantWeight: '',
 
         // Attribute fields
         attrName: '',
@@ -409,6 +415,7 @@ function productEditor() {
                 'variant_mrp': this.variantMrp,
                 'variant_selling_price': this.variantSp,
                 'variant_stock': this.variantStock || '0',
+                'variant_weight': this.variantWeight || '',
                 'name': '{{ addslashes($product->name) }}',
                 'mrp': '{{ $product->mrp }}',
                 'selling_price': '{{ $product->selling_price }}',
