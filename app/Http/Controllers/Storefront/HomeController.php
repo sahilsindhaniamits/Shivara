@@ -12,7 +12,7 @@ class HomeController extends Controller
     public function index()
     {
         $featuredProducts = Product::active()->featured()
-            ->with(['primaryImage', 'category'])
+            ->with(['primaryImage', 'category', 'variants'])
             ->take(8)
             ->get();
 

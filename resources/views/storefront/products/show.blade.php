@@ -20,7 +20,7 @@
 </div>
 
 <!-- Product Section -->
-<div class="max-w-7xl mx-auto px-4 sm:px-6 pb-10" x-data="{ qty: 1, img: 0, tab: 'description', lightbox: false, selectedPack: -1 }">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 pb-10" x-data="{ qty: 1, img: 0, tab: 'description', lightbox: false, selectedPack: -1, selectedAttrs: {} }">
 <div class="grid lg:grid-cols-2 gap-8 lg:gap-16">
 
 <!-- Image Lightbox Modal -->
@@ -166,14 +166,82 @@
     @endif
 
 
+    <!-- Product Attributes (Color, Size, Material) -->
+    @if($product->attributes && $product->attributes->count())
+    <div class="space-y-4">
+        @foreach($product->attributes as $attr)
+        <div>
+            <p class="text-sm font-bold text-espresso-700 mb-2">{{ $attr->name }}</p>
+            @if($attr->type === 'color_swatch')
+            <div class="flex flex-wrap gap-2">
+                @foreach($attr->values as $val)
+                <button type="button"
+                    @click="selectedAttrs['{{ $attr->name }}'] = '{{ $val->value }}'"
+                    :class="selectedAttrs['{{ $attr->name }}'] === '{{ $val->value }}' ? 'ring-2 ring-offset-2' : 'hover:scale-110'"
+                    class="w-9 h-9 rounded-full border-2 border-gray-200 transition-all cursor-pointer relative"
+                    style="background-color: {{ $val->color_code ?? '#ccc' }}; {{ "ring-color: #B08840;" }}"
+                    title="{{ $val->value }}">
+                    <span x-show="selectedAttrs['{{ $attr->name }}'] === '{{ $val->value }}'" class="absolute inset-0 flex items-center justify-center">
+                        <svg class="w-4 h-4 {{ in_array(strtolower($val->color_code ?? ''), ['#ffffff','#fff','#fffdf8','#fffff0','#fafafa']) ? 'text-gray-700' : 'text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                    </span>
+                </button>
+                @endforeach
+            </div>
+            <p class="text-xs text-espresso-400 mt-1" x-show="selectedAttrs['{{ $attr->name }}']" x-text="'Selected: ' + selectedAttrs['{{ $attr->name }}']"></p>
+            @elseif($attr->type === 'dropdown')
+            <select @change="selectedAttrs['{{ $attr->name }}'] = $event.target.value" class="w-full max-w-xs px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold-200">
+                <option value="">Choose {{ $attr->name }}</option>
+                @foreach($attr->values as $val)
+                <option value="{{ $val->value }}">{{ $val->value }}@if($val->price_adjustment != 0) ({{ $val->price_adjustment > 0 ? '+' : '' }}₹{{ number_format($val->price_adjustment) }})@endif</option>
+                @endforeach
+            </select>
+            @else
+            <div class="flex flex-wrap gap-2">
+                @foreach($attr->values as $val)
+                <button type="button"
+                    @click="selectedAttrs['{{ $attr->name }}'] = '{{ $val->value }}'"
+                    :class="selectedAttrs['{{ $attr->name }}'] === '{{ $val->value }}' ? 'border-2 text-espresso-700 font-bold shadow-sm' : 'border text-espresso-500 hover:border-gray-400'"
+                    :style="selectedAttrs['{{ $attr->name }}'] === '{{ $val->value }}' ? 'border-color:#B08840; background-color:#FFFDF8' : 'border-color:#e5e7eb'"
+                    class="px-4 py-2 rounded-xl text-sm transition-all cursor-pointer">
+                    {{ $val->value }}
+                    @if($val->price_adjustment != 0)
+                    <span class="text-xs text-gray-400">({{ $val->price_adjustment > 0 ? '+' : '' }}₹{{ number_format($val->price_adjustment) }})</span>
+                    @endif
+                </button>
+                @endforeach
+            </div>
+            @endif
+        </div>
+        @endforeach
+    </div>
+    @endif
+
     <!-- Quantity & Add to Cart -->
     @if($product->stock > 0)
-    <form method="POST" action="{{ route('cart.add') }}" class="space-y-3">
-        @csrf
+    <form method="POST" action="{{ route('cart.add') }}" class="space-y-3" x-data="{ adding: false }" @submit.prevent="
+        adding = true;
+        let formData = new FormData($el);
+        fetch('{{ route('cart.add') }}', {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' },
+            body: formData
+        }).then(r => r.json()).then(d => {
+            adding = false;
+            if (d.success) {
+                window.dispatchEvent(new CustomEvent('open-cart'));
+                window.dispatchEvent(new CustomEvent('cart-updated'));
+            } else {
+                window.location.reload();
+            }
+        }).catch(() => { adding = false; $el.submit(); });
+    ">
         <input type="hidden" name="product_id" value="{{ $product->id }}">
         <input type="hidden" name="quantity" x-bind:value="qty">
         @if($product->variants->count())
         <input type="hidden" name="variant_id" x-bind:value="selectedPack >= 0 ? [{{ $product->variants->pluck('id')->implode(',') }}][selectedPack] : ''">
+        @endif
+        @if($product->attributes && $product->attributes->count())
+        <input type="hidden" name="selected_attributes" x-bind:value="JSON.stringify(selectedAttrs)">
         @endif
 
         <!-- Quantity Selector -->
@@ -188,11 +256,12 @@
 
         <!-- Buttons -->
         <div class="flex flex-col sm:flex-row gap-3">
-            <button type="submit" class="flex-1 px-8 py-4 text-white font-bold text-sm uppercase tracking-wider rounded-xl hover:opacity-90 transition shadow-xl flex items-center justify-center gap-2" style="background-color:#2C2418">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                Add to Cart
+            <button type="submit" :disabled="adding" class="flex-1 px-8 py-4 text-white font-bold text-sm uppercase tracking-wider rounded-xl hover:opacity-90 transition shadow-xl flex items-center justify-center gap-2 disabled:opacity-60" style="background-color:#2C2418">
+                <svg x-show="!adding" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                <svg x-show="adding" class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                <span x-text="adding ? 'Adding...' : 'Add to Cart'"></span>
             </button>
-            <a href="{{ route('checkout.index') }}" onclick="event.preventDefault(); this.closest('form').action='{{ route('cart.add') }}'; this.closest('form').submit();" class="flex-1 px-8 py-4 text-white font-bold text-sm uppercase tracking-wider rounded-xl hover:opacity-90 transition shadow-xl flex items-center justify-center gap-2" style="background-color:#B08840">
+            <a href="{{ route('checkout.index') }}" onclick="event.preventDefault(); let f=this.closest('form'); f.removeAttribute('x-data'); f.setAttribute('action','{{ route('cart.add') }}'); let csrf=document.createElement('input'); csrf.type='hidden'; csrf.name='_token'; csrf.value=document.querySelector('meta[name=csrf-token]').content; f.appendChild(csrf); f.submit();" class="flex-1 px-8 py-4 text-white font-bold text-sm uppercase tracking-wider rounded-xl hover:opacity-90 transition shadow-xl flex items-center justify-center gap-2" style="background-color:#B08840">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 Buy Now
             </a>
@@ -395,7 +464,7 @@
     @auth
     <div class="mb-8 p-5 rounded-2xl border border-gold-100" style="background-color: #FBF7F0;">
         <h4 class="text-sm font-bold text-espresso-700 mb-3">Write a Review</h4>
-        <form method="POST" action="{{ route('products.review', $product->slug) }}" class="space-y-3" x-data="{ rating: 5 }">
+        <form method="POST" action="{{ route('products.review', $product->slug) }}" enctype="multipart/form-data" class="space-y-3" x-data="{ rating: 5 }">
             @csrf
             <div class="flex items-center gap-1">
                 @for($s = 1; $s <= 5; $s++)
@@ -406,6 +475,29 @@
             </div>
             <input type="hidden" name="rating" x-bind:value="rating">
             <textarea name="comment" rows="3" placeholder="Share your experience..." class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold-200 placeholder:text-gray-400" required></textarea>
+            <!-- Image Upload -->
+            <div x-data="{ previews: [] }">
+                <label class="block text-xs font-semibold text-espresso-600 mb-1.5">Add Photos (optional)</label>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <label class="w-16 h-16 bg-white border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center cursor-pointer hover:border-gold-400 hover:bg-gold-50/30 transition">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/></svg>
+                        <input type="file" name="review_images[]" multiple accept="image/*" class="hidden" @change="
+                            previews = [];
+                            for (let f of $event.target.files) {
+                                let r = new FileReader();
+                                r.onload = e => previews.push(e.target.result);
+                                r.readAsDataURL(f);
+                            }
+                        ">
+                    </label>
+                    <template x-for="(src, i) in previews" :key="i">
+                        <div class="w-16 h-16 rounded-xl overflow-hidden border border-gray-200">
+                            <img :src="src" class="w-full h-full object-cover">
+                        </div>
+                    </template>
+                </div>
+                <p class="text-[10px] text-gray-400 mt-1">Up to 5 images. Max 2MB each.</p>
+            </div>
             <button type="submit" class="px-5 py-2.5 text-white text-xs font-bold uppercase tracking-wider rounded-lg hover:opacity-90 transition" style="background-color:#2C2418">Submit Review</button>
         </form>
     </div>
@@ -414,6 +506,33 @@
         <p class="text-sm text-espresso-500"><a href="{{ route('login') }}" class="font-bold hover:underline" style="color:#B08840">Log in</a> to write a review</p>
     </div>
     @endauth
+
+    <!-- Customer Photos -->
+    @php
+        $reviewImages = $approvedReviews->pluck('images')->filter()->flatten()->take(12)->values();
+    @endphp
+    @if($reviewImages->count())
+    <div class="mb-8">
+        <h4 class="text-sm font-bold text-espresso-700 mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            Customer Photos & Videos
+        </h4>
+        <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-2" x-data="{ lightboxImg: null }">
+            @foreach($reviewImages as $rImg)
+            <div class="shrink-0 w-20 h-20 rounded-xl overflow-hidden border border-gray-200 cursor-pointer hover:opacity-80 transition" @click="lightboxImg = '{{ str_starts_with($rImg, '/storage/') ? '/public' . $rImg : $rImg }}'">
+                <img src="{{ str_starts_with($rImg, '/storage/') ? '/public' . $rImg : $rImg }}" alt="Customer photo" class="w-full h-full object-cover" loading="lazy">
+            </div>
+            @endforeach
+            <!-- Lightbox for customer photos -->
+            <div x-show="lightboxImg" x-cloak x-transition.opacity @click.self="lightboxImg = null" @keydown.escape.window="lightboxImg = null" class="fixed inset-0 z-[200] bg-black/90 flex items-center justify-center p-4">
+                <button @click="lightboxImg = null" class="absolute top-4 right-4 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+                <img :src="lightboxImg" class="max-w-full max-h-[80vh] rounded-xl object-contain">
+            </div>
+        </div>
+    </div>
+    @endif
 
     <!-- Reviews List -->
     @if($approvedReviews->count())
@@ -434,6 +553,15 @@
                 @if($review->is_verified)<span class="text-[9px] font-bold text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded">Verified</span>@endif
             </div>
             <p class="text-sm text-espresso-600 leading-relaxed">{{ $review->comment }}</p>
+            @if($review->images && count($review->images))
+            <div class="flex gap-2 mt-3 flex-wrap">
+                @foreach($review->images as $revImg)
+                <div class="w-16 h-16 rounded-lg overflow-hidden border border-gray-200 cursor-pointer hover:opacity-80 transition">
+                    <img src="{{ str_starts_with($revImg, '/storage/') ? '/public' . $revImg : $revImg }}" alt="Review photo" class="w-full h-full object-cover" loading="lazy">
+                </div>
+                @endforeach
+            </div>
+            @endif
         </div>
         @endforeach
     </div>
