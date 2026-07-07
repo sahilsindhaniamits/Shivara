@@ -55,7 +55,7 @@
 </section>
 
 <!-- Scrolling Marquee Trust Strip -->
-<div class="overflow-hidden py-2.5" style="background-color: #3d6b3d;">
+<div class="overflow-hidden py-2.5" style="background-color: #1a4a1a;">
     <div class="animate-marquee flex items-center gap-8 whitespace-nowrap">
         @for($m = 0; $m < 2; $m++)
         <span class="flex items-center gap-2 text-xs font-semibold text-white/90"><svg class="w-4 h-4 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg> Secure Payments — UPI, Cards & COD</span>
@@ -161,7 +161,20 @@
                 </button>
             </div>
         </div>
-        <div id="dealsSlider" class="flex gap-4 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory cursor-grab active:cursor-grabbing" style="-webkit-overflow-scrolling: touch;">
+        <div id="dealsSlider" class="flex gap-4 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory cursor-grab active:cursor-grabbing" style="-webkit-overflow-scrolling: touch;" x-data="{ autoScroll: null }" x-init="
+            let el = $el;
+            let scrollSpeed = 1;
+            function autoScrollFn() { el.scrollLeft += scrollSpeed; if (el.scrollLeft >= el.scrollWidth - el.clientWidth) el.scrollLeft = 0; }
+            autoScroll = setInterval(autoScrollFn, 30);
+            el.addEventListener('mouseenter', () => clearInterval(autoScroll));
+            el.addEventListener('mouseleave', () => { autoScroll = setInterval(autoScrollFn, 30); });
+            // Mouse drag
+            let isDown = false, startX, scrollLeft;
+            el.addEventListener('mousedown', (e) => { isDown = true; startX = e.pageX - el.offsetLeft; scrollLeft = el.scrollLeft; el.style.cursor = 'grabbing'; });
+            el.addEventListener('mouseleave', () => { isDown = false; el.style.cursor = 'grab'; });
+            el.addEventListener('mouseup', () => { isDown = false; el.style.cursor = 'grab'; });
+            el.addEventListener('mousemove', (e) => { if (!isDown) return; e.preventDefault(); const x = e.pageX - el.offsetLeft; el.scrollLeft = scrollLeft - (x - startX); });
+        ">
             @foreach($amazingDeals as $product)
             <div class="shrink-0 w-[220px] sm:w-[250px] md:w-[270px] snap-start">
                 @include('partials.product-card', ['product' => $product])
@@ -361,7 +374,7 @@
 
 <!-- Blog Section -->
 @php
-    $latestBlogs = \App\Models\Blog::where('is_published', true)->latest('published_at')->take(3)->get();
+    $latestBlogs = \App\Models\Blog::where('is_published', true)->whereNotNull('published_at')->latest('published_at')->take(3)->get();
 @endphp
 @if($latestBlogs->count())
 <section class="py-16 md:py-20 scroll-reveal" style="background-color: #FFFDF8;">
@@ -399,6 +412,14 @@
                 </div>
             </a>
             @endforeach
+        </div>
+
+        <!-- Read More Articles Button -->
+        <div class="text-center mt-10">
+            <a href="{{ route('blog.index') }}" class="inline-flex items-center gap-2 px-8 py-3.5 text-white text-sm font-bold uppercase tracking-wider rounded-full hover:opacity-90 transition shadow-lg" style="background-color:#2C2418">
+                Read More Articles
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </a>
         </div>
     </div>
 </section>

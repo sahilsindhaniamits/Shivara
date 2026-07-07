@@ -24,7 +24,7 @@
             </div>
             <div>
                 <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Content *</label>
-                <textarea name="content" rows="12" required class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition font-mono">{{ old('content', $blog->content) }}</textarea>
+                <textarea name="content" id="blogContent" rows="12" required class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition">{{ old('content', $blog->content) }}</textarea>
             </div>
             <div class="grid md:grid-cols-2 gap-4">
                 <div>
@@ -69,4 +69,19 @@
         </div>
     </form>
 </div>
+
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+tinymce.init({
+    selector: '#blogContent',
+    height: 400,
+    menubar: true,
+    plugins: 'lists link image table code fullscreen preview wordcount',
+    toolbar: 'undo redo | blocks | bold italic underline strikethrough | alignleft aligncenter alignright | bullist numlist | link image | table | code fullscreen',
+    block_formats: 'Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3; Heading 4=h4; Quote=blockquote',
+    content_style: 'body { font-family: DM Sans, system-ui, sans-serif; font-size: 14px; line-height: 1.6; }',
+    branding: false,
+    promotion: false,
+});
+</script>
 @endsection
