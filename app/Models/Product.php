@@ -36,7 +36,23 @@ class Product extends Model
 
     public function primaryImage()
     {
-        return $this->hasOne(ProductImage::class)->where('is_primary', true);
+        return $this->hasOne(ProductImage::class)->where('is_primary', true)->withDefault(function () {
+            return null;
+        });
+    }
+
+    public function getPrimaryImageUrlAttribute()
+    {
+        $image = $this->primaryImage;
+        if ($image && $image->url) {
+            return str_starts_with($image->url, '/storage/') ? '/public' . $image->url : $image->url;
+        }
+        // Fallback to first image
+        $first = $this->images()->orderBy('sort_order')->first();
+        if ($first && $first->url) {
+            return str_starts_with($first->url, '/storage/') ? '/public' . $first->url : $first->url;
+        }
+        return null;
     }
 
     public function variants()
