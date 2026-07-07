@@ -95,13 +95,20 @@ document.addEventListener('DOMContentLoaded', function() {
             ]
         }
     });
-    // Sync with hidden textarea on form submit
-    document.querySelector('form').addEventListener('submit', function() {
-        document.getElementById('blogContent').value = quill.root.innerHTML;
-    });
-    // Load existing content
+
+    // Load existing content if any (for edit page or validation redirect)
     var existing = document.getElementById('blogContent').value;
-    if (existing) quill.root.innerHTML = existing;
+    if (existing && existing.trim() !== '') quill.root.innerHTML = existing;
+
+    // Sync Quill content to hidden textarea on ANY form submission
+    var forms = document.querySelectorAll('form');
+    forms.forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            var content = quill.root.innerHTML;
+            if (content === '<p><br></p>' || content.trim() === '') content = '';
+            document.getElementById('blogContent').value = content;
+        });
+    });
 });
 </script>
 @endsection
