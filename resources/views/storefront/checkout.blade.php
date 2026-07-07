@@ -108,7 +108,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="w-full px-8 py-4 bg-brand-600 text-white text-lg font-bold rounded-xl hover:bg-brand-700 transition shadow-lg shadow-brand-600/20">
+                <button type="submit" class="w-full px-8 py-4 text-white text-lg font-bold rounded-xl hover:opacity-90 transition shadow-lg" style="background-color:#2C2418">
                     Place Order
                 </button>
             </div>
