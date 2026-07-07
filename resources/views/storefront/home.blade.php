@@ -178,11 +178,28 @@
     function autoScroll() { slider.scrollLeft += scrollSpeed; if (slider.scrollLeft >= slider.scrollWidth - slider.clientWidth - 5) slider.scrollLeft = 0; }
     autoInterval = setInterval(autoScroll, 25);
 
-    slider.addEventListener('mouseenter', () => clearInterval(autoInterval));
-    slider.addEventListener('mouseleave', () => { if (!isDown) autoInterval = setInterval(autoScroll, 25); });
-    slider.addEventListener('mousedown', (e) => { isDown = true; clearInterval(autoInterval); startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft; });
-    document.addEventListener('mouseup', () => { if (isDown) { isDown = false; autoInterval = setInterval(autoScroll, 25); } });
-    slider.addEventListener('mousemove', (e) => { if (!isDown) return; e.preventDefault(); slider.scrollLeft = scrollLeft - (e.pageX - slider.offsetLeft - startX) * 1.5; });
+    // Only stop auto-scroll when user CLICKS (mousedown) - not on hover
+    slider.addEventListener('mousedown', (e) => {
+        isDown = true;
+        clearInterval(autoInterval);
+        startX = e.pageX - slider.offsetLeft;
+        scrollLeft = slider.scrollLeft;
+        slider.style.cursor = 'grabbing';
+        e.preventDefault();
+    });
+    document.addEventListener('mouseup', () => {
+        if (isDown) {
+            isDown = false;
+            slider.style.cursor = 'grab';
+            autoInterval = setInterval(autoScroll, 25);
+        }
+    });
+    slider.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - slider.offsetLeft;
+        slider.scrollLeft = scrollLeft - (x - startX) * 2;
+    });
 
     // Touch support
     let touchStartX;
