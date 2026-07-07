@@ -36,9 +36,9 @@
             <nav class="hidden lg:flex items-center gap-8">
                 <a href="{{ route('home') }}" class="text-[12px] font-bold uppercase tracking-[0.2em] text-espresso-600 hover:text-gold-600 transition">Home</a>
                 <div class="relative group">
-                    <button class="text-[12px] font-bold uppercase tracking-[0.2em] text-espresso-600 hover:text-gold-600 transition flex items-center gap-1">
+                    <a href="{{ route('products.index') }}" class="text-[12px] font-bold uppercase tracking-[0.2em] text-espresso-600 hover:text-gold-600 transition flex items-center gap-1">
                         Shop <svg class="w-3 h-3 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                    </button>
+                    </a>
                     <div class="absolute top-full left-0 mt-3 w-56 bg-cream-50 rounded-2xl shadow-2xl border border-gold-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 p-3">
                         <a href="{{ route('products.index') }}" class="block px-4 py-2.5 text-sm text-espresso-600 hover:bg-gold-50 hover:text-gold-700 rounded-xl transition font-medium">All Products</a>
                         <a href="{{ route('products.index', ['category' => 'capsules']) }}" class="block px-4 py-2.5 text-sm text-espresso-500 hover:bg-gold-50 hover:text-gold-700 rounded-xl transition">Capsules & Tablets</a>

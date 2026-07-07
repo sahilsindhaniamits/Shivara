@@ -54,6 +54,24 @@
     </div>
 </section>
 
+<!-- Scrolling Marquee Trust Strip -->
+<div class="overflow-hidden py-2.5" style="background-color: #2C2418;">
+    <div class="animate-marquee flex items-center gap-8 whitespace-nowrap">
+        @for($m = 0; $m < 2; $m++)
+        <span class="flex items-center gap-2 text-xs font-semibold text-white/90"><svg class="w-4 h-4 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg> Secure Payments — UPI, Cards & COD</span>
+        <span class="text-gold-500">✦</span>
+        <span class="flex items-center gap-2 text-xs font-semibold text-white/90"><svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Pure Herbs — No Extract, No Chemicals</span>
+        <span class="text-gold-500">✦</span>
+        <span class="flex items-center gap-2 text-xs font-semibold text-white/90"><svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Free Delivery — On orders above ₹{{ config('shivara.free_shipping_threshold', 399) }}</span>
+        <span class="text-gold-500">✦</span>
+        <span class="flex items-center gap-2 text-xs font-semibold text-white/90"><svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg> Lab Tested — GMP Certified Products</span>
+        <span class="text-gold-500">✦</span>
+        <span class="flex items-center gap-2 text-xs font-semibold text-white/90"><svg class="w-4 h-4 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg> 5000+ Happy Customers Across India</span>
+        <span class="text-gold-500 mr-8">✦</span>
+        @endfor
+    </div>
+</div>
+
 <!-- Trust Bar -->
 <section class="border-y border-gold-200/50 py-8" style="background-color: #FBF7F0;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
@@ -113,52 +131,73 @@
     </div>
 </section>
 
-<!-- Featured Products (Bestsellers) -->
-<section class="py-16 md:py-20 scroll-reveal" style="background-color: #FFFDF8;">
+<!-- Featured Products with Category Tabs -->
+<section class="py-16 md:py-20 scroll-reveal" style="background-color: #FFFDF8;" x-data="{ activeTab: 'all' }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="flex items-end justify-between mb-10">
-            <div>
-                <span class="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-500">Bestsellers</span>
-                <h2 class="font-display text-3xl md:text-5xl font-bold text-espresso-700 mt-2">Featured Products.</h2>
-            </div>
-            <a href="{{ route('products.index') }}" class="hidden sm:flex items-center gap-2 px-5 py-2.5 border-2 border-espresso-700 text-espresso-700 text-xs font-bold uppercase tracking-wider rounded-full hover:bg-espresso-700 hover:text-cream-50 transition">
-                View All <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-            </a>
+        <div class="text-center mb-8">
+            <span class="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-500">Shop by Concern</span>
+            <h2 class="font-display text-3xl md:text-5xl font-bold text-espresso-700 mt-2">Featured Products.</h2>
         </div>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            @forelse($featuredProducts as $product)
+
+        <!-- Category Tabs -->
+        <div class="flex flex-wrap justify-center gap-2 mb-10">
+            <button @click="activeTab = 'all'" :class="activeTab === 'all' ? 'text-white' : 'bg-white text-espresso-600 border border-gold-200 hover:border-gold-400'" :style="activeTab === 'all' ? 'background-color:#2C2418' : ''" class="px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-full transition">All</button>
+            @foreach($categories->take(5) as $tabCat)
+            <button @click="activeTab = '{{ $tabCat->slug }}'" :class="activeTab === '{{ $tabCat->slug }}' ? 'text-white' : 'bg-white text-espresso-600 border border-gold-200 hover:border-gold-400'" :style="activeTab === '{{ $tabCat->slug }}' ? 'background-color:#2C2418' : ''" class="px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-full transition">{{ $tabCat->name }}</button>
+            @endforeach
+        </div>
+
+        <!-- Products Grid (2 rows x 4) -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+            @foreach($featuredProducts as $product)
+            <div x-show="activeTab === 'all' || activeTab === '{{ $product->category->slug ?? '' }}'" x-transition>
                 @include('partials.product-card', ['product' => $product])
-            @empty
-                <p class="col-span-full text-center text-espresso-400 py-16">Products coming soon.</p>
-            @endforelse
+            </div>
+            @endforeach
+        </div>
+
+        <!-- View All Button -->
+        <div class="text-center mt-10">
+            <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 px-8 py-3.5 text-white text-sm font-bold uppercase tracking-wider rounded-full hover:opacity-90 transition shadow-lg" style="background-color:#2C2418">
+                View All Products
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </a>
         </div>
     </div>
 </section>
 
-<!-- Amazing Deals -->
+<!-- Amazing Deals - Horizontal Slider -->
 @php
     $amazingDeals = \App\Models\Product::where('is_active', true)
         ->whereColumn('mrp', '>', 'selling_price')
+        ->with(['primaryImage', 'images', 'category', 'variants'])
         ->orderByRaw('((mrp - selling_price) / mrp) DESC')
-        ->take(4)
+        ->take(12)
         ->get()
-        ->filter(function($p) { return $p->discount_percent > 20; });
+        ->filter(function($p) { return $p->discount_percent > 10; });
 @endphp
 @if($amazingDeals->count())
 <section class="py-16 md:py-20 scroll-reveal" style="background-color: #F5EFE6;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="flex items-end justify-between mb-10">
+        <div class="flex items-end justify-between mb-8">
             <div>
                 <span class="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-500">Limited Time</span>
                 <h2 class="font-display text-3xl md:text-5xl font-bold text-espresso-700 mt-2">Amazing Deals.</h2>
             </div>
-            <a href="{{ route('products.index') }}" class="hidden sm:flex items-center gap-2 px-5 py-2.5 border-2 border-espresso-700 text-espresso-700 text-xs font-bold uppercase tracking-wider rounded-full hover:bg-espresso-700 hover:text-cream-50 transition">
-                View All <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-            </a>
+            <div class="flex items-center gap-2">
+                <button onclick="document.getElementById('dealsSlider').scrollBy({left:-300,behavior:'smooth'})" class="w-9 h-9 rounded-full border border-gold-200 flex items-center justify-center hover:bg-white transition">
+                    <svg class="w-4 h-4 text-espresso-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <button onclick="document.getElementById('dealsSlider').scrollBy({left:300,behavior:'smooth'})" class="w-9 h-9 rounded-full border border-gold-200 flex items-center justify-center hover:bg-white transition">
+                    <svg class="w-4 h-4 text-espresso-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
+            </div>
         </div>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        <div id="dealsSlider" class="flex gap-4 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory">
             @foreach($amazingDeals as $product)
+            <div class="shrink-0 w-[220px] sm:w-[250px] md:w-[270px] snap-start">
                 @include('partials.product-card', ['product' => $product])
+            </div>
             @endforeach
         </div>
     </div>
@@ -195,30 +234,72 @@
     </div>
 </section>
 
-<!-- Testimonials -->
+<!-- Customer Reviews Slider -->
 <section class="py-16 md:py-20 scroll-reveal" style="background-color: rgb(44, 36, 24);">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="text-center mb-12">
+        <div class="text-center mb-10">
             <span class="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-400">Customer Love</span>
-            <h2 class="font-display text-3xl md:text-4xl font-bold text-cream-50 mt-3">What they say.</h2>
+            <h2 class="font-display text-3xl md:text-4xl font-bold text-cream-50 mt-3">Real Reviews from Real People.</h2>
         </div>
-        <div class="grid md:grid-cols-3 gap-6">
-            @php $testimonials = [
-                ['name'=>'Priya S.','text'=>'Madhu Balance Capsules have transformed my daily routine. My sugar levels are stable and I feel more energetic.','rating'=>5],
-                ['name'=>'Rahul M.','text'=>'The Shilajit Gold Resin is pure gold! I can feel the difference in my stamina within weeks.','rating'=>5],
-                ['name'=>'Anita K.','text'=>'Finally found an Ayurvedic brand I can trust. The packaging is premium and products are genuine.','rating'=>5],
-            ]; @endphp
-            @foreach($testimonials as $t)
-            <div class="bg-espresso-600/50 border border-gold-400/10 rounded-2xl p-6 backdrop-blur-sm">
-                <div class="flex items-center gap-0.5 mb-3">
-                    @for($s = 1; $s <= $t['rating']; $s++)
-                    <svg class="w-4 h-4 text-gold-400 fill-gold-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                    @endfor
+        @php
+            $homeReviews = \App\Models\Review::where('is_approved', true)
+                ->with(['user', 'product'])
+                ->latest()
+                ->take(10)
+                ->get();
+            if($homeReviews->isEmpty()) {
+                $homeReviews = collect([
+                    (object)['user' => (object)['name' => 'Priya S.'], 'product' => (object)['name' => 'Madhu Balance'], 'rating' => 5, 'comment' => 'Madhu Balance Capsules have transformed my daily routine. My sugar levels are stable and I feel more energetic.', 'images' => null],
+                    (object)['user' => (object)['name' => 'Rahul M.'], 'product' => (object)['name' => 'Shilajit Gold'], 'rating' => 5, 'comment' => 'The Shilajit Gold Resin is pure gold! I can feel the difference in my stamina within weeks of usage.', 'images' => null],
+                    (object)['user' => (object)['name' => 'Anita K.'], 'product' => (object)['name' => 'Hair Growth Oil'], 'rating' => 5, 'comment' => 'Finally found an Ayurvedic brand I can trust. The packaging is premium and products are genuine.', 'images' => null],
+                    (object)['user' => (object)['name' => 'Deepak R.'], 'product' => (object)['name' => 'Joint Support'], 'rating' => 4, 'comment' => 'Great product for joint pain. Noticed improvement in just 2 weeks. Will continue using.', 'images' => null],
+                    (object)['user' => (object)['name' => 'Meera J.'], 'product' => (object)['name' => 'Liver Detox'], 'rating' => 5, 'comment' => 'Best ayurvedic brand I have used. Products are authentic and results are visible. Highly recommend!', 'images' => null],
+                ]);
+            }
+        @endphp
+        <div class="relative" x-data="{ revSlide: 0 }" x-init="setInterval(() => revSlide = (revSlide + 1) % {{ ceil($homeReviews->count() / 3) }}, 5000)">
+            <div class="overflow-hidden">
+                <div class="flex transition-transform duration-700" :style="'transform: translateX(-' + (revSlide * 100) + '%)'">
+                    @foreach($homeReviews->chunk(3) as $chunk)
+                    <div class="w-full flex-shrink-0 grid md:grid-cols-3 gap-5 px-1">
+                        @foreach($chunk as $rev)
+                        <div class="bg-white/5 border border-gold-400/10 rounded-2xl p-6 backdrop-blur-sm">
+                            <div class="flex items-center gap-0.5 mb-3">
+                                @for($s = 1; $s <= 5; $s++)
+                                <svg class="w-4 h-4 {{ $s <= $rev->rating ? 'text-gold-400 fill-gold-400' : 'text-gray-600 fill-gray-600' }}" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                @endfor
+                            </div>
+                            <p class="text-cream-200 text-sm leading-relaxed mb-4 line-clamp-3">"{{ $rev->comment }}"</p>
+                            @if($rev->images && count($rev->images))
+                            <div class="flex gap-1.5 mb-3">
+                                @foreach(array_slice($rev->images, 0, 3) as $rImg)
+                                <div class="w-10 h-10 rounded-lg overflow-hidden border border-white/10">
+                                    <img src="{{ str_starts_with($rImg, '/storage/') ? '/public' . $rImg : $rImg }}" class="w-full h-full object-cover" loading="lazy">
+                                </div>
+                                @endforeach
+                            </div>
+                            @endif
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white" style="background-color:#B08840">{{ substr($rev->user->name ?? 'C', 0, 1) }}</div>
+                                <div>
+                                    <p class="text-gold-300 text-xs font-semibold">{{ $rev->user->name ?? 'Customer' }}</p>
+                                    <p class="text-[10px] text-cream-300/50">{{ $rev->product->name ?? 'Verified Buyer' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                    @endforeach
                 </div>
-                <p class="text-cream-200 text-sm leading-relaxed mb-4">"{{ $t['text'] }}"</p>
-                <p class="text-gold-400 text-sm font-semibold">— {{ $t['name'] }}</p>
             </div>
-            @endforeach
+            <!-- Slider dots -->
+            @if($homeReviews->count() > 3)
+            <div class="flex justify-center gap-2 mt-6">
+                @for($d = 0; $d < ceil($homeReviews->count() / 3); $d++)
+                <button @click="revSlide = {{ $d }}" :class="revSlide === {{ $d }} ? 'w-8 bg-gold-400' : 'w-3 bg-white/20'" class="h-2.5 rounded-full transition-all"></button>
+                @endfor
+            </div>
+            @endif
         </div>
     </div>
 </section>
@@ -252,6 +333,70 @@
         </div>
     </div>
 </section>
+
+<!-- CTA Banner -->
+<section class="py-16 md:py-20 scroll-reveal" style="background: linear-gradient(135deg, #2C2418 0%, #4A3828 100%);">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+        <span class="inline-block text-[11px] font-bold uppercase tracking-[0.3em] text-gold-400 bg-gold-400/10 px-4 py-1.5 rounded-full mb-6 border border-gold-400/20">Start Your Wellness Journey</span>
+        <h2 class="font-display text-3xl md:text-5xl font-bold text-white mb-4 leading-tight">Transform Your Health<br>with Ancient Ayurveda.</h2>
+        <p class="text-cream-300/70 text-base md:text-lg max-w-2xl mx-auto mb-8">Join 5000+ customers who trust Shivara for 100% natural, lab-tested Ayurvedic products. Free shipping on all orders.</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{{ route('products.index') }}" class="inline-flex items-center justify-center gap-2 px-8 py-4 text-white font-bold text-sm uppercase tracking-wider rounded-full hover:opacity-90 transition shadow-xl" style="background-color:#B08840">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                Shop Now
+            </a>
+            <a href="{{ route('contact') }}" class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 text-white font-bold text-sm uppercase tracking-wider rounded-full hover:bg-white/20 transition border border-white/20">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                Contact Us
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Blog Section -->
+@php
+    $latestBlogs = \App\Models\Blog::where('is_published', true)->latest('published_at')->take(3)->get();
+@endphp
+@if($latestBlogs->count())
+<section class="py-16 md:py-20 scroll-reveal" style="background-color: #FFFDF8;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="flex items-end justify-between mb-10">
+            <div>
+                <span class="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-500">Ayurvedic Wisdom</span>
+                <h2 class="font-display text-3xl md:text-5xl font-bold text-espresso-700 mt-2">From Our Blog.</h2>
+            </div>
+            <a href="{{ route('blog.index') }}" class="hidden sm:flex items-center gap-2 px-5 py-2.5 border-2 border-espresso-700 text-espresso-700 text-xs font-bold uppercase tracking-wider rounded-full hover:bg-espresso-700 hover:text-cream-50 transition">
+                All Articles <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </a>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6">
+            @foreach($latestBlogs as $blog)
+            <a href="{{ route('blog.show', $blog->slug) }}" class="group bg-white rounded-2xl border border-gold-100/50 overflow-hidden hover:shadow-xl transition-all duration-400 hover:-translate-y-1">
+                <div class="aspect-[16/10] overflow-hidden bg-cream-100">
+                    @if($blog->featured_image)
+                    <img src="{{ str_starts_with($blog->featured_image, '/storage/') ? '/public' . $blog->featured_image : $blog->featured_image }}" alt="{{ $blog->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                    @else
+                    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gold-50 to-gold-100">
+                        <svg class="w-12 h-12 text-gold-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+                    </div>
+                    @endif
+                </div>
+                <div class="p-5">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-gold-500">{{ $blog->category ?? 'Ayurveda' }}</span>
+                        <span class="text-[10px] text-espresso-300">&bull;</span>
+                        <span class="text-[10px] text-espresso-300">{{ $blog->published_at->format('M d, Y') }}</span>
+                    </div>
+                    <h3 class="text-sm font-bold text-espresso-700 group-hover:text-gold-600 transition line-clamp-2 leading-snug">{{ $blog->title }}</h3>
+                    <p class="text-xs text-espresso-400 mt-2 line-clamp-2">{{ $blog->excerpt ?? Str::limit(strip_tags($blog->content), 100) }}</p>
+                    <span class="inline-flex items-center gap-1 text-[11px] font-bold text-gold-600 mt-3 group-hover:gap-2 transition-all">Read More <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></span>
+                </div>
+            </a>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
 
 <!-- Newsletter -->
 <section class="py-16 md:py-20 scroll-reveal" style="background-color: #F5EFE6;">

@@ -6,6 +6,7 @@ use App\Http\Controllers\Storefront\ProductController;
 use App\Http\Controllers\Storefront\CartController;
 use App\Http\Controllers\Storefront\CheckoutController;
 use App\Http\Controllers\Storefront\AccountController;
+use App\Http\Controllers\Storefront\BlogController as StorefrontBlogController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -28,6 +29,8 @@ Route::get('/products', [ProductController::class, 'index'])->name('products.ind
 Route::get('/products/{slug}', [ProductController::class, 'show'])->name('products.show');
 Route::post('/products/{slug}/review', [ProductController::class, 'storeReview'])->name('products.review')->middleware('auth');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
+Route::get('/blog', [StorefrontBlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [StorefrontBlogController::class, 'show'])->name('blog.show');
 
 // Cart (works for guests and authenticated users)
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
@@ -131,6 +134,9 @@ Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\AdminMiddleware
     Route::get('/reviews', [\App\Http\Controllers\Admin\ReviewController::class, 'index'])->name('reviews.index');
     Route::patch('/reviews/{review}/approve', [\App\Http\Controllers\Admin\ReviewController::class, 'approve'])->name('reviews.approve');
     Route::delete('/reviews/{review}', [\App\Http\Controllers\Admin\ReviewController::class, 'decline'])->name('reviews.decline');
+
+    // Blog
+    Route::resource('blogs', \App\Http\Controllers\Admin\BlogController::class);
 
     // Reports & Analytics
     Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
