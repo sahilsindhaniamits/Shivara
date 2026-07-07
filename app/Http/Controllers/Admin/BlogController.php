@@ -24,7 +24,7 @@ class BlogController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'content' => 'required|string',
+            'content' => 'nullable|string',
             'excerpt' => 'nullable|string|max:500',
             'category' => 'nullable|string|max:100',
             'tags' => 'nullable|string',
@@ -33,6 +33,10 @@ class BlogController extends Controller
             'featured_image' => 'nullable|image|max:3072',
             'is_published' => 'boolean',
         ]);
+
+        if (empty($validated['content']) || $validated['content'] === '<p><br></p>') {
+            return back()->withErrors(['content' => 'Blog content is required.'])->withInput();
+        }
 
         $validated['slug'] = Str::slug($validated['title']);
         // Ensure unique slug
@@ -63,7 +67,7 @@ class BlogController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'content' => 'required|string',
+            'content' => 'nullable|string',
             'excerpt' => 'nullable|string|max:500',
             'category' => 'nullable|string|max:100',
             'tags' => 'nullable|string',
@@ -72,6 +76,10 @@ class BlogController extends Controller
             'featured_image' => 'nullable|image|max:3072',
             'is_published' => 'boolean',
         ]);
+
+        if (empty($validated['content']) || $validated['content'] === '<p><br></p>') {
+            return back()->withErrors(['content' => 'Blog content is required.'])->withInput();
+        }
 
         $validated['slug'] = Str::slug($validated['title']);
         $validated['is_published'] = $request->has('is_published');

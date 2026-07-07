@@ -24,7 +24,8 @@
             </div>
             <div>
                 <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Content *</label>
-                <textarea name="content" id="blogContent" rows="12" required class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition">{{ old('content', $blog->content) }}</textarea>
+                <div id="quillEditor"></div>
+                <textarea name="content" id="blogContent" class="hidden">{{ old('content', $blog->content) }}</textarea>
             </div>
             <div class="grid md:grid-cols-2 gap-4">
                 <div>
@@ -70,18 +71,31 @@
     </form>
 </div>
 
-<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<!-- Quill.js Rich Text Editor (Free - No API Key) -->
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+<style>.ql-editor { min-height: 300px; font-size: 14px; line-height: 1.7; } .ql-toolbar { border-radius: 12px 12px 0 0; border-color: #e5e7eb; } .ql-container { border-radius: 0 0 12px 12px; border-color: #e5e7eb; }</style>
 <script>
-tinymce.init({
-    selector: '#blogContent',
-    height: 400,
-    menubar: true,
-    plugins: 'lists link image table code fullscreen preview wordcount',
-    toolbar: 'undo redo | blocks | bold italic underline strikethrough | alignleft aligncenter alignright | bullist numlist | link image | table | code fullscreen',
-    block_formats: 'Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3; Heading 4=h4; Quote=blockquote',
-    content_style: 'body { font-family: DM Sans, system-ui, sans-serif; font-size: 14px; line-height: 1.6; }',
-    branding: false,
-    promotion: false,
+document.addEventListener('DOMContentLoaded', function() {
+    var quill = new Quill('#quillEditor', {
+        theme: 'snow',
+        placeholder: 'Write your blog content here...',
+        modules: {
+            toolbar: [
+                [{ 'header': [1, 2, 3, 4, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'align': [] }],
+                ['link', 'image', 'blockquote'],
+                ['clean']
+            ]
+        }
+    });
+    document.querySelector('form').addEventListener('submit', function() {
+        document.getElementById('blogContent').value = quill.root.innerHTML;
+    });
+    var existing = document.getElementById('blogContent').value;
+    if (existing) quill.root.innerHTML = existing;
 });
 </script>
 @endsection
