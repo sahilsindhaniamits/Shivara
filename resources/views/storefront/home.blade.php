@@ -153,65 +153,154 @@
                 <h2 class="font-display text-3xl md:text-5xl font-bold text-espresso-700 mt-2">Amazing Deals.</h2>
             </div>
             <div class="flex items-center gap-2">
-                <button onclick="document.getElementById('dealsSlider').scrollBy({left:-300,behavior:'smooth'})" class="w-9 h-9 rounded-full border border-gold-200 flex items-center justify-center hover:bg-white transition">
+                <button data-dir="left" class="w-9 h-9 rounded-full border border-gold-200 flex items-center justify-center hover:bg-white transition">
                     <svg class="w-4 h-4 text-espresso-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                 </button>
-                <button onclick="document.getElementById('dealsSlider').scrollBy({left:300,behavior:'smooth'})" class="w-9 h-9 rounded-full border border-gold-200 flex items-center justify-center hover:bg-white transition">
+                <button data-dir="right" class="w-9 h-9 rounded-full border border-gold-200 flex items-center justify-center hover:bg-white transition">
                     <svg class="w-4 h-4 text-espresso-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                 </button>
             </div>
         </div>
-        <div id="dealsSlider" class="flex gap-4 overflow-x-auto scrollbar-hide pb-4 scroll-smooth cursor-grab active:cursor-grabbing" style="-webkit-overflow-scrolling: touch;">
+        <div id="dealsSlider" class="flex gap-4 overflow-x-hidden pb-4 relative">
+            <div id="dealsTrack" class="flex gap-4 transition-transform duration-500 ease-out">
             @foreach($amazingDeals as $product)
-            <div class="shrink-0 w-[220px] sm:w-[250px] md:w-[270px]">
+            <div class="shrink-0 w-[180px] sm:w-[230px] md:w-[260px]">
                 @include('partials.product-card', ['product' => $product])
             </div>
             @endforeach
+            <!-- Duplicate for infinite loop -->
+            @foreach($amazingDeals->take(4) as $product)
+            <div class="shrink-0 w-[180px] sm:w-[230px] md:w-[260px]">
+                @include('partials.product-card', ['product' => $product])
+            </div>
+            @endforeach
+            </div>
         </div>
 
 <script>
 (function() {
-    const slider = document.getElementById('dealsSlider');
-    if (!slider) return;
-    let scrollSpeed = 1, autoInterval, isDown = false, startX, scrollLeft;
+    const container = document.getElementById('dealsSlider');
+    const track = document.getElementById('dealsTrack');
+    if (!container || !track) return;
 
-    function autoScroll() { slider.scrollLeft += scrollSpeed; if (slider.scrollLeft >= slider.scrollWidth - slider.clientWidth - 5) slider.scrollLeft = 0; }
-    autoInterval = setInterval(autoScroll, 25);
+    let position = 0;
+    let autoInterval;
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartPos = 0;
+    let velocity = 0;
+    let lastX = 0;
+    let lastTime = 0;
+    const speed = 0.5; // auto-scroll speed (px per frame)
+    const totalWidth = track.scrollWidth - container.clientWidth;
 
-    // Only stop auto-scroll when user CLICKS (mousedown) - not on hover
-    slider.addEventListener('mousedown', (e) => {
-        isDown = true;
-        clearInterval(autoInterval);
-        startX = e.pageX - slider.offsetLeft;
-        scrollLeft = slider.scrollLeft;
-        slider.style.cursor = 'grabbing';
+    function setPosition(pos) {
+        position = pos;
+        // Loop back when reaching end
+        if (position >= totalWidth) position = 0;
+        if (position < 0) position = totalWidth - 10;
+        track.style.transform = 'translateX(-' + position + 'px)';
+    }
+
+    // Auto scroll
+    function startAuto() {
+        autoInterval = requestAnimationFrame(function tick() {
+            if (!isDragging) {
+                setPosition(position + speed);
+            }
+            autoInterval = requestAnimationFrame(tick);
+        });
+    }
+    startAuto();
+
+    // Mouse drag
+    container.addEventListener('mousedown', function(e) {
+        isDragging = true;
+        dragStartX = e.clientX;
+        dragStartPos = position;
+        lastX = e.clientX;
+        lastTime = Date.now();
+        velocity = 0;
+        track.style.transition = 'none';
+        container.style.cursor = 'grabbing';
         e.preventDefault();
     });
-    document.addEventListener('mouseup', () => {
-        if (isDown) {
-            isDown = false;
-            slider.style.cursor = 'grab';
-            autoInterval = setInterval(autoScroll, 25);
-        }
-    });
-    slider.addEventListener('mousemove', (e) => {
-        if (!isDown) return;
-        e.preventDefault();
-        const x = e.pageX - slider.offsetLeft;
-        slider.scrollLeft = scrollLeft - (x - startX) * 2;
+
+    document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        var dx = dragStartX - e.clientX;
+        var now = Date.now();
+        velocity = (lastX - e.clientX) / (now - lastTime + 1);
+        lastX = e.clientX;
+        lastTime = now;
+        track.style.transform = 'translateX(-' + (dragStartPos + dx) + 'px)';
     });
 
-    // Touch support
-    let touchStartX;
-    slider.addEventListener('touchstart', (e) => { clearInterval(autoInterval); touchStartX = e.touches[0].pageX; scrollLeft = slider.scrollLeft; });
-    slider.addEventListener('touchend', () => { autoInterval = setInterval(autoScroll, 25); });
-    slider.addEventListener('touchmove', (e) => { slider.scrollLeft = scrollLeft - (e.touches[0].pageX - touchStartX); });
+    document.addEventListener('mouseup', function() {
+        if (!isDragging) return;
+        isDragging = false;
+        container.style.cursor = 'grab';
+        // Apply momentum
+        var momentum = velocity * 150;
+        position = dragStartPos + (dragStartX - lastX) + momentum;
+        if (position < 0) position = 0;
+        if (position > totalWidth) position = totalWidth;
+        track.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        track.style.transform = 'translateX(-' + position + 'px)';
+        setTimeout(function() { track.style.transition = 'none'; }, 600);
+    });
+
+    // Touch drag (mobile)
+    container.addEventListener('touchstart', function(e) {
+        isDragging = true;
+        dragStartX = e.touches[0].clientX;
+        dragStartPos = position;
+        lastX = e.touches[0].clientX;
+        lastTime = Date.now();
+        velocity = 0;
+        track.style.transition = 'none';
+    }, { passive: true });
+
+    container.addEventListener('touchmove', function(e) {
+        if (!isDragging) return;
+        var dx = dragStartX - e.touches[0].clientX;
+        var now = Date.now();
+        velocity = (lastX - e.touches[0].clientX) / (now - lastTime + 1);
+        lastX = e.touches[0].clientX;
+        lastTime = now;
+        track.style.transform = 'translateX(-' + (dragStartPos + dx) + 'px)';
+    }, { passive: true });
+
+    container.addEventListener('touchend', function() {
+        if (!isDragging) return;
+        isDragging = false;
+        var momentum = velocity * 120;
+        position = dragStartPos + (dragStartX - lastX) + momentum;
+        if (position < 0) position = 0;
+        if (position > totalWidth) position = totalWidth;
+        track.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        track.style.transform = 'translateX(-' + position + 'px)';
+        setTimeout(function() { track.style.transition = 'none'; }, 500);
+    });
+
+    // Arrow buttons
+    container.parentElement.querySelectorAll('button[data-dir]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var dir = this.dataset.dir === 'left' ? -1 : 1;
+            position += dir * 300;
+            if (position < 0) position = 0;
+            if (position > totalWidth) position = totalWidth;
+            track.style.transition = 'transform 0.5s ease';
+            track.style.transform = 'translateX(-' + position + 'px)';
+            setTimeout(function() { track.style.transition = 'none'; }, 500);
+        });
+    });
 })();
 </script>
         <!-- Dot Navigation -->
         <div class="flex justify-center gap-2 mt-4">
             @for($dot = 0; $dot < min(5, ceil($amazingDeals->count() / 3)); $dot++)
-            <button onclick="document.getElementById('dealsSlider').scrollTo({left: {{ $dot * 810 }}, behavior:'smooth'})" class="w-2.5 h-2.5 rounded-full bg-gold-200 hover:bg-gold-500 transition"></button>
+            <button onclick="var t=document.getElementById('dealsTrack');t.style.transition='transform 0.5s ease';t.style.transform='translateX(-{{ $dot * 280 * 3 }}px)';setTimeout(()=>t.style.transition='none',500)" class="w-2.5 h-2.5 rounded-full bg-gold-200 hover:bg-gold-500 transition"></button>
             @endfor
         </div>
     </div>
