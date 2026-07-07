@@ -25,7 +25,7 @@
             <div class="w-9 h-9 bg-brand-600 rounded-lg flex items-center justify-center text-white font-extrabold text-sm shrink-0">S</div>
             <span x-show="sidebar" class="text-white font-bold text-sm tracking-wide">Shivara Admin</span>
         </div>
-        <nav class="p-3 space-y-0.5 mt-2">
+        <nav class="p-3 space-y-0.5 mt-2 overflow-y-auto" style="max-height: calc(100vh - 180px);">
             @php $nav = [
                 ['route'=>'admin.dashboard','icon'=>'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6','label'=>'Dashboard'],
                 ['route'=>'admin.products.index','icon'=>'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4','label'=>'Products'],

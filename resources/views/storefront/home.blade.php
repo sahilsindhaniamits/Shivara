@@ -55,7 +55,7 @@
 </section>
 
 <!-- Scrolling Marquee Trust Strip -->
-<div class="overflow-hidden py-2.5" style="background-color: #2C2418;">
+<div class="overflow-hidden py-2.5" style="background-color: #3d6b3d;">
     <div class="animate-marquee flex items-center gap-8 whitespace-nowrap">
         @for($m = 0; $m < 2; $m++)
         <span class="flex items-center gap-2 text-xs font-semibold text-white/90"><svg class="w-4 h-4 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg> Secure Payments — UPI, Cards & COD</span>
@@ -71,38 +71,6 @@
         @endfor
     </div>
 </div>
-
-<!-- Trust Bar -->
-<section class="border-y border-gold-200/50 py-8" style="background-color: #FBF7F0;">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div class="flex items-center gap-3 justify-center">
-                <div class="w-10 h-10 bg-gold-100 rounded-xl flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
-                </div>
-                <div><p class="text-xs font-bold text-espresso-700 uppercase tracking-wider">100% Natural</p><p class="text-[10px] text-espresso-400">Pure Ayurvedic</p></div>
-            </div>
-            <div class="flex items-center gap-3 justify-center">
-                <div class="w-10 h-10 bg-olive-100 rounded-xl flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-olive-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                </div>
-                <div><p class="text-xs font-bold text-espresso-700 uppercase tracking-wider">GMP Certified</p><p class="text-[10px] text-espresso-400">Lab Tested</p></div>
-            </div>
-            <div class="flex items-center gap-3 justify-center">
-                <div class="w-10 h-10 bg-gold-100 rounded-xl flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                </div>
-                <div><p class="text-xs font-bold text-espresso-700 uppercase tracking-wider">Free Shipping</p><p class="text-[10px] text-espresso-400">Pan India</p></div>
-            </div>
-            <div class="flex items-center gap-3 justify-center">
-                <div class="w-10 h-10 bg-olive-100 rounded-xl flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-olive-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                </div>
-                <div><p class="text-xs font-bold text-espresso-700 uppercase tracking-wider">Easy Returns</p><p class="text-[10px] text-espresso-400">7-Day Policy</p></div>
-            </div>
-        </div>
-    </div>
-</section>
 
 <!-- Shop by Category -->
 <section class="py-16 md:py-20 scroll-reveal" style="background-color: #F5EFE6;">
@@ -158,7 +126,7 @@
 
         <!-- View All Button -->
         <div class="text-center mt-10">
-            <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 px-8 py-3.5 text-white text-sm font-bold uppercase tracking-wider rounded-full hover:opacity-90 transition shadow-lg" style="background-color:#2C2418">
+            <a :href="activeTab === 'all' ? '{{ route('products.index') }}' : '{{ route('products.index') }}?category=' + activeTab" class="inline-flex items-center gap-2 px-8 py-3.5 text-white text-sm font-bold uppercase tracking-wider rounded-full hover:opacity-90 transition shadow-lg" style="background-color:#2C2418">
                 View All Products
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
             </a>
@@ -193,12 +161,50 @@
                 </button>
             </div>
         </div>
-        <div id="dealsSlider" class="flex gap-4 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory">
+        <div id="dealsSlider" class="flex gap-4 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory cursor-grab active:cursor-grabbing" style="-webkit-overflow-scrolling: touch;">
             @foreach($amazingDeals as $product)
             <div class="shrink-0 w-[220px] sm:w-[250px] md:w-[270px] snap-start">
                 @include('partials.product-card', ['product' => $product])
             </div>
             @endforeach
+        </div>
+        <!-- Dot Navigation -->
+        <div class="flex justify-center gap-2 mt-4">
+            @for($dot = 0; $dot < min(5, ceil($amazingDeals->count() / 3)); $dot++)
+            <button onclick="document.getElementById('dealsSlider').scrollTo({left: {{ $dot * 810 }}, behavior:'smooth'})" class="w-2.5 h-2.5 rounded-full bg-gold-200 hover:bg-gold-500 transition"></button>
+            @endfor
+        </div>
+    </div>
+</section>
+
+<!-- Trust Badges -->
+<section class="border-y border-gold-200/50 py-8" style="background-color: #FBF7F0;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="flex items-center gap-3 justify-center">
+                <div class="w-10 h-10 bg-gold-100 rounded-xl flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                </div>
+                <div><p class="text-xs font-bold text-espresso-700 uppercase tracking-wider">100% Natural</p><p class="text-[10px] text-espresso-400">Pure Ayurvedic</p></div>
+            </div>
+            <div class="flex items-center gap-3 justify-center">
+                <div class="w-10 h-10 bg-olive-100 rounded-xl flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 text-olive-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                </div>
+                <div><p class="text-xs font-bold text-espresso-700 uppercase tracking-wider">GMP Certified</p><p class="text-[10px] text-espresso-400">Lab Tested</p></div>
+            </div>
+            <div class="flex items-center gap-3 justify-center">
+                <div class="w-10 h-10 bg-gold-100 rounded-xl flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <div><p class="text-xs font-bold text-espresso-700 uppercase tracking-wider">Free Shipping</p><p class="text-[10px] text-espresso-400">Pan India</p></div>
+            </div>
+            <div class="flex items-center gap-3 justify-center">
+                <div class="w-10 h-10 bg-olive-100 rounded-xl flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 text-olive-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                </div>
+                <div><p class="text-xs font-bold text-espresso-700 uppercase tracking-wider">Easy Returns</p><p class="text-[10px] text-espresso-400">7-Day Policy</p></div>
+            </div>
         </div>
     </div>
 </section>
