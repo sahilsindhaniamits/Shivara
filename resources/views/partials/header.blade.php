@@ -48,6 +48,7 @@
                     </div>
                 </div>
                 <a href="{{ route('contact') }}" class="text-[12px] font-bold uppercase tracking-[0.2em] text-espresso-600 hover:text-gold-600 transition">Contact</a>
+                <a href="{{ route('blog.index') }}" class="text-[12px] font-bold uppercase tracking-[0.2em] text-espresso-600 hover:text-gold-600 transition">Blog</a>
             </nav>
 
             <!-- Logo -->
