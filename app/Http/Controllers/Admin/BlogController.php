@@ -35,6 +35,12 @@ class BlogController extends Controller
         ]);
 
         $validated['slug'] = Str::slug($validated['title']);
+        // Ensure unique slug
+        $baseSlug = $validated['slug'];
+        $counter = 1;
+        while (Blog::where('slug', $validated['slug'])->exists()) {
+            $validated['slug'] = $baseSlug . '-' . $counter++;
+        }
         $validated['author_id'] = auth()->id();
         $validated['is_published'] = $request->has('is_published');
         $validated['published_at'] = $request->has('is_published') ? now() : null;
