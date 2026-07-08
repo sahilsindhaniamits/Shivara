@@ -22,42 +22,47 @@
 <!-- Main Header -->
 <header class="sticky top-0 z-50 glass border-b border-gold-100/50 shadow-sm" x-data="{ mobileMenu: false, searchOpen: false }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="flex items-center justify-between h-[70px]">
+        <div class="grid grid-cols-3 items-center h-[70px]">
 
-            <!-- Mobile Menu -->
-            <button @click="mobileMenu = !mobileMenu" class="lg:hidden p-2 -ml-2 text-espresso-600 hover:text-espresso-700 transition">
-                <svg x-show="!mobileMenu" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                <svg x-show="mobileMenu" x-cloak class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
+            <!-- Left: Mobile Menu + Desktop Nav -->
+            <div class="flex items-center">
+                <!-- Mobile Menu Button -->
+                <button @click="mobileMenu = !mobileMenu" class="lg:hidden p-2 -ml-2 text-espresso-600 hover:text-espresso-700 transition">
+                    <svg x-show="!mobileMenu" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    <svg x-show="mobileMenu" x-cloak class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
 
-            <!-- Desktop Nav -->
-            <nav class="hidden lg:flex items-center gap-8">
-                <a href="{{ route('home') }}" class="text-[12px] font-bold uppercase tracking-[0.2em] text-espresso-600 hover:text-gold-600 transition">Home</a>
-                <div class="relative group">
-                    <a href="{{ route('products.index') }}" class="text-[12px] font-bold uppercase tracking-[0.2em] text-espresso-600 hover:text-gold-600 transition flex items-center gap-1">
-                        Shop <svg class="w-3 h-3 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                    </a>
-                    <div class="absolute top-full left-0 mt-3 w-56 bg-cream-50 rounded-2xl shadow-2xl border border-gold-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 p-3">
-                        <a href="{{ route('products.index') }}" class="block px-4 py-2.5 text-sm text-espresso-600 hover:bg-gold-50 hover:text-gold-700 rounded-xl transition font-medium">All Products</a>
-                        <a href="{{ route('products.index', ['category' => 'capsules']) }}" class="block px-4 py-2.5 text-sm text-espresso-500 hover:bg-gold-50 hover:text-gold-700 rounded-xl transition">Capsules & Tablets</a>
-                        <a href="{{ route('products.index', ['category' => 'powders']) }}" class="block px-4 py-2.5 text-sm text-espresso-500 hover:bg-gold-50 hover:text-gold-700 rounded-xl transition">Herbal Powders</a>
-                        <a href="{{ route('products.index', ['category' => 'oils']) }}" class="block px-4 py-2.5 text-sm text-espresso-500 hover:bg-gold-50 hover:text-gold-700 rounded-xl transition">Oils & Syrups</a>
-                        <a href="{{ route('products.index', ['category' => 'skincare']) }}" class="block px-4 py-2.5 text-sm text-espresso-500 hover:bg-gold-50 hover:text-gold-700 rounded-xl transition">Skin & Hair Care</a>
+                <!-- Desktop Nav -->
+                <nav class="hidden lg:flex items-center gap-5">
+                    <a href="{{ route('home') }}" class="text-[12px] font-bold uppercase tracking-[0.15em] text-espresso-600 hover:text-gold-600 transition">Home</a>
+                    <div class="relative group">
+                        <a href="{{ route('products.index') }}" class="text-[12px] font-bold uppercase tracking-[0.15em] text-espresso-600 hover:text-gold-600 transition flex items-center gap-1">
+                            Shop <svg class="w-3 h-3 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </a>
+                        <div class="absolute top-full left-0 mt-3 w-56 bg-cream-50 rounded-2xl shadow-2xl border border-gold-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 p-3">
+                            <a href="{{ route('products.index') }}" class="block px-4 py-2.5 text-sm text-espresso-600 hover:bg-gold-50 hover:text-gold-700 rounded-xl transition font-medium">All Products</a>
+                            <a href="{{ route('products.index', ['category' => 'capsules']) }}" class="block px-4 py-2.5 text-sm text-espresso-500 hover:bg-gold-50 hover:text-gold-700 rounded-xl transition">Capsules & Tablets</a>
+                            <a href="{{ route('products.index', ['category' => 'powders']) }}" class="block px-4 py-2.5 text-sm text-espresso-500 hover:bg-gold-50 hover:text-gold-700 rounded-xl transition">Herbal Powders</a>
+                            <a href="{{ route('products.index', ['category' => 'oils']) }}" class="block px-4 py-2.5 text-sm text-espresso-500 hover:bg-gold-50 hover:text-gold-700 rounded-xl transition">Oils & Syrups</a>
+                            <a href="{{ route('products.index', ['category' => 'skincare']) }}" class="block px-4 py-2.5 text-sm text-espresso-500 hover:bg-gold-50 hover:text-gold-700 rounded-xl transition">Skin & Hair Care</a>
+                        </div>
                     </div>
-                </div>
-                <a href="{{ route('contact') }}" class="text-[12px] font-bold uppercase tracking-[0.2em] text-espresso-600 hover:text-gold-600 transition">Contact</a>
-                <a href="{{ route('blog.index') }}" class="text-[12px] font-bold uppercase tracking-[0.2em] text-espresso-600 hover:text-gold-600 transition">Blog</a>
-                <a href="{{ route('track.order') }}" class="text-[12px] font-bold uppercase tracking-[0.2em] text-espresso-600 hover:text-gold-600 transition">Track Order</a>
-            </nav>
+                    <a href="{{ route('contact') }}" class="text-[12px] font-bold uppercase tracking-[0.15em] text-espresso-600 hover:text-gold-600 transition">Contact</a>
+                    <a href="{{ route('blog.index') }}" class="text-[12px] font-bold uppercase tracking-[0.15em] text-espresso-600 hover:text-gold-600 transition">Blog</a>
+                    <a href="{{ route('track.order') }}" class="text-[12px] font-bold uppercase tracking-[0.15em] text-espresso-600 hover:text-gold-600 transition">Track Order</a>
+                </nav>
+            </div>
 
-            <!-- Logo -->
-            <a href="{{ route('home') }}" class="flex flex-col items-center group">
-                <img src="/public/shivaralogo.png" alt="Shivara" class="h-10 md:h-12 w-auto" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-                <span style="display:none" class="text-[26px] font-display font-bold tracking-wide text-espresso-700">SHIVARA</span>
-            </a>
+            <!-- Center: Logo -->
+            <div class="flex justify-center">
+                <a href="{{ route('home') }}" class="flex flex-col items-center group">
+                    <img src="/public/shivaralogo.png" alt="Shivara" class="h-10 md:h-12 w-auto" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+                    <span style="display:none" class="text-[26px] font-display font-bold tracking-wide text-espresso-700">SHIVARA</span>
+                </a>
+            </div>
 
-            <!-- Right Actions -->
-            <div class="flex items-center gap-2 sm:gap-3">
+            <!-- Right: Actions -->
+            <div class="flex items-center justify-end gap-2 sm:gap-3">
                 <button @click="searchOpen = !searchOpen" class="p-2.5 text-espresso-500 hover:text-gold-600 hover:bg-gold-50 rounded-full transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </button>

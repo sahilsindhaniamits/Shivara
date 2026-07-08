@@ -25,6 +25,14 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Get display name - fallback to phone if name not set
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        return $this->name ?: ('User ' . substr($this->phone, -4));
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
