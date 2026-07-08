@@ -35,6 +35,45 @@ class CustomerController extends Controller
         return view('admin.customers.show', compact('customer', 'totalSpent'));
     }
 
+    public function edit(User $customer)
+    {
+        return view('admin.customers.edit', compact('customer'));
+    }
+
+    public function update(Request $request, User $customer)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $customer->id,
+            'phone' => 'nullable|string|max:15',
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'is_active' => $request->has('is_active'),
+        ];
+
+        if ($request->filled('password')) {
+            $data['password'] = \Illuminate\Support\Facades\Hash::make($request->password);
+        }
+
+        $customer->update($data);
+
+        return redirect()->route('admin.customers.index')->with('success', 'Customer updated.');
+    }
+
+    public function destroy(User $customer)
+    {
+        if ($customer->orders()->count() > 0) {
+            return back()->with('error', 'Cannot delete customer with existing orders.');
+        }
+        $customer->delete();
+        return redirect()->route('admin.customers.index')->with('success', 'Customer deleted.');
+    }
+
     public function toggleStatus(User $customer)
     {
         $customer->update(['is_active' => !$customer->is_active]);
