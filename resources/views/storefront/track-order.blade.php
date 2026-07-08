@@ -100,9 +100,32 @@
                     </div>
                     @endforeach
                 </div>
-                <div class="mt-4 pt-4 border-t border-gray-100 flex justify-between">
-                    <span class="text-sm font-bold text-espresso-700">Total</span>
-                    <span class="text-sm font-bold text-espresso-700">₹{{ number_format($order->total_amount) }}</span>
+                <div class="mt-4 pt-4 border-t border-gray-100 space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-espresso-400">Subtotal</span>
+                        <span class="text-espresso-700">₹{{ number_format($order->subtotal) }}</span>
+                    </div>
+                    @if($order->shipping_charge > 0)
+                    <div class="flex justify-between text-sm">
+                        <span class="text-espresso-400">Shipping ({{ ucfirst($order->shipping_method ?? 'Standard') }})</span>
+                        <span class="text-espresso-700">₹{{ number_format($order->shipping_charge) }}</span>
+                    </div>
+                    @else
+                    <div class="flex justify-between text-sm">
+                        <span class="text-espresso-400">Shipping</span>
+                        <span class="text-green-600 font-semibold">FREE</span>
+                    </div>
+                    @endif
+                    @if($order->discount > 0)
+                    <div class="flex justify-between text-sm">
+                        <span class="text-espresso-400">Discount</span>
+                        <span class="text-green-600">-₹{{ number_format($order->discount) }}</span>
+                    </div>
+                    @endif
+                    <div class="flex justify-between pt-2 border-t border-gray-100">
+                        <span class="text-sm font-bold text-espresso-700">Total</span>
+                        <span class="text-sm font-bold text-espresso-700">₹{{ number_format($order->total_amount) }}</span>
+                    </div>
                 </div>
             </div>
         </div>
