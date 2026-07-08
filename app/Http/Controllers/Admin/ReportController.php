@@ -42,14 +42,14 @@ class ReportController extends Controller
             ->orderBy('month')
             ->get();
 
-        // Summary stats
+        // Summary stats (exclude cancelled orders from revenue)
         $stats = [
-            'total_revenue' => Order::where('payment_status', 'paid')->sum('total_amount'),
-            'this_month_revenue' => Order::where('payment_status', 'paid')->whereMonth('created_at', Carbon::now()->month)->whereYear('created_at', Carbon::now()->year)->sum('total_amount'),
-            'last_month_revenue' => Order::where('payment_status', 'paid')->whereMonth('created_at', Carbon::now()->subMonth()->month)->whereYear('created_at', Carbon::now()->subMonth()->year)->sum('total_amount'),
-            'total_orders' => Order::count(),
-            'this_month_orders' => Order::whereMonth('created_at', Carbon::now()->month)->whereYear('created_at', Carbon::now()->year)->count(),
-            'avg_order_value' => Order::where('payment_status', 'paid')->avg('total_amount') ?? 0,
+            'total_revenue' => Order::where('payment_status', 'paid')->where('status', '!=', 'cancelled')->sum('total_amount'),
+            'this_month_revenue' => Order::where('payment_status', 'paid')->where('status', '!=', 'cancelled')->whereMonth('created_at', Carbon::now()->month)->whereYear('created_at', Carbon::now()->year)->sum('total_amount'),
+            'last_month_revenue' => Order::where('payment_status', 'paid')->where('status', '!=', 'cancelled')->whereMonth('created_at', Carbon::now()->subMonth()->month)->whereYear('created_at', Carbon::now()->subMonth()->year)->sum('total_amount'),
+            'total_orders' => Order::where('status', '!=', 'cancelled')->count(),
+            'this_month_orders' => Order::where('status', '!=', 'cancelled')->whereMonth('created_at', Carbon::now()->month)->whereYear('created_at', Carbon::now()->year)->count(),
+            'avg_order_value' => Order::where('payment_status', 'paid')->where('status', '!=', 'cancelled')->avg('total_amount') ?? 0,
             'total_customers' => User::where('role', 'customer')->count(),
             'new_customers_this_month' => User::where('role', 'customer')->whereMonth('created_at', Carbon::now()->month)->whereYear('created_at', Carbon::now()->year)->count(),
         ];
@@ -71,7 +71,7 @@ class ReportController extends Controller
 
     private function getRevenueData(string $period): array
     {
-        $query = Order::where('payment_status', 'paid');
+        $query = Order::where('payment_status', 'paid')->where('status', '!=', 'cancelled');
 
         switch ($period) {
             case 'daily':

@@ -12,8 +12,8 @@ class DashboardController extends Controller
     public function index()
     {
         $stats = [
-            'total_revenue' => Order::where('payment_status', 'paid')->sum('total_amount'),
-            'total_orders' => Order::count(),
+            'total_revenue' => Order::where('payment_status', 'paid')->where('status', '!=', 'cancelled')->sum('total_amount'),
+            'total_orders' => Order::where('status', '!=', 'cancelled')->count(),
             'total_products' => Product::count(),
             'total_customers' => User::where('role', 'customer')->count(),
             'pending_orders' => Order::where('status', 'pending')->count(),
