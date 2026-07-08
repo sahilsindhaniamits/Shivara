@@ -201,7 +201,7 @@ class OrderController extends Controller
             ]),
             'cancelled' => $order->update([
                 'cancelled_at' => now(),
-                'payment_status' => 'refunded',
+                'payment_status' => $order->payment_status === 'paid' ? 'refunded' : $order->payment_status,
             ]),
             'shipped' => $order->update(['shipped_at' => now()]),
             // If moved BACK from delivered to any other status, revert payment for COD
