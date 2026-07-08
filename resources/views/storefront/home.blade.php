@@ -372,76 +372,160 @@
 <!-- Video Testimonials Section -->
 @php $videoTestimonials = \App\Models\VideoTestimonial::active()->with('product')->orderBy('sort_order')->take(10)->get(); @endphp
 @if($videoTestimonials->count())
-<section class="py-16 md:py-20 scroll-reveal" style="background-color: #FFFDF8;" x-data="{ openVideo: null, openUrl: '' }">
+<section class="py-16 md:py-20 scroll-reveal" style="background-color: #FFFDF8;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="text-center mb-10">
-            <h2 class="font-display text-3xl md:text-4xl font-bold text-espresso-700">Real Customers, Real Reviews</h2>
+            <h2 class="font-display text-3xl md:text-4xl font-bold" style="color:#2C2418;">Real Customers, Real Reviews</h2>
         </div>
-        <div class="flex gap-4 overflow-x-auto scrollbar-hide pb-6 px-2">
-            @foreach($videoTestimonials as $vt)
-            <div @click="
-                @if($vt->video_type === 'instagram')
-                    window.open('{{ $vt->video_url }}', '_blank')
-                @else
-                    openVideo = {{ $vt->id }}; openUrl = '{{ $vt->video_type === 'youtube' ? 'https://www.youtube.com/embed/' . $vt->embed_url . '?autoplay=1&rel=0&modestbranding=1' : $vt->embed_url }}'
-                @endif
-            " class="shrink-0 w-[160px] sm:w-[190px] md:w-[220px] cursor-pointer group">
-                <div class="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-200 border-2 border-gray-200 group-hover:border-espresso-700 shadow-md group-hover:shadow-2xl transition-all duration-300">
-                    @if($vt->video_type === 'youtube')
-                    <iframe class="w-full h-full pointer-events-none" src="https://www.youtube.com/embed/{{ $vt->embed_url }}?autoplay=1&mute=1&loop=1&playlist={{ $vt->embed_url }}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen loading="lazy"></iframe>
-                    @elseif($vt->video_file)
-                    <video autoplay muted loop playsinline class="w-full h-full object-cover" poster="{{ $vt->thumbnail_url }}">
-                        <source src="{{ str_starts_with($vt->video_file, '/storage/') ? '/public' . $vt->video_file : $vt->video_file }}" type="video/mp4">
-                    </video>
-                    @else
-                    <img src="{{ $vt->thumbnail_url }}" alt="{{ $vt->customer_name }}" class="w-full h-full object-cover">
-                    @endif
-                </div>
-                <div class="mt-2 px-1">
-                    @if($vt->product)
-                    <p class="text-xs font-bold text-espresso-700">₹{{ number_format($vt->product->selling_price) }}</p>
-                    @endif
-                    <div class="flex items-center gap-0.5 mt-0.5">
-                        @for($s = 1; $s <= $vt->rating; $s++)
-                        <svg class="w-2.5 h-2.5 text-amber-400 fill-amber-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                        @endfor
-                        <span class="text-[9px] text-gray-500 ml-1">Verified review</span>
+
+        <!-- Auto-sliding Carousel -->
+        <div x-data="{
+            scrollEl: null,
+            autoSlide: null,
+            paused: false,
+            openVideo: null,
+            openUrl: '',
+            openProduct: null,
+            muted: true,
+            startAutoSlide() {
+                this.autoSlide = setInterval(() => {
+                    if (!this.paused && this.scrollEl) {
+                        const maxScroll = this.scrollEl.scrollWidth - this.scrollEl.clientWidth;
+                        if (this.scrollEl.scrollLeft >= maxScroll - 10) {
+                            this.scrollEl.scrollTo({ left: 0, behavior: 'smooth' });
+                        } else {
+                            this.scrollEl.scrollBy({ left: 200, behavior: 'smooth' });
+                        }
+                    }
+                }, 3000);
+            },
+            stopAutoSlide() {
+                if (this.autoSlide) { clearInterval(this.autoSlide); this.autoSlide = null; }
+            },
+            openModal(id, url, product) {
+                this.openVideo = id;
+                this.openUrl = url;
+                this.openProduct = product;
+                this.muted = false;
+            },
+            closeModal() {
+                this.openVideo = null;
+                this.openUrl = '';
+                this.openProduct = null;
+                this.muted = true;
+            }
+        }" x-init="scrollEl = $refs.carousel; startAutoSlide()">
+
+            <div class="relative">
+                <div x-ref="carousel"
+                     @mouseenter="paused = true"
+                     @mouseleave="paused = false"
+                     @touchstart="paused = true"
+                     @touchend="setTimeout(() => paused = false, 5000)"
+                     class="flex gap-4 overflow-x-auto pb-6 px-2" style="scrollbar-width: none; -ms-overflow-style: none;">
+                    <style>.vtc-scroll::-webkit-scrollbar { display: none; }</style>
+
+                    @foreach($videoTestimonials as $vt)
+                    <div @click="
+                        @if($vt->video_type === 'instagram')
+                            window.open('{{ $vt->video_url }}', '_blank')
+                        @else
+                            openModal({{ $vt->id }}, '{{ $vt->video_type === 'youtube' ? 'https://www.youtube.com/embed/' . $vt->embed_url . '?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1' : $vt->embed_url }}', {{ json_encode(['name' => $vt->product?->name, 'price' => $vt->product ? '₹' . number_format($vt->product->selling_price) : null, 'image' => $vt->product?->primary_image_url, 'url' => $vt->product ? route('products.show', $vt->product->slug) : null]) }})
+                        @endif
+                    " class="shrink-0 w-[155px] sm:w-[180px] md:w-[200px] cursor-pointer group transition-transform duration-300 hover:scale-105">
+                        <div class="relative aspect-[9/16] rounded-2xl overflow-hidden bg-gray-200 shadow-md group-hover:shadow-2xl transition-all duration-300" style="border: 2px solid #e5e7eb;">
+                            @if($vt->video_type === 'youtube')
+                            <iframe class="w-full h-full pointer-events-none absolute inset-0" src="https://www.youtube.com/embed/{{ $vt->embed_url }}?autoplay=1&mute=1&loop=1&playlist={{ $vt->embed_url }}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen loading="lazy"></iframe>
+                            @elseif($vt->video_file)
+                            <video autoplay muted loop playsinline class="w-full h-full object-cover" poster="{{ $vt->thumbnail_url }}">
+                                <source src="{{ str_starts_with($vt->video_file, '/storage/') ? '/public' . $vt->video_file : $vt->video_file }}" type="video/mp4">
+                            </video>
+                            @else
+                            <img src="{{ $vt->thumbnail_url }}" alt="{{ $vt->customer_name }}" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/10">
+                                <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: rgba(255,255,255,0.9);">
+                                    <svg class="w-5 h-5 ml-0.5" style="color:#2C2418;" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                        <div class="mt-2.5 px-1">
+                            @if($vt->product)
+                            <p class="text-[11px] font-medium truncate" style="color:#2C2418;">{{ $vt->product->name }}</p>
+                            <p class="text-xs font-bold mt-0.5" style="color:#2C2418;">₹{{ number_format($vt->product->selling_price, 2) }}</p>
+                            @endif
+                            <div class="flex items-center gap-0.5 mt-1">
+                                @for($s = 1; $s <= $vt->rating; $s++)
+                                <svg class="w-3 h-3" style="color:#f59e0b; fill:#f59e0b;" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                @endfor
+                                <span class="text-[9px] ml-1" style="color:#6b7280;">Verified review</span>
+                            </div>
+                        </div>
                     </div>
+                    @endforeach
                 </div>
             </div>
-            @endforeach
+
+            <!-- Video Modal Popup (Competitor-style: contained, not fullscreen) -->
+            <template x-if="openVideo">
+                <div x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     @click.self="closeModal()"
+                     @keydown.escape.window="closeModal()"
+                     class="fixed inset-0 z-[300] flex items-center justify-center p-4"
+                     style="background-color: rgba(0,0,0,0.75);">
+
+                    <div class="relative w-full max-w-[380px]" @click.stop>
+                        <!-- Close Button (top-right inside) -->
+                        <button @click="closeModal()"
+                                class="absolute top-3 right-3 z-20 w-9 h-9 rounded-full flex items-center justify-center transition hover:scale-110"
+                                style="background-color: rgba(255,255,255,0.9);">
+                            <svg class="w-5 h-5" style="color:#2C2418;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+
+                        <!-- Mute/Unmute Toggle (top-left inside) -->
+                        <button @click="muted = !muted; if($refs.modalIframe) { let src = $refs.modalIframe.src; $refs.modalIframe.src = src.replace(/mute=[01]/, 'mute=' + (muted ? '1' : '0')); }"
+                                class="absolute top-3 left-3 z-20 w-9 h-9 rounded-full flex items-center justify-center transition hover:scale-110"
+                                style="background-color: rgba(255,255,255,0.9);">
+                            <template x-if="!muted">
+                                <svg class="w-5 h-5" style="color:#2C2418;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9M6 9H3v6h3l5 5V4L6 9z"/></svg>
+                            </template>
+                            <template x-if="muted">
+                                <svg class="w-5 h-5" style="color:#2C2418;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707A1 1 0 0112 5v14a1 1 0 01-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/></svg>
+                            </template>
+                        </button>
+
+                        <!-- Video Container (portrait 9:16 aspect ratio) -->
+                        <div class="aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl" style="background-color:#000;">
+                            <iframe x-ref="modalIframe" class="w-full h-full" :src="openUrl" frameborder="0" allow="autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+
+                        <!-- Product Card at Bottom (inside modal) -->
+                        <template x-if="openProduct && openProduct.name">
+                            <div class="mt-3 p-3 flex items-center gap-3 rounded-xl shadow-lg" style="background-color: rgba(255,255,255,0.97);">
+                                <div class="w-12 h-12 rounded-lg overflow-hidden shrink-0" style="background-color:#f3f4f6;">
+                                    <template x-if="openProduct.image">
+                                        <img :src="openProduct.image" class="w-full h-full object-cover" alt="">
+                                    </template>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-bold truncate" style="color:#2C2418;" x-text="openProduct.name"></p>
+                                    <p class="text-xs font-semibold mt-0.5" style="color:#6b7280;" x-text="openProduct.price"></p>
+                                </div>
+                                <a :href="openProduct.url"
+                                   class="px-5 py-2.5 text-white text-xs font-bold rounded-lg hover:opacity-90 transition whitespace-nowrap"
+                                   style="background-color:#2C2418;">Shop Now</a>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
         </div>
     </div>
-
-    <!-- Video Popup -->
-    <template x-if="openVideo">
-        <div x-transition.opacity @click.self="openVideo = null; openUrl = ''" @keydown.escape.window="openVideo = null; openUrl = ''" class="fixed inset-0 z-[300] bg-black/90 flex items-center justify-center p-4">
-            <div class="relative w-full max-w-sm" @click.stop>
-                <button @click="openVideo = null; openUrl = ''" class="absolute -top-10 right-0 z-10 w-8 h-8 bg-white/20 hover:bg-white/40 rounded-full flex items-center justify-center text-white">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-                <div class="aspect-[9/16] bg-black rounded-2xl overflow-hidden">
-                    <iframe class="w-full h-full" :src="openUrl" frameborder="0" allow="autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                </div>
-                <!-- Product Card -->
-                @foreach($videoTestimonials as $vt)
-                @if($vt->product)
-                <div x-show="openVideo === {{ $vt->id }}" class="mt-3 p-3 flex items-center gap-3 bg-white rounded-xl">
-                    @php $prodImg = $vt->product->primary_image_url; @endphp
-                    <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 shrink-0">
-                        @if($prodImg)<img src="{{ $prodImg }}" class="w-full h-full object-cover">@endif
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-bold text-espresso-700 truncate">{{ $vt->product->name }}</p>
-                        <p class="text-xs text-espresso-500">₹{{ number_format($vt->product->selling_price) }}</p>
-                    </div>
-                    <a href="{{ route('products.show', $vt->product->slug) }}" class="px-4 py-2 text-white text-[10px] font-bold rounded-lg hover:opacity-90 transition" style="background-color:#2C2418">Shop Now</a>
-                </div>
-                @endif
-                @endforeach
-            </div>
-        </div>
-    </template>
 </section>
 @endif
 
