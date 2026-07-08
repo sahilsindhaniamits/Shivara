@@ -69,7 +69,6 @@ Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
-    Route::post('/login/phone', [LoginController::class, 'loginWithPhone'])->name('login.phone');
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
 });
