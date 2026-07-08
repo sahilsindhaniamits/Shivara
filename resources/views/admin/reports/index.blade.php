@@ -206,7 +206,18 @@ function revenueChart() {
         period: '{{ $period }}',
         chart: null,
         init() {
-            this.renderChart(@json($revenueData));
+            // Wait for Chart.js to load
+            let self = this;
+            let attempts = 0;
+            function tryRender() {
+                if (typeof Chart !== 'undefined') {
+                    self.renderChart(@json($revenueData));
+                } else if (attempts < 20) {
+                    attempts++;
+                    setTimeout(tryRender, 200);
+                }
+            }
+            tryRender();
         },
         changePeriod(p) {
             this.period = p;
