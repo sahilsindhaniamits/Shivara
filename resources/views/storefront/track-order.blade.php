@@ -105,21 +105,21 @@
                         <span class="text-espresso-400">Subtotal</span>
                         <span class="text-espresso-700">₹{{ number_format($order->subtotal) }}</span>
                     </div>
-                    @if($order->shipping_charge > 0)
                     <div class="flex justify-between text-sm">
                         <span class="text-espresso-400">Shipping ({{ ucfirst($order->shipping_method ?? 'Standard') }})</span>
-                        <span class="text-espresso-700">₹{{ number_format($order->shipping_charge) }}</span>
+                        <span class="{{ $order->shipping_charge > 0 ? 'text-espresso-700' : 'text-green-600 font-semibold' }}">{{ $order->shipping_charge > 0 ? '₹' . number_format($order->shipping_charge) : 'FREE' }}</span>
                     </div>
-                    @else
-                    <div class="flex justify-between text-sm">
-                        <span class="text-espresso-400">Shipping</span>
-                        <span class="text-green-600 font-semibold">FREE</span>
-                    </div>
-                    @endif
                     @if($order->discount > 0)
                     <div class="flex justify-between text-sm">
                         <span class="text-espresso-400">Discount</span>
                         <span class="text-green-600">-₹{{ number_format($order->discount) }}</span>
+                    </div>
+                    @endif
+                    @php $codCharge = $order->total_amount - $order->subtotal + $order->discount - $order->shipping_charge; @endphp
+                    @if($codCharge > 0)
+                    <div class="flex justify-between text-sm">
+                        <span class="text-espresso-400">COD Charges</span>
+                        <span class="text-espresso-700">₹{{ number_format($codCharge) }}</span>
                     </div>
                     @endif
                     <div class="flex justify-between pt-2 border-t border-gray-100">
