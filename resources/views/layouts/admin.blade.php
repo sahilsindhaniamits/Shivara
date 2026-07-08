@@ -10,7 +10,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { theme: { extend: {
-            colors: { brand: { 50:'#fdf8f0',100:'#f9eddb',500:'#d4862e',600:'#c06d22',700:'#9f531f' }, dark: { DEFAULT:'#0f172a',light:'#1e293b' } },
+            colors: { brand: { 50:'#fdf8f0',100:'#f9eddb',200:'#f5e6d0',300:'#e8c98a',400:'#d4a94e',500:'#B7925C',600:'#9a7840',700:'#7a5a30' }, dark: { DEFAULT:'#2C2418',light:'#3d3224' } },
             fontFamily: { sans: ['Inter','system-ui','sans-serif'] }
         }}}
     </script>
@@ -20,9 +20,11 @@
 <body class="bg-slate-50 min-h-screen" x-data="{ sidebar: true, mobileSidebar: false }">
 <div class="flex">
     <!-- Sidebar -->
-    <aside :class="sidebar ? 'w-64' : 'w-[72px]'" class="fixed inset-y-0 left-0 bg-dark z-50 transition-all duration-300 hidden lg:block overflow-hidden">
-        <div class="p-5 flex items-center gap-3 border-b border-white/5">
-            <div class="w-9 h-9 bg-brand-600 rounded-lg flex items-center justify-center text-white font-extrabold text-sm shrink-0">S</div>
+    <aside :class="sidebar ? 'w-64' : 'w-[72px]'" class="fixed inset-y-0 left-0 z-50 transition-all duration-300 hidden lg:block overflow-hidden" style="background-color:#2C2418">
+        <div class="p-5 flex items-center gap-3 border-b border-white/10">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 overflow-hidden" style="background-color:#B7925C">
+                <img src="/public/shivaralogo.png" alt="S" class="w-7 h-7 object-contain" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\'text-white font-extrabold text-sm\'>S</span>'">
+            </div>
             <span x-show="sidebar" class="text-white font-bold text-sm tracking-wide">Shivara Admin</span>
         </div>
         <nav class="p-3 space-y-0.5 mt-2 overflow-y-auto" style="max-height: calc(100vh - 180px);">
@@ -41,19 +43,19 @@
                 ['route'=>'admin.marquee.index','icon'=>'M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z','label'=>'Announcement'],
             ]; @endphp
             @foreach($nav as $item)
-            <a href="{{ route($item['route']) }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition {{ request()->routeIs(str_replace('.index','',$item['route']).'*') ? 'bg-white/10 text-white font-semibold' : 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+            <a href="{{ route($item['route']) }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition {{ request()->routeIs(str_replace('.index','',$item['route']).'*') ? 'text-white font-semibold' : 'text-white/60 hover:text-white hover:bg-white/5' }}" @if(request()->routeIs(str_replace('.index','',$item['route']).'*')) style="background-color:#B7925C" @endif>
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="{{ $item['icon'] }}"/></svg>
                 <span x-show="sidebar">{{ $item['label'] }}</span>
             </a>
             @endforeach
         </nav>
-        <div class="absolute bottom-0 left-0 right-0 p-3 border-t border-white/5">
-            <a href="{{ route('home') }}" target="_blank" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-white/5 transition">
+        <div class="absolute bottom-0 left-0 right-0 p-3 border-t border-white/10">
+            <a href="{{ route('home') }}" target="_blank" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                 <span x-show="sidebar">View Store</span>
             </a>
             <form method="POST" action="{{ route('logout') }}">@csrf
-                <button type="submit" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-400 hover:text-red-400 hover:bg-white/5 transition w-full">
+                <button type="submit" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/60 hover:text-red-400 hover:bg-white/5 transition w-full">
                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                     <span x-show="sidebar">Logout</span>
                 </button>
@@ -77,7 +79,7 @@
                 </div>
                 <div class="flex items-center gap-3">
                     <span class="text-sm text-slate-500 hidden sm:block">{{ auth()->user()->name }}</span>
-                    <a href="{{ route('admin.profile') }}" class="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center text-brand-700 text-sm font-bold hover:ring-2 hover:ring-brand-300 transition cursor-pointer" title="Profile Settings">{{ substr(auth()->user()->name, 0, 1) }}</a>
+                    <a href="{{ route('admin.profile') }}" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold hover:ring-2 hover:ring-brand-300 transition cursor-pointer text-white" style="background-color:#B7925C" title="Profile Settings">{{ substr(auth()->user()->name, 0, 1) }}</a>
                 </div>
             </div>
         </header>
