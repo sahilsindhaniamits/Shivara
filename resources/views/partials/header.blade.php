@@ -47,6 +47,7 @@
                 </div>
                 <a href="{{ route('contact') }}" class="text-[12px] font-bold uppercase tracking-[0.2em] text-espresso-600 hover:text-gold-600 transition">Contact</a>
                 <a href="{{ route('blog.index') }}" class="text-[12px] font-bold uppercase tracking-[0.2em] text-espresso-600 hover:text-gold-600 transition">Blog</a>
+                <a href="{{ route('track.order') }}" class="text-[12px] font-bold uppercase tracking-[0.2em] text-espresso-600 hover:text-gold-600 transition">Track Order</a>
             </nav>
 
             <!-- Logo -->
@@ -94,6 +95,7 @@
             <a href="{{ route('home') }}" class="block px-4 py-4 text-base font-medium text-espresso-700 border-b border-gold-100">Home</a>
             <a href="{{ route('products.index') }}" class="block px-4 py-4 text-base font-medium text-espresso-700 border-b border-gold-100">All Products</a>
             <a href="{{ route('contact') }}" class="block px-4 py-4 text-base font-medium text-espresso-700 border-b border-gold-100">Contact</a>
+            <a href="{{ route('track.order') }}" class="block px-4 py-4 text-base font-medium text-espresso-700 border-b border-gold-100">Track Order</a>
             @guest
             <a href="{{ route('login') }}" class="block px-4 py-4 text-base font-bold text-gold-600 border-b border-gold-100">Login / Register</a>
             @else

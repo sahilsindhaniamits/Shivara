@@ -11,6 +11,12 @@
             <h1 class="text-2xl font-bold text-gray-900">Orders</h1>
             <p class="text-sm text-gray-500">{{ $orders->total() }} total orders</p>
         </div>
+        <div class="flex items-center gap-3">
+            <a href="{{ route('admin.orders.create') }}" class="px-5 py-2.5 text-white text-sm font-bold rounded-xl hover:opacity-90 transition flex items-center gap-2 shadow-sm" style="background-color:#B7925C">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Add Order
+            </a>
+        </div>
         <div class="flex items-center gap-2">
             <a href="{{ route('admin.orders.index', ['status' => 'pending']) }}" class="px-3 py-1.5 text-xs font-bold rounded-lg {{ request('status') == 'pending' ? 'text-white' : 'bg-amber-50 text-amber-700 hover:bg-amber-100' }} transition" {{ request('status') == 'pending' ? 'style=background-color:#B08840' : '' }}>
                 Pending
