@@ -75,6 +75,25 @@ class OrderController extends Controller
         return view('admin.orders.invoice', compact('order'));
     }
 
+    public function updateTracking(Request $request, Order $order)
+    {
+        $order->update([
+            'courier_name' => $request->courier_name,
+            'tracking_number' => $request->tracking_number,
+            'tracking_url' => $request->tracking_url,
+            'awb_number' => $request->tracking_number,
+        ]);
+
+        if ($request->tracking_number) {
+            $order->timeline()->create([
+                'status' => $order->status,
+                'message' => 'Tracking updated: ' . ($request->courier_name ?? '') . ' - ' . $request->tracking_number,
+            ]);
+        }
+
+        return back()->with('success', 'Tracking information updated.');
+    }
+
     public function updateStatus(Request $request, Order $order)
     {
         $request->validate([
