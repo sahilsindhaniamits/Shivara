@@ -76,7 +76,7 @@
                 </div>
                 <div class="flex items-center gap-3">
                     <span class="text-sm text-slate-500 hidden sm:block">{{ auth()->user()->name }}</span>
-                    <div class="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center text-brand-700 text-sm font-bold">{{ substr(auth()->user()->name, 0, 1) }}</div>
+                    <a href="{{ route('admin.profile') }}" class="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center text-brand-700 text-sm font-bold hover:ring-2 hover:ring-brand-300 transition cursor-pointer" title="Profile Settings">{{ substr(auth()->user()->name, 0, 1) }}</a>
                 </div>
             </div>
         </header>
