@@ -77,10 +77,10 @@ class OrderController extends Controller
 
         $order->update(['status' => $request->status]);
 
-        // Update related timestamps
+        // Update related timestamps and payment status
         match ($request->status) {
             'shipped' => $order->update(['shipped_at' => now()]),
-            'delivered' => $order->update(['delivered_at' => now()]),
+            'delivered' => $order->update(['delivered_at' => now(), 'payment_status' => 'paid', 'paid_at' => now()]),
             'cancelled' => $order->update(['cancelled_at' => now()]),
             default => null,
         };
