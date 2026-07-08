@@ -106,27 +106,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Timeline -->
-        @if($order->timeline && $order->timeline->count())
-        <div class="bg-white p-6 rounded-2xl border border-gold-100 shadow-sm">
-            <h3 class="text-sm font-bold text-espresso-700 mb-4">Order Activity</h3>
-            <div class="space-y-4">
-                @foreach($order->timeline as $event)
-                <div class="flex gap-3">
-                    <div class="flex flex-col items-center">
-                        <div class="w-3 h-3 rounded-full bg-gold-400"></div>
-                        @if(!$loop->last)<div class="w-0.5 flex-1 bg-gold-100 mt-1"></div>@endif
-                    </div>
-                    <div class="pb-4">
-                        <p class="text-sm text-espresso-700">{{ $event->message }}</p>
-                        <p class="text-[10px] text-espresso-300 mt-0.5">{{ $event->created_at->format('d M Y, h:i A') }}</p>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </div>
-        @endif
     </div>
 
     @elseif(request('order_number'))

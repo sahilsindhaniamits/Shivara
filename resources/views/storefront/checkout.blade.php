@@ -133,7 +133,7 @@
                         <div class="flex gap-3">
                             <div class="w-12 h-12 bg-gray-50 rounded-lg shrink-0 overflow-hidden">
                                 @if($item->product->primaryImage)
-                                <img src="{{ $item->product->primaryImage->url }}" class="w-full h-full object-cover">
+                                <img src="{{ str_starts_with($item->product->primaryImage->url, '/storage/') ? '/public' . $item->product->primaryImage->url : $item->product->primaryImage->url }}" class="w-full h-full object-cover">
                                 @endif
                             </div>
                             <div class="flex-1 min-w-0">
