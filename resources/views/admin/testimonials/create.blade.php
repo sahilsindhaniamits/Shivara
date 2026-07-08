@@ -60,6 +60,12 @@
             </div>
 
             <div>
+                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Video File <span class="text-gray-400">(MP4 - for autoplay in cards)</span></label>
+                <input type="file" name="video_file" accept="video/mp4,video/webm" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm">
+                <p class="text-[10px] text-gray-400 mt-1">Upload a short MP4 clip (5-15 sec, under 10MB). This will autoplay silently in the card. Recommended for best experience.</p>
+            </div>
+
+            <div>
                 <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Thumbnail Image <span class="text-gray-400">(optional - auto-generated for YouTube)</span></label>
                 <input type="file" name="thumbnail" accept="image/*" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm">
                 <p class="text-[10px] text-gray-400 mt-1">Upload a screenshot/photo of the customer. If left blank and video is YouTube, thumbnail will be auto-generated.</p>

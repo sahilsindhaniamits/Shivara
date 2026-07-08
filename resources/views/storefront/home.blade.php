@@ -377,7 +377,7 @@
         <div class="text-center mb-10">
             <h2 class="font-display text-3xl md:text-4xl font-bold text-espresso-700">Real Customers, Real Reviews</h2>
         </div>
-        <div class="flex gap-3 overflow-x-auto scrollbar-hide pb-4">
+        <div class="flex gap-4 overflow-x-auto scrollbar-hide pb-6 px-2">
             @foreach($videoTestimonials as $vt)
             <div @click="
                 @if($vt->video_type === 'instagram')
@@ -386,8 +386,14 @@
                     openVideo = {{ $vt->id }}; openUrl = '{{ $vt->video_type === 'youtube' ? 'https://www.youtube.com/embed/' . $vt->embed_url . '?autoplay=1&rel=0&modestbranding=1' : $vt->embed_url }}'
                 @endif
             " class="shrink-0 w-[160px] sm:w-[190px] md:w-[220px] cursor-pointer group">
-                <div class="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-200 border-2 border-transparent group-hover:border-espresso-700 group-hover:shadow-2xl group-hover:scale-[1.03] transition-all duration-300">
+                <div class="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-200 border-2 border-gray-200 group-hover:border-espresso-700 shadow-md group-hover:shadow-2xl transition-all duration-300">
+                    @if($vt->video_file)
+                    <video autoplay muted loop playsinline class="w-full h-full object-cover" poster="{{ $vt->thumbnail_url }}">
+                        <source src="{{ str_starts_with($vt->video_file, '/storage/') ? '/public' . $vt->video_file : $vt->video_file }}" type="video/mp4">
+                    </video>
+                    @else
                     <img src="{{ $vt->thumbnail_url }}" alt="{{ $vt->customer_name }}" class="w-full h-full object-cover">
+                    @endif
                 </div>
                 <div class="mt-2 px-1">
                     @if($vt->product)
