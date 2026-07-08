@@ -61,11 +61,11 @@
             <span class="font-medium" style="color:#2C2418;">{{ $product->name }}</span>
         </nav>
 
-        <div class="grid lg:grid-cols-12 gap-8 lg:gap-12">
-            <!-- LEFT: Image Gallery (7 cols) -->
-            <div class="lg:col-span-7 space-y-4">
+        <div class="grid lg:grid-cols-2 gap-8 lg:gap-12">
+            <!-- LEFT: Image Gallery -->
+            <div class="space-y-4">
                 <!-- Main Image -->
-                <div @click="lightbox = true" class="relative rounded-3xl overflow-hidden cursor-zoom-in group" style="background-color:#f8f5f0; aspect-ratio: 4/5;" x-init="initSwipe($el, () => img = (img+1) % {{ $product->images->count() ?: 1 }}, () => img = (img-1+{{ $product->images->count() ?: 1 }}) % {{ $product->images->count() ?: 1 }})">
+                <div @click="lightbox = true" class="relative rounded-3xl overflow-hidden cursor-zoom-in group" style="background-color:#f8f5f0; aspect-ratio: 1/1;" x-init="initSwipe($el, () => img = (img+1) % {{ $product->images->count() ?: 1 }}, () => img = (img-1+{{ $product->images->count() ?: 1 }}) % {{ $product->images->count() ?: 1 }})">
                     @if($product->images->count())
                         @foreach($product->images as $i => $image)
                         <img x-show="img === {{ $i }}" x-transition.opacity.duration.500ms src="{{ str_starts_with($image->url, '/storage/') ? '/public' . $image->url : $image->url }}" alt="{{ $product->name }}" class="w-full h-full object-cover absolute inset-0 transition-transform duration-700 group-hover:scale-105">
@@ -113,8 +113,8 @@
             </div>
 
 
-            <!-- RIGHT: Product Info (5 cols) - Sticky -->
-            <div class="lg:col-span-5 lg:sticky lg:top-[90px] lg:self-start space-y-6">
+            <!-- RIGHT: Product Info - Sticky -->
+            <div class="lg:sticky lg:top-[90px] lg:self-start space-y-5">
                 <!-- Category Badge -->
                 @if($product->category)
                 <div><span class="inline-block px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full border" style="color:#B7925C; border-color:#B7925C;">{{ $product->category->name }}</span></div>
@@ -125,14 +125,14 @@
 
                 <!-- Rating + Reviews Count -->
                 <div class="flex items-center gap-3 flex-wrap">
-                    <div class="flex items-center gap-1">
+                    <div class="flex items-center gap-0.5">
                         @for($s = 1; $s <= 5; $s++)
-                        <svg class="w-4.5 h-4.5 {{ $s <= round($avgRating) ? 'fill-amber-400 text-amber-400' : 'fill-gray-200 text-gray-200' }}" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg class="w-5 h-5" style="{{ $s <= round($avgRating) ? 'color:#f59e0b; fill:#f59e0b;' : 'color:#e5e7eb; fill:#e5e7eb;' }}" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                         @endfor
                     </div>
-                    <span class="text-sm font-medium" style="color:#2C2418;">{{ number_format($avgRating, 1) }}</span>
+                    <span class="text-sm font-bold" style="color:#2C2418;">{{ number_format($avgRating, 1) }}</span>
                     <span class="text-xs" style="color:#6b7280;">({{ $reviewCount }} reviews)</span>
-                    <span class="text-xs font-bold uppercase px-2 py-0.5 rounded-full {{ $product->stock > 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600' }}">{{ $product->stock > 0 ? 'In Stock' : 'Sold Out' }}</span>
+                    <span class="text-xs font-bold uppercase px-2.5 py-1 rounded-full" style="{{ $product->stock > 0 ? 'background-color:#dcfce7; color:#166534;' : 'background-color:#fef2f2; color:#dc2626;' }}">{{ $product->stock > 0 ? '✓ In Stock' : '✗ Sold Out' }}</span>
                 </div>
 
                 <!-- Short Description -->
@@ -292,13 +292,13 @@
             <span class="text-[11px] font-bold uppercase tracking-[0.3em]" style="color:#B7925C;">Powered by Nature</span>
             <h2 class="font-display text-3xl md:text-4xl font-bold mt-2" style="color:#2C2418;">Key Ingredients</h2>
         </div>
-        <div class="flex gap-5 overflow-x-auto scrollbar-hide pb-4 justify-center flex-wrap">
+        <div class="flex gap-8 overflow-x-auto scrollbar-hide pb-4 justify-center flex-wrap">
             @foreach(array_slice(explode(',', $product->ingredients), 0, 8) as $ingredient)
             <div class="shrink-0 text-center">
-                <div class="w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-3 border-2" style="background-color: rgba(183,146,92,0.05); border-color: rgba(183,146,92,0.3);">
-                    <span class="text-2xl">🌿</span>
+                <div class="w-14 h-14 mx-auto rounded-full flex items-center justify-center mb-3 border" style="background-color: rgba(183,146,92,0.05); border-color: rgba(183,146,92,0.25);">
+                    <span class="text-lg">🌿</span>
                 </div>
-                <p class="text-xs font-bold" style="color:#2C2418;">{{ trim($ingredient) }}</p>
+                <p class="text-sm font-semibold" style="color:#2C2418;">{{ trim($ingredient) }}</p>
             </div>
             @endforeach
         </div>
