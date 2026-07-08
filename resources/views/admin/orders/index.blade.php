@@ -63,7 +63,7 @@
     <div x-show="selected.length > 0" x-cloak class="bg-slate-800 text-white px-5 py-3 rounded-xl flex items-center justify-between shadow-lg">
         <span class="text-sm font-medium"><span x-text="selected.length"></span> order(s) selected</span>
         <div class="flex items-center gap-2">
-            <select x-model="bulkStatus" class="px-3 py-1.5 bg-white/10 text-white text-xs rounded-lg border border-white/20">
+            <select x-model="bulkStatus" class="px-3 py-1.5 bg-white text-gray-900 text-xs rounded-lg border border-white/20">
                 <option value="">Change Status...</option>
                 <option value="confirmed">Confirmed</option>
                 <option value="processing">Processing</option>
