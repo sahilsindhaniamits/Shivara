@@ -379,51 +379,15 @@
         </div>
 
         <!-- Auto-sliding Carousel -->
-        <div x-data="{
-            scrollEl: null,
-            autoSlide: null,
-            paused: false,
-            openVideo: null,
-            openUrl: '',
-            openProduct: null,
-            muted: true,
-            startAutoSlide() {
-                this.autoSlide = setInterval(() => {
-                    if (!this.paused && this.scrollEl) {
-                        const maxScroll = this.scrollEl.scrollWidth - this.scrollEl.clientWidth;
-                        if (this.scrollEl.scrollLeft >= maxScroll - 10) {
-                            this.scrollEl.scrollTo({ left: 0, behavior: 'smooth' });
-                        } else {
-                            this.scrollEl.scrollBy({ left: 200, behavior: 'smooth' });
-                        }
-                    }
-                }, 3000);
-            },
-            stopAutoSlide() {
-                if (this.autoSlide) { clearInterval(this.autoSlide); this.autoSlide = null; }
-            },
-            openModal(id, url, product) {
-                this.openVideo = id;
-                this.openUrl = url;
-                this.openProduct = product;
-                this.muted = false;
-            },
-            closeModal() {
-                this.openVideo = null;
-                this.openUrl = '';
-                this.openProduct = null;
-                this.muted = true;
-            }
-        }" x-init="scrollEl = $refs.carousel; startAutoSlide()">
+        <div x-data="videoTestimonials()" x-init="init()">
 
             <div class="relative">
                 <div x-ref="carousel"
                      @mouseenter="paused = true"
                      @mouseleave="paused = false"
-                     @touchstart="paused = true"
-                     @touchend="setTimeout(() => paused = false, 5000)"
-                     class="flex gap-4 overflow-x-auto pb-6 px-2" style="scrollbar-width: none; -ms-overflow-style: none;">
-                    <style>.vtc-scroll::-webkit-scrollbar { display: none; }</style>
+                     @touchstart.passive="paused = true"
+                     @touchend.passive="setTimeout(() => paused = false, 5000)"
+                     class="flex gap-4 overflow-x-auto pb-6 px-2 vtc-hide-scrollbar">
 
                     @foreach($videoTestimonials as $vt)
                     <div @click="
@@ -433,8 +397,8 @@
                             openModal({{ $vt->id }}, '{{ $vt->video_type === 'youtube' ? 'https://www.youtube.com/embed/' . $vt->embed_url . '?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1' : $vt->embed_url }}', {{ json_encode(['name' => $vt->product?->name, 'price' => $vt->product ? '₹' . number_format($vt->product->selling_price) : null, 'image' => $vt->product?->primary_image_url, 'url' => $vt->product ? route('products.show', $vt->product->slug) : null]) }})
                         @endif
                     " class="shrink-0 w-[155px] sm:w-[180px] md:w-[200px] cursor-pointer group transition-transform duration-300 hover:scale-105">
-                        <div class="relative aspect-[9/16] rounded-2xl overflow-hidden bg-gray-200 shadow-md group-hover:shadow-2xl transition-all duration-300" style="border: 2px solid #e5e7eb;">
-                            {{-- Use thumbnail image for all cards (no iframes) to avoid YouTube controls showing --}}
+                        <div class="relative aspect-[9/16] rounded-2xl overflow-hidden shadow-md group-hover:shadow-2xl transition-all duration-300" style="border: 2px solid #e5e7eb; background-color: #1a1a1a;">
+                            {{-- Only thumbnail images in cards - no iframes, no play button overlays --}}
                             @if($vt->video_file)
                             <video autoplay muted loop playsinline class="w-full h-full object-cover" poster="{{ $vt->thumbnail_url }}">
                                 <source src="{{ str_starts_with($vt->video_file, '/storage/') ? '/public' . $vt->video_file : $vt->video_file }}" type="video/mp4">
@@ -459,70 +423,122 @@
                     @endforeach
                 </div>
             </div>
-
-            <!-- Video Modal Popup (Competitor-style: contained, not fullscreen) -->
-            <template x-if="openVideo">
-                <div x-transition:enter="transition ease-out duration-200"
-                     x-transition:enter-start="opacity-0"
-                     x-transition:enter-end="opacity-100"
-                     x-transition:leave="transition ease-in duration-150"
-                     x-transition:leave-start="opacity-100"
-                     x-transition:leave-end="opacity-0"
-                     @click.self="closeModal()"
-                     @keydown.escape.window="closeModal()"
-                     class="fixed inset-0 z-[300] flex items-center justify-center p-4"
-                     style="background-color: rgba(0,0,0,0.75);">
-
-                    <div class="relative w-full max-w-[380px]" style="max-height: 90vh;" @click.stop>
-                        <!-- Close Button (top-right inside) -->
-                        <button @click="closeModal()"
-                                class="absolute top-3 right-3 z-20 w-9 h-9 rounded-full flex items-center justify-center transition hover:scale-110"
-                                style="background-color: rgba(255,255,255,0.9);">
-                            <svg class="w-5 h-5" style="color:#2C2418;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-                        </button>
-
-                        <!-- Mute/Unmute Toggle (top-left inside) -->
-                        <button @click="muted = !muted; if($refs.modalIframe) { let src = $refs.modalIframe.src; $refs.modalIframe.src = src.replace(/mute=[01]/, 'mute=' + (muted ? '1' : '0')); }"
-                                class="absolute top-3 left-3 z-20 w-9 h-9 rounded-full flex items-center justify-center transition hover:scale-110"
-                                style="background-color: rgba(255,255,255,0.9);">
-                            <template x-if="!muted">
-                                <svg class="w-5 h-5" style="color:#2C2418;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9M6 9H3v6h3l5 5V4L6 9z"/></svg>
-                            </template>
-                            <template x-if="muted">
-                                <svg class="w-5 h-5" style="color:#2C2418;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707A1 1 0 0112 5v14a1 1 0 01-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/></svg>
-                            </template>
-                        </button>
-
-                        <!-- Video Container with Product Card overlaid at bottom -->
-                        <div class="relative rounded-2xl overflow-hidden shadow-2xl" style="background-color:#000; aspect-ratio: 9/16; max-height: 85vh;">
-                            <iframe x-ref="modalIframe" class="w-full h-full absolute inset-0" :src="openUrl" frameborder="0" allow="autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
-                            <!-- Product Card overlaid at bottom of video (inside the frame) -->
-                            <template x-if="openProduct && openProduct.name">
-                                <div class="absolute bottom-0 left-0 right-0 z-10 p-3">
-                                    <div class="p-3 flex items-center gap-3 rounded-xl" style="background-color: rgba(255,255,255,0.95); backdrop-filter: blur(8px);">
-                                        <div class="w-11 h-11 rounded-lg overflow-hidden shrink-0" style="background-color:#f3f4f6;">
-                                            <template x-if="openProduct.image">
-                                                <img :src="openProduct.image" class="w-full h-full object-cover" alt="">
-                                            </template>
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-sm font-bold truncate" style="color:#2C2418;" x-text="openProduct.name"></p>
-                                            <p class="text-xs font-semibold mt-0.5" style="color:#6b7280;" x-text="openProduct.price"></p>
-                                        </div>
-                                        <a :href="openProduct.url"
-                                           class="px-4 py-2.5 text-white text-xs font-bold rounded-lg hover:opacity-90 transition whitespace-nowrap"
-                                           style="background-color:#2C2418;">Shop Now</a>
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-                </div>
-            </template>
         </div>
     </div>
 </section>
+
+{{-- Video Modal - placed OUTSIDE the section to avoid z-index/overflow issues --}}
+<div x-data="videoTestimonialModal()" x-show="open" x-cloak
+     style="display:none;"
+     class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+     @keydown.escape.window="close()">
+    {{-- Backdrop --}}
+    <div class="absolute inset-0" style="background-color: rgba(0,0,0,0.8);" @click="close()"></div>
+
+    {{-- Modal Content --}}
+    <div class="relative w-full max-w-[360px] mx-auto" @click.stop>
+        <!-- Close Button -->
+        <button @click="close()"
+                class="absolute top-3 right-3 z-30 w-9 h-9 rounded-full flex items-center justify-center"
+                style="background-color: rgba(255,255,255,0.9);">
+            <svg class="w-5 h-5" style="color:#2C2418;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+
+        <!-- Mute/Unmute Toggle -->
+        <button @click="toggleMute()"
+                class="absolute top-3 left-3 z-30 w-9 h-9 rounded-full flex items-center justify-center"
+                style="background-color: rgba(255,255,255,0.9);">
+            <svg x-show="!muted" class="w-5 h-5" style="color:#2C2418;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9M6 9H3v6h3l5 5V4L6 9z"/></svg>
+            <svg x-show="muted" class="w-5 h-5" style="color:#2C2418;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707A1 1 0 0112 5v14a1 1 0 01-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/></svg>
+        </button>
+
+        <!-- Video Frame -->
+        <div class="relative rounded-2xl overflow-hidden shadow-2xl" style="background-color:#000; aspect-ratio: 9/16; max-height: 80vh;">
+            <iframe x-ref="vtFrame" class="absolute inset-0 w-full h-full" :src="videoUrl" frameborder="0" allow="autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+            <!-- Product Card overlaid at bottom inside video -->
+            <div x-show="product && product.name" class="absolute bottom-0 left-0 right-0 z-20 p-3">
+                <div class="flex items-center gap-3 p-3 rounded-xl" style="background-color: rgba(255,255,255,0.95); backdrop-filter: blur(10px);">
+                    <div class="w-11 h-11 rounded-lg overflow-hidden shrink-0" style="background-color:#f3f4f6;">
+                        <img x-show="product && product.image" :src="product ? product.image : ''" class="w-full h-full object-cover" alt="">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-bold truncate" style="color:#2C2418;" x-text="product ? product.name : ''"></p>
+                        <p class="text-xs font-semibold mt-0.5" style="color:#6b7280;" x-text="product ? product.price : ''"></p>
+                    </div>
+                    <a :href="product ? product.url : '#'"
+                       class="px-4 py-2.5 text-white text-xs font-bold rounded-lg whitespace-nowrap"
+                       style="background-color:#2C2418;">Shop Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.vtc-hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.vtc-hide-scrollbar::-webkit-scrollbar { display: none; }
+</style>
+
+<script>
+document.addEventListener('alpine:init', () => {
+    // Carousel auto-slide
+    Alpine.data('videoTestimonials', () => ({
+        paused: false,
+        autoSlideInterval: null,
+        init() {
+            this.startAutoSlide();
+        },
+        startAutoSlide() {
+            this.autoSlideInterval = setInterval(() => {
+                if (!this.paused && this.$refs.carousel) {
+                    const el = this.$refs.carousel;
+                    const maxScroll = el.scrollWidth - el.clientWidth;
+                    if (el.scrollLeft >= maxScroll - 10) {
+                        el.scrollTo({ left: 0, behavior: 'smooth' });
+                    } else {
+                        el.scrollBy({ left: 200, behavior: 'smooth' });
+                    }
+                }
+            }, 3000);
+        },
+        openModal(id, url, product) {
+            window.dispatchEvent(new CustomEvent('open-video-modal', { detail: { id, url, product } }));
+        }
+    }));
+
+    // Modal (separate from section, avoids z-index issues)
+    Alpine.data('videoTestimonialModal', () => ({
+        open: false,
+        videoUrl: '',
+        product: null,
+        muted: false,
+        init() {
+            window.addEventListener('open-video-modal', (e) => {
+                this.videoUrl = e.detail.url;
+                this.product = e.detail.product;
+                this.muted = false;
+                this.open = true;
+                document.body.style.overflow = 'hidden';
+            });
+        },
+        close() {
+            this.open = false;
+            this.videoUrl = '';
+            this.product = null;
+            document.body.style.overflow = '';
+        },
+        toggleMute() {
+            this.muted = !this.muted;
+            if (this.$refs.vtFrame) {
+                let src = this.$refs.vtFrame.src;
+                src = src.replace(/mute=[01]/, 'mute=' + (this.muted ? '1' : '0'));
+                this.$refs.vtFrame.src = src;
+            }
+        }
+    }));
+});
+</script>
 @endif
 
 <!-- Customer Reviews Slider -->
