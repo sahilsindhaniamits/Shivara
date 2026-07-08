@@ -379,7 +379,13 @@
         </div>
         <div class="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide pb-4">
             @foreach($videoTestimonials as $vt)
-            <div @click="openVideo = {{ $vt->id }}; openUrl = '{{ $vt->video_type === 'youtube' ? 'https://www.youtube.com/embed/' . $vt->embed_url . '?autoplay=1&rel=0&modestbranding=1' : $vt->embed_url }}'" class="shrink-0 w-[150px] sm:w-[180px] md:w-[200px] cursor-pointer group">
+            <div @click="
+                @if($vt->video_type === 'instagram')
+                    window.open('{{ $vt->video_url }}', '_blank')
+                @else
+                    openVideo = {{ $vt->id }}; openUrl = '{{ $vt->video_type === 'youtube' ? 'https://www.youtube.com/embed/' . $vt->embed_url . '?autoplay=1&rel=0&modestbranding=1' : $vt->embed_url }}'
+                @endif
+            " class="shrink-0 w-[150px] sm:w-[180px] md:w-[200px] cursor-pointer group">
                 <div class="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-200">
                     <img src="{{ $vt->thumbnail_url }}" alt="{{ $vt->customer_name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
