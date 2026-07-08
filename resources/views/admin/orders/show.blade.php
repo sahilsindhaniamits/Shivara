@@ -20,7 +20,20 @@
                 <div class="space-y-4">
                     @foreach($order->items as $item)
                     <div class="flex items-center gap-4 py-3 border-b border-gray-50 last:border-0">
-                        <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">🌿</div>
+                        <div class="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden shrink-0">
+                            @if($item->product && $item->product->primaryImage && $item->product->primaryImage->url)
+                            <img src="{{ str_starts_with($item->product->primaryImage->url, '/storage/') ? '/public' . $item->product->primaryImage->url : $item->product->primaryImage->url }}" class="w-full h-full object-cover" alt="">
+                            @elseif($item->product)
+                            @php $firstImg = $item->product->images()->first(); @endphp
+                            @if($firstImg)
+                            <img src="{{ str_starts_with($firstImg->url, '/storage/') ? '/public' . $firstImg->url : $firstImg->url }}" class="w-full h-full object-cover" alt="">
+                            @else
+                            <div class="w-full h-full flex items-center justify-center text-gray-300"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+                            @endif
+                            @else
+                            <div class="w-full h-full flex items-center justify-center text-lg">🌿</div>
+                            @endif
+                        </div>
                         <div class="flex-1">
                             <p class="text-sm font-medium text-gray-800">{{ $item->product_name }}</p>
                             @if($item->variant_name)<p class="text-xs text-gray-500">{{ $item->variant_name }}</p>@endif
