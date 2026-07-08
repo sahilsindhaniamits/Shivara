@@ -58,7 +58,8 @@
         <!-- Header -->
         <div class="header">
             <div class="logo">
-                <h1>SHIVARA</h1>
+                <img src="/public/shivaralogo.png" alt="Shivara" style="height: 50px; width: auto;" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+                <h1 style="display:none">SHIVARA</h1>
                 <p>Premium Ayurvedic Products</p>
             </div>
             <div class="invoice-title">
@@ -84,7 +85,6 @@
                 <h4>Order Details</h4>
                 <p>Order: <span class="highlight">{{ $order->order_number }}</span></p>
                 <p>Date: {{ $order->created_at->format('d/m/Y') }}</p>
-                <p>Payment: <span class="badge {{ $order->payment_status === 'paid' ? 'badge-paid' : 'badge-pending' }}">{{ ucfirst($order->payment_status) }}</span></p>
                 <p>Method: <span class="badge badge-cod">{{ strtoupper($order->payment_method) }}</span></p>
                 <p>Shipping: {{ ucfirst($order->shipping_method ?? 'Standard') }}</p>
             </div>
@@ -152,7 +152,6 @@
             <div>
                 <h4>Payment Information</h4>
                 <p>Method: {{ strtoupper($order->payment_method) }}</p>
-                <p>Status: {{ ucfirst($order->payment_status) }}</p>
                 @if($order->razorpay_payment_id)<p>Transaction ID: {{ $order->razorpay_payment_id }}</p>@endif
                 @if($order->paid_at)<p>Paid on: {{ $order->paid_at->format('d M Y, h:i A') }}</p>@endif
             </div>
