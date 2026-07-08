@@ -77,10 +77,16 @@ class ProductController extends Controller
 
         $product = Product::where('slug', $slug)->firstOrFail();
 
-        // Check if user already reviewed
+        // Check if user already reviewed - allow re-submission by updating
         $existing = \App\Models\Review::where('product_id', $product->id)->where('user_id', auth()->id())->first();
         if ($existing) {
-            return back()->with('error', 'You have already reviewed this product.');
+            // Update existing review instead of blocking
+            $existing->update([
+                'rating' => $request->rating,
+                'comment' => $request->comment,
+                'is_approved' => false,
+            ]);
+            return back()->with('success', 'Your review has been updated and is pending approval.');
         }
 
         // Handle image uploads

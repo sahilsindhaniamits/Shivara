@@ -416,6 +416,17 @@
     @auth
     <div class="mb-8 p-5 rounded-2xl border border-gold-100" style="background-color: #FBF7F0;">
         <h4 class="text-sm font-bold text-espresso-700 mb-3">Write a Review</h4>
+
+        @if(session('success'))
+        <div class="mb-3 px-4 py-3 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm font-medium flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            {{ session('success') }}
+        </div>
+        @endif
+        @if(session('error'))
+        <div class="mb-3 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm font-medium">{{ session('error') }}</div>
+        @endif
+
         <form method="POST" action="{{ route('products.review', $product->slug) }}" enctype="multipart/form-data" class="space-y-3" x-data="{ rating: 5 }">
             @csrf
             <div class="flex items-center gap-1">
