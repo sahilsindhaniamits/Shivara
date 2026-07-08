@@ -64,7 +64,7 @@ class OrderController extends Controller
             'discount' => $discount,
             'shipping_charge' => $shipping,
             'total_amount' => $total,
-            'shipping_method' => 'standard',
+            'shipping_method' => $request->shipping_method ?? 'standard',
             'admin_notes' => $request->admin_notes,
             'paid_at' => $isPrepaid ? now() : null,
         ]);
