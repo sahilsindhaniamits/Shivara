@@ -30,4 +30,9 @@ class HomeController extends Controller
     {
         return view('storefront.contact');
     }
+
+    public function about()
+    {
+        return view('storefront.pages.about');
+    }
 }
