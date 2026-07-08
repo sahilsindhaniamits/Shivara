@@ -85,13 +85,20 @@
         <!-- Order Settings -->
         <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
             <h2 class="text-base font-bold text-gray-900 pb-3 border-b border-gray-100">Order Settings</h2>
-            <div class="grid sm:grid-cols-3 gap-4">
+            <div class="grid sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Payment Method</label>
                     <select name="payment_method" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none">
                         <option value="cod">Cash on Delivery</option>
                         <option value="prepaid">Prepaid (Already Paid)</option>
                         <option value="razorpay">Razorpay</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Shipping Method</label>
+                    <select name="shipping_method" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none">
+                        <option value="standard">Standard (5-7 days)</option>
+                        <option value="express">Express (2-3 days)</option>
                     </select>
                 </div>
                 <div>
