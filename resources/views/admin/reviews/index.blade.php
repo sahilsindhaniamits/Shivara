@@ -10,9 +10,9 @@
             <p class="text-sm text-slate-500 mt-1">Manage customer product reviews</p>
         </div>
         <div class="flex items-center gap-2">
-            <a href="{{ route('admin.reviews.index') }}" class="px-3 py-2 text-xs font-medium rounded-lg transition {{ !request('status') ? 'text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50' }}" @if(!request('status')) style="background-color:#c06d22" @endif>All</a>
-            <a href="{{ route('admin.reviews.index', ['status' => 'pending']) }}" class="px-3 py-2 text-xs font-medium rounded-lg transition {{ request('status') === 'pending' ? 'text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50' }}" @if(request('status') === 'pending') style="background-color:#c06d22" @endif>Pending</a>
-            <a href="{{ route('admin.reviews.index', ['status' => 'approved']) }}" class="px-3 py-2 text-xs font-medium rounded-lg transition {{ request('status') === 'approved' ? 'text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50' }}" @if(request('status') === 'approved') style="background-color:#c06d22" @endif>Approved</a>
+            <a href="{{ route('admin.reviews.index') }}" class="px-3 py-2 text-xs font-medium rounded-lg transition {{ !request('status') ? 'text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50' }}" @if(!request('status')) style="background-color:#c06d22" @endif>All ({{ $totalCount }})</a>
+            <a href="{{ route('admin.reviews.index', ['status' => 'pending']) }}" class="px-3 py-2 text-xs font-medium rounded-lg transition {{ request('status') === 'pending' ? 'text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50' }}" @if(request('status') === 'pending') style="background-color:#c06d22" @endif>Pending ({{ $pendingCount }})</a>
+            <a href="{{ route('admin.reviews.index', ['status' => 'approved']) }}" class="px-3 py-2 text-xs font-medium rounded-lg transition {{ request('status') === 'approved' ? 'text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50' }}" @if(request('status') === 'approved') style="background-color:#c06d22" @endif>Approved ({{ $approvedCount }})</a>
         </div>
     </div>
 
