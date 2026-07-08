@@ -164,6 +164,9 @@ Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\AdminMiddleware
     // Blog
     Route::resource('blogs', \App\Http\Controllers\Admin\BlogController::class);
 
+    // Video Testimonials
+    Route::resource('testimonials', \App\Http\Controllers\Admin\VideoTestimonialController::class);
+
     // Profile
     Route::get('/profile', [\App\Http\Controllers\Admin\ProfileController::class, 'index'])->name('profile');
     Route::put('/profile', [\App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('profile.update');
