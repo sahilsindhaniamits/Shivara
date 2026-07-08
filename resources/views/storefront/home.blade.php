@@ -377,7 +377,7 @@
         <div class="text-center mb-10">
             <h2 class="font-display text-3xl md:text-4xl font-bold text-espresso-700">Real Customers, Real Reviews</h2>
         </div>
-        <div class="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide pb-4">
+        <div class="flex gap-3 overflow-x-auto scrollbar-hide pb-4">
             @foreach($videoTestimonials as $vt)
             <div @click="
                 @if($vt->video_type === 'instagram')
@@ -385,20 +385,19 @@
                 @else
                     openVideo = {{ $vt->id }}; openUrl = '{{ $vt->video_type === 'youtube' ? 'https://www.youtube.com/embed/' . $vt->embed_url . '?autoplay=1&rel=0&modestbranding=1' : $vt->embed_url }}'
                 @endif
-            " class="shrink-0 w-[150px] sm:w-[180px] md:w-[200px] cursor-pointer group">
-                <div class="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-200">
-                    <img src="{{ $vt->thumbnail_url }}" alt="{{ $vt->customer_name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+            " class="shrink-0 w-[160px] sm:w-[190px] md:w-[220px] cursor-pointer group">
+                <div class="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-200 border-2 border-transparent group-hover:border-espresso-700 group-hover:shadow-2xl group-hover:scale-[1.03] transition-all duration-300">
+                    <img src="{{ $vt->thumbnail_url }}" alt="{{ $vt->customer_name }}" class="w-full h-full object-cover">
                 </div>
                 <div class="mt-2 px-1">
                     @if($vt->product)
-                    <p class="text-xs font-semibold text-espresso-700 truncate">₹{{ number_format($vt->product->selling_price) }}</p>
+                    <p class="text-xs font-bold text-espresso-700">₹{{ number_format($vt->product->selling_price) }}</p>
                     @endif
-                    <div class="flex items-center gap-1 mt-0.5">
+                    <div class="flex items-center gap-0.5 mt-0.5">
                         @for($s = 1; $s <= $vt->rating; $s++)
                         <svg class="w-2.5 h-2.5 text-amber-400 fill-amber-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                         @endfor
-                        @if($vt->is_verified)<span class="text-[9px] text-gray-500 ml-1">Verified review</span>@endif
+                        <span class="text-[9px] text-gray-500 ml-1">Verified review</span>
                     </div>
                 </div>
             </div>
