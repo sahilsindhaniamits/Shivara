@@ -77,12 +77,22 @@ class OrderController extends Controller
 
         $order->update(['status' => $request->status]);
 
-        // Update related timestamps and payment status
+        // Dynamic payment status based on order status
         match ($request->status) {
+            'delivered' => $order->update([
+                'delivered_at' => now(),
+                'payment_status' => 'paid',
+                'paid_at' => now(),
+            ]),
+            'cancelled' => $order->update([
+                'cancelled_at' => now(),
+                'payment_status' => 'refunded',
+            ]),
             'shipped' => $order->update(['shipped_at' => now()]),
-            'delivered' => $order->update(['delivered_at' => now(), 'payment_status' => 'paid', 'paid_at' => now()]),
-            'cancelled' => $order->update(['cancelled_at' => now()]),
-            default => null,
+            // If moved BACK from delivered to any other status, revert payment for COD
+            default => $order->payment_method === 'cod' && $order->payment_status === 'paid'
+                ? $order->update(['payment_status' => 'pending', 'paid_at' => null])
+                : null,
         };
 
         // Add to timeline
