@@ -387,7 +387,9 @@
                 @endif
             " class="shrink-0 w-[160px] sm:w-[190px] md:w-[220px] cursor-pointer group">
                 <div class="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-200 border-2 border-gray-200 group-hover:border-espresso-700 shadow-md group-hover:shadow-2xl transition-all duration-300">
-                    @if($vt->video_file)
+                    @if($vt->video_type === 'youtube')
+                    <iframe class="w-full h-full pointer-events-none" src="https://www.youtube.com/embed/{{ $vt->embed_url }}?autoplay=1&mute=1&loop=1&playlist={{ $vt->embed_url }}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen loading="lazy"></iframe>
+                    @elseif($vt->video_file)
                     <video autoplay muted loop playsinline class="w-full h-full object-cover" poster="{{ $vt->thumbnail_url }}">
                         <source src="{{ str_starts_with($vt->video_file, '/storage/') ? '/public' . $vt->video_file : $vt->video_file }}" type="video/mp4">
                     </video>
