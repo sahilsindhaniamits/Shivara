@@ -61,9 +61,9 @@
             <span class="font-medium" style="color:#2C2418;">{{ $product->name }}</span>
         </nav>
 
-        <div class="grid lg:grid-cols-2 gap-8 lg:gap-12">
-            <!-- LEFT: Image Gallery -->
-            <div class="space-y-4">
+        <div class="grid lg:grid-cols-12 gap-8 lg:gap-12">
+            <!-- LEFT: Image Gallery (55%) -->
+            <div class="lg:col-span-7 space-y-4">
                 <!-- Main Image -->
                 <div @click="lightbox = true" class="relative rounded-3xl overflow-hidden cursor-zoom-in group" style="background-color:#f8f5f0; aspect-ratio: 1/1;" x-init="initSwipe($el, () => img = (img+1) % {{ $product->images->count() ?: 1 }}, () => img = (img-1+{{ $product->images->count() ?: 1 }}) % {{ $product->images->count() ?: 1 }})">
                     @if($product->images->count())
@@ -113,8 +113,8 @@
             </div>
 
 
-            <!-- RIGHT: Product Info - Sticky -->
-            <div class="lg:sticky lg:top-[90px] lg:self-start space-y-5">
+            <!-- RIGHT: Product Info (45%) - Sticky -->
+            <div class="lg:col-span-5 lg:sticky lg:top-[90px] lg:self-start space-y-5">
                 <!-- Category Badge -->
                 @if($product->category)
                 <div><span class="inline-block px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full border" style="color:#B7925C; border-color:#B7925C;">{{ $product->category->name }}</span></div>
@@ -157,20 +157,24 @@
                 @if($product->variants->count())
                 <div>
                     <p class="text-sm font-bold mb-3" style="color:#2C2418;">Choose Your Pack</p>
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
                         @foreach($product->variants as $i => $variant)
-                        <button type="button" @click="selectedPack = {{ $i }}" :class="selectedPack === {{ $i }} ? 'ring-2 ring-offset-1' : ''" class="relative rounded-xl p-4 text-center transition-all border" :style="selectedPack === {{ $i }} ? 'ring-color:#B7925C; border-color:#B7925C; background-color:#FFFDF8' : 'border-color:#e5e7eb; background-color:#fff'">
+                        <button type="button" @click="selectedPack = {{ $i }}" class="shrink-0 w-40 rounded-xl overflow-hidden text-center transition-all cursor-pointer border" :style="selectedPack === {{ $i }} ? 'border-color:#B7925C; box-shadow: 0 0 0 2px rgba(183,146,92,0.2)' : 'border-color:#e5e7eb'">
                             @if($variant->mrp > $variant->selling_price)
-                            <span class="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold text-white px-2 py-0.5 rounded-full" style="background-color:#16a34a;">Save ₹{{ number_format($variant->mrp - $variant->selling_price) }}</span>
+                            <div class="relative"><span class="absolute -top-0 left-1/2 -translate-x-1/2 text-[9px] font-bold text-white px-2.5 py-0.5 rounded-b-lg z-10" style="background-color:#16a34a;">Save ₹{{ number_format($variant->mrp - $variant->selling_price) }}</span></div>
                             @endif
-                            <p class="text-lg font-bold" style="color:#2C2418;">₹{{ number_format($variant->selling_price) }}</p>
-                            <p class="text-[10px] line-through" style="color:#999;">₹{{ number_format($variant->mrp) }}</p>
-                            <p class="text-xs font-bold mt-1" style="color:#6b5442;">{{ $variant->name }}</p>
-                            @if($variant->weight_display)
-                            <p class="text-[10px]" style="color:#8c7560;">{{ $variant->weight_display }}</p>
-                            @elseif($variant->weight)
-                            <p class="text-[10px]" style="color:#8c7560;">{{ $variant->weight >= 1000 ? number_format($variant->weight/1000, 1) . ' kg' : intval($variant->weight) . ' g' }}</p>
-                            @endif
+                            <div class="p-4 pt-6" style="background-color:#FFFDF8;">
+                                <p class="text-2xl font-bold" style="color:#2C2418;">₹{{ number_format($variant->selling_price) }}</p>
+                                <p class="text-xs line-through mt-0.5" style="color:#999;">₹{{ number_format($variant->mrp) }}</p>
+                            </div>
+                            <div class="p-2.5 text-center text-white" style="background-color:#1a1a1a;">
+                                <p class="text-xs font-bold tracking-wide">{{ $variant->name }}</p>
+                                @if($variant->weight_display)
+                                <p class="text-[10px] mt-0.5" style="color:#aaa;">{{ $variant->weight_display }}</p>
+                                @elseif($variant->weight)
+                                <p class="text-[10px] mt-0.5" style="color:#aaa;">{{ $variant->weight >= 1000 ? number_format($variant->weight/1000, 1) . ' kg' : intval($variant->weight) . ' g' }}</p>
+                                @endif
+                            </div>
                         </button>
                         @endforeach
                     </div>
@@ -214,28 +218,34 @@
                             Buy Now
                         </a>
                     </div>
+
+                    <!-- Return Policy -->
+                    <div class="flex items-center justify-center gap-2 pt-2">
+                        <svg class="w-4 h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        <span class="text-xs font-medium" style="color:#6b5442;">Easy Returns — 7-day hassle-free</span>
+                    </div>
                 </form>
                 @else
                 <div class="w-full px-8 py-4 bg-gray-100 text-gray-500 font-bold text-sm uppercase tracking-wider rounded-full text-center">Currently Unavailable</div>
                 @endif
 
-                <!-- Promise Strip -->
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="flex items-center gap-2.5 p-3 rounded-xl" style="background-color:#f8f5f0;">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color:#B7925C;"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></div>
-                        <span class="text-[11px] font-bold" style="color:#2C2418;">100% Natural</span>
+                <!-- Trust Badges Compact -->
+                <div class="grid grid-cols-4 gap-2 pt-2">
+                    <div class="text-center p-2 rounded-lg" style="background-color:#f8f5f0;">
+                        <svg class="w-5 h-5 mx-auto mb-1" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 13l4 4L19 7"/></svg>
+                        <p class="text-[9px] font-bold" style="color:#2C2418;">Natural</p>
                     </div>
-                    <div class="flex items-center gap-2.5 p-3 rounded-xl" style="background-color:#f8f5f0;">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color:#B7925C;"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div>
-                        <span class="text-[11px] font-bold" style="color:#2C2418;">GMP Certified</span>
+                    <div class="text-center p-2 rounded-lg" style="background-color:#f8f5f0;">
+                        <svg class="w-5 h-5 mx-auto mb-1" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                        <p class="text-[9px] font-bold" style="color:#2C2418;">GMP</p>
                     </div>
-                    <div class="flex items-center gap-2.5 p-3 rounded-xl" style="background-color:#f8f5f0;">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color:#B7925C;"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div>
-                        <span class="text-[11px] font-bold" style="color:#2C2418;">Free Shipping</span>
+                    <div class="text-center p-2 rounded-lg" style="background-color:#f8f5f0;">
+                        <svg class="w-5 h-5 mx-auto mb-1" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        <p class="text-[9px] font-bold" style="color:#2C2418;">Free Ship</p>
                     </div>
-                    <div class="flex items-center gap-2.5 p-3 rounded-xl" style="background-color:#f8f5f0;">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color:#B7925C;"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></div>
-                        <span class="text-[11px] font-bold" style="color:#2C2418;">Easy Returns</span>
+                    <div class="text-center p-2 rounded-lg" style="background-color:#f8f5f0;">
+                        <svg class="w-5 h-5 mx-auto mb-1" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                        <p class="text-[9px] font-bold" style="color:#2C2418;">Secure</p>
                     </div>
                 </div>
             </div>
@@ -349,6 +359,57 @@
 </section>
 @endif
 
+<!-- The Shivara Promise (8 points - 2 rows of 4) -->
+<section class="py-16 scroll-reveal" style="background-color:#2C2418;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <h3 class="font-display text-2xl md:text-3xl font-bold text-center mb-12" style="color:#FFFDF8;">The Shivara Promise</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+            <div class="text-center">
+                <div class="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.15); border: 1px solid rgba(183,146,92,0.3);"><svg class="w-6 h-6" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></div>
+                <h4 class="text-sm font-bold" style="color:#FFFDF8;">100% Natural</h4>
+                <p class="text-[11px] mt-1" style="color: rgba(255,253,248,0.5);">No chemicals or preservatives</p>
+            </div>
+            <div class="text-center">
+                <div class="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.15); border: 1px solid rgba(183,146,92,0.3);"><svg class="w-6 h-6" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div>
+                <h4 class="text-sm font-bold" style="color:#FFFDF8;">GMP Certified</h4>
+                <p class="text-[11px] mt-1" style="color: rgba(255,253,248,0.5);">Audited facilities</p>
+            </div>
+            <div class="text-center">
+                <div class="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.15); border: 1px solid rgba(183,146,92,0.3);"><svg class="w-6 h-6" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg></div>
+                <h4 class="text-sm font-bold" style="color:#FFFDF8;">Lab Tested</h4>
+                <p class="text-[11px] mt-1" style="color: rgba(255,253,248,0.5);">Purity verified by experts</p>
+            </div>
+            <div class="text-center">
+                <div class="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.15); border: 1px solid rgba(183,146,92,0.3);"><svg class="w-6 h-6" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg></div>
+                <h4 class="text-sm font-bold" style="color:#FFFDF8;">5000+ Happy Customers</h4>
+                <p class="text-[11px] mt-1" style="color: rgba(255,253,248,0.5);">Trusted across India</p>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div class="text-center">
+                <div class="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.15); border: 1px solid rgba(183,146,92,0.3);"><svg class="w-6 h-6" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></div>
+                <h4 class="text-[11px] font-bold uppercase tracking-wider" style="color:#FFFDF8;">Single-Origin</h4>
+                <p class="text-[11px] mt-1" style="color: rgba(255,253,248,0.5);">Heritage farms, Rajasthan</p>
+            </div>
+            <div class="text-center">
+                <div class="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.15); border: 1px solid rgba(183,146,92,0.3);"><svg class="w-6 h-6" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div>
+                <h4 class="text-[11px] font-bold uppercase tracking-wider" style="color:#FFFDF8;">GMP Certified</h4>
+                <p class="text-[11px] mt-1" style="color: rgba(255,253,248,0.5);">Audited facilities</p>
+            </div>
+            <div class="text-center">
+                <div class="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.15); border: 1px solid rgba(183,146,92,0.3);"><svg class="w-6 h-6" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div>
+                <h4 class="text-[11px] font-bold uppercase tracking-wider" style="color:#FFFDF8;">Free Shipping</h4>
+                <p class="text-[11px] mt-1" style="color: rgba(255,253,248,0.5);">All orders, pan-India</p>
+            </div>
+            <div class="text-center">
+                <div class="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.15); border: 1px solid rgba(183,146,92,0.3);"><svg class="w-6 h-6" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></div>
+                <h4 class="text-[11px] font-bold uppercase tracking-wider" style="color:#FFFDF8;">Easy Returns</h4>
+                <p class="text-[11px] mt-1" style="color: rgba(255,253,248,0.5);">7-day hassle-free</p>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Customer Reviews -->
 <section class="py-16 scroll-reveal" style="background-color:#fff;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
@@ -450,35 +511,6 @@
     </div>
 </section>
 
-
-<!-- Why Shivara - Full Width -->
-<section class="py-16 scroll-reveal" style="background-color:#2C2418;">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <h3 class="font-display text-2xl md:text-3xl font-bold text-center mb-10" style="color:#FFFDF8;">The Shivara Promise</h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div class="text-center">
-                <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.2);"><svg class="w-8 h-8" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></div>
-                <h4 class="text-sm font-bold" style="color:#FFFDF8;">100% Natural</h4>
-                <p class="text-[11px] mt-1" style="color: rgba(255,253,248,0.6);">No chemicals or preservatives</p>
-            </div>
-            <div class="text-center">
-                <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.2);"><svg class="w-8 h-8" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div>
-                <h4 class="text-sm font-bold" style="color:#FFFDF8;">GMP Certified</h4>
-                <p class="text-[11px] mt-1" style="color: rgba(255,253,248,0.6);">Made in audited facilities</p>
-            </div>
-            <div class="text-center">
-                <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.2);"><svg class="w-8 h-8" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg></div>
-                <h4 class="text-sm font-bold" style="color:#FFFDF8;">Lab Tested</h4>
-                <p class="text-[11px] mt-1" style="color: rgba(255,253,248,0.6);">Purity verified by experts</p>
-            </div>
-            <div class="text-center">
-                <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.2);"><svg class="w-8 h-8" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg></div>
-                <h4 class="text-sm font-bold" style="color:#FFFDF8;">5000+ Happy Customers</h4>
-                <p class="text-[11px] mt-1" style="color: rgba(255,253,248,0.6);">Trusted across India</p>
-            </div>
-        </div>
-    </div>
-</section>
 
 <!-- Related Products -->
 @if($relatedProducts->count())
