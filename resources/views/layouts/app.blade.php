@@ -108,8 +108,12 @@
     @include('partials.footer')
     @include('partials.side-cart')
 
-    <!-- Welcome Popup -->
-    <div x-data="{ popup: !sessionStorage.getItem('shivara_popup_closed') }" x-show="popup" x-cloak
+    <!-- Welcome Popup (Dynamic from Coupons with show_as_popup) -->
+    @php
+        $popupCoupons = \App\Models\Coupon::where('show_as_popup', true)->where('is_active', true)->where('end_date', '>', now())->get();
+    @endphp
+    @if($popupCoupons->count())
+    <div x-data="{ popup: !sessionStorage.getItem('shivara_popup_closed'), slide: 0 }" x-show="popup" x-cloak
          class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" x-transition.opacity>
         <div class="bg-cream-50 rounded-3xl p-8 max-w-md w-full shadow-2xl relative animate-scaleIn text-center" @click.outside="popup = false; sessionStorage.setItem('shivara_popup_closed', '1')">
             <button @click="popup = false; sessionStorage.setItem('shivara_popup_closed', '1')" class="absolute top-4 right-4 w-8 h-8 bg-espresso-100 rounded-full flex items-center justify-center text-espresso-500 hover:bg-espresso-200 transition">
@@ -118,19 +122,33 @@
             <div class="w-16 h-16 bg-gold-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg class="w-8 h-8 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
             </div>
-            <h3 class="font-display text-3xl font-bold text-espresso-700 mb-2">Welcome Gift!</h3>
-            <p class="text-espresso-400 text-sm mb-4">Get <span class="text-gold-500 font-bold text-lg">10% OFF</span> on your first order</p>
-            <div class="bg-white border-2 border-dashed border-gold-300 rounded-xl p-4 mb-4">
-                <p class="text-xs text-espresso-400 uppercase tracking-wider mb-1">Use Code</p>
-                <p class="text-2xl font-bold text-gold-600 tracking-widest">WOW10</p>
+            @foreach($popupCoupons as $i => $pc)
+            <div x-show="slide === {{ $i }}">
+                <h3 class="font-display text-3xl font-bold text-espresso-700 mb-2">{{ $pc->description ?: 'Special Offer!' }}</h3>
+                <p class="text-espresso-400 text-sm mb-4">Get <span class="text-gold-500 font-bold text-lg">{{ $pc->type === 'percentage' ? $pc->value.'% OFF' : '₹'.$pc->value.' OFF' }}</span> on your order</p>
+                <div class="bg-white border-2 border-dashed border-gold-300 rounded-xl p-4 mb-4">
+                    <p class="text-xs text-espresso-400 uppercase tracking-wider mb-1">Use Code</p>
+                    <p class="text-2xl font-bold text-gold-600 tracking-widest">{{ $pc->code }}</p>
+                </div>
             </div>
+            @endforeach
+            @if($popupCoupons->count() > 1)
+            <div class="flex justify-center gap-2 mb-4">
+                @foreach($popupCoupons as $i => $pc)
+                <button @click="slide = {{ $i }}" :class="slide === {{ $i }} ? 'w-6 bg-gold-500' : 'w-2 bg-gold-200'" class="h-2 rounded-full transition-all"></button>
+                @endforeach
+            </div>
+            @endif
             <a href="{{ route('products.index') }}" @click="sessionStorage.setItem('shivara_popup_closed', '1')"
                class="inline-block w-full px-6 py-3.5 bg-espresso-700 text-cream-50 font-semibold rounded-xl hover:bg-espresso-600 transition">
                 Shop Now →
             </a>
-            <p class="text-xs text-espresso-300 mt-3">*Min order ₹499 • Valid for new customers</p>
+            @if($popupCoupons->first()->min_order_amount)
+            <p class="text-xs text-espresso-300 mt-3">*Min order ₹{{ number_format($popupCoupons->first()->min_order_amount) }}</p>
+            @endif
         </div>
     </div>
+    @endif
 
     <!-- WhatsApp Float -->
     <a href="https://wa.me/{{ config('shivara.whatsapp') }}?text=Hi, I have a question about Shivara products" target="_blank"

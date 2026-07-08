@@ -9,7 +9,7 @@ class Coupon extends Model
     protected $fillable = [
         'code', 'description', 'type', 'value', 'min_order_amount',
         'max_discount', 'usage_limit', 'usage_count', 'per_user_limit',
-        'is_active', 'start_date', 'end_date',
+        'is_active', 'show_as_popup', 'start_date', 'end_date',
     ];
 
     protected $casts = [
