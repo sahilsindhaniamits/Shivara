@@ -6,8 +6,94 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
 
+use App\Models\Address;
+use App\Models\OrderItem;
+
 class OrderController extends Controller
 {
+    public function create()
+    {
+        return view('admin.orders.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'full_name' => 'required|string',
+            'phone' => 'required|string',
+            'address_line1' => 'required|string',
+            'city' => 'required|string',
+            'state' => 'required|string',
+            'pincode' => 'required|string',
+            'items' => 'required|array|min:1',
+        ]);
+
+        // Create address
+        $address = Address::create([
+            'user_id' => auth()->id(),
+            'full_name' => $request->full_name,
+            'phone' => $request->phone,
+            'address_line1' => $request->address_line1,
+            'city' => $request->city,
+            'state' => $request->state,
+            'pincode' => $request->pincode,
+        ]);
+
+        // Calculate subtotal
+        $subtotal = 0;
+        foreach ($request->items as $item) {
+            if (!empty($item['product_id']) && !empty($item['price'])) {
+                $subtotal += floatval($item['price']) * intval($item['quantity'] ?? 1);
+            }
+        }
+
+        $shipping = floatval($request->shipping_charge ?? 0);
+        $discount = floatval($request->discount ?? 0);
+        $total = $subtotal - $discount + $shipping;
+
+        $isPrepaid = $request->payment_method === 'prepaid';
+
+        $order = Order::create([
+            'order_number' => Order::generateOrderNumber(),
+            'user_id' => auth()->id(),
+            'address_id' => $address->id,
+            'status' => 'confirmed',
+            'payment_status' => $isPrepaid ? 'paid' : 'pending',
+            'payment_method' => $isPrepaid ? 'razorpay' : $request->payment_method,
+            'subtotal' => $subtotal,
+            'discount' => $discount,
+            'shipping_charge' => $shipping,
+            'total_amount' => $total,
+            'shipping_method' => 'standard',
+            'admin_notes' => $request->admin_notes,
+            'paid_at' => $isPrepaid ? now() : null,
+        ]);
+
+        // Create order items
+        foreach ($request->items as $item) {
+            if (!empty($item['product_id']) && !empty($item['price'])) {
+                $product = \App\Models\Product::find($item['product_id']);
+                if ($product) {
+                    OrderItem::create([
+                        'order_id' => $order->id,
+                        'product_id' => $product->id,
+                        'product_name' => $product->name,
+                        'quantity' => intval($item['quantity'] ?? 1),
+                        'price' => floatval($item['price']),
+                        'total_price' => floatval($item['price']) * intval($item['quantity'] ?? 1),
+                    ]);
+                }
+            }
+        }
+
+        $order->timeline()->create([
+            'status' => 'confirmed',
+            'message' => 'Order created manually by admin',
+        ]);
+
+        return redirect()->route('admin.orders.show', $order)->with('success', 'Manual order created!');
+    }
+
     public function index(Request $request)
     {
         $query = Order::with('user');
