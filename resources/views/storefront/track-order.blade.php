@@ -9,9 +9,13 @@
     </div>
 
     <!-- Search Form -->
-    <form method="GET" action="{{ route('track.order') }}" class="flex flex-col sm:flex-row gap-3 mb-10">
-        <input type="text" name="order_number" value="{{ request('order_number') }}" required placeholder="Enter Order Number (e.g. SHV-XXXXXX-XX)" class="flex-1 px-5 py-4 bg-white border border-gold-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold-200 focus:border-gold-300 placeholder:text-espresso-300">
-        <button type="submit" class="px-8 py-4 text-white font-bold text-sm uppercase tracking-wider rounded-xl hover:opacity-90 transition" style="background-color:#2C2418">Track</button>
+    <form method="GET" action="{{ route('track.order') }}" class="space-y-3 mb-10">
+        <div class="flex flex-col sm:flex-row gap-3">
+            <input type="text" name="order_number" value="{{ request('order_number') }}" required placeholder="Order Number (e.g. SHV-XXXXXX-XX)" class="flex-1 px-5 py-4 bg-white border border-gold-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold-200 focus:border-gold-300 placeholder:text-espresso-300">
+            <input type="text" name="phone" value="{{ request('phone') }}" required placeholder="Phone Number" class="sm:w-48 px-5 py-4 bg-white border border-gold-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold-200 focus:border-gold-300 placeholder:text-espresso-300">
+            <button type="submit" class="px-8 py-4 text-white font-bold text-sm uppercase tracking-wider rounded-xl hover:opacity-90 transition" style="background-color:#2C2418">Track</button>
+        </div>
+        <p class="text-[10px] text-espresso-300 text-center">Enter your order number and the phone number used during checkout</p>
     </form>
 
     @if(isset($order))

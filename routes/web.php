@@ -33,9 +33,14 @@ Route::get('/about', [HomeController::class, 'about'])->name('about');
 Route::get('/track-order', function (\Illuminate\Http\Request $request) {
     $order = null;
     if ($request->filled('order_number')) {
-        $order = \App\Models\Order::where('order_number', $request->order_number)
-            ->with(['items', 'timeline'])
-            ->first();
+        $query = \App\Models\Order::where('order_number', $request->order_number)
+            ->with(['items', 'timeline']);
+        if ($request->filled('phone')) {
+            $query->whereHas('address', function($q) use ($request) {
+                $q->where('phone', $request->phone);
+            });
+        }
+        $order = $query->first();
     }
     return view('storefront.track-order', compact('order'));
 })->name('track.order');
