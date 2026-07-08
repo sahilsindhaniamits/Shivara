@@ -46,6 +46,15 @@
                         </td>
                         <td class="px-4 py-3 text-slate-600 max-w-xs">
                             <span class="line-clamp-2">{{ $review->comment ?? '—' }}</span>
+                            @if($review->images && count($review->images))
+                            <div class="flex gap-1.5 mt-2">
+                                @foreach($review->images as $rImg)
+                                <div class="w-10 h-10 rounded-lg overflow-hidden border border-gray-200">
+                                    <img src="{{ str_starts_with($rImg, '/storage/') ? '/public' . $rImg : $rImg }}" class="w-full h-full object-cover">
+                                </div>
+                                @endforeach
+                            </div>
+                            @endif
                         </td>
                         <td class="px-4 py-3">
                             @if($review->is_approved)
