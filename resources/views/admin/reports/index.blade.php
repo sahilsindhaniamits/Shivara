@@ -56,20 +56,19 @@
     </div>
 
     <!-- Revenue Chart -->
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6" x-data="revenueChart()" x-init="init()">
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
         <div class="flex items-center justify-between mb-6">
             <div>
                 <h3 class="text-lg font-bold text-gray-900">Revenue Overview</h3>
                 <p class="text-xs text-gray-500">Track your revenue performance</p>
             </div>
             <div class="flex gap-1 bg-gray-100 rounded-lg p-1">
-                <button @click="changePeriod('daily')" :class="period === 'daily' ? 'bg-white shadow-sm text-gray-900 font-semibold' : 'text-gray-500 hover:text-gray-700'" class="px-3 py-1.5 text-xs rounded-md transition">Daily</button>
-                <button @click="changePeriod('weekly')" :class="period === 'weekly' ? 'bg-white shadow-sm text-gray-900 font-semibold' : 'text-gray-500 hover:text-gray-700'" class="px-3 py-1.5 text-xs rounded-md transition">Weekly</button>
-                <button @click="changePeriod('monthly')" :class="period === 'monthly' ? 'bg-white shadow-sm text-gray-900 font-semibold' : 'text-gray-500 hover:text-gray-700'" class="px-3 py-1.5 text-xs rounded-md transition">Monthly</button>
+                <button onclick="loadChart('daily')" id="btn-daily" class="px-3 py-1.5 text-xs rounded-md transition text-gray-500 hover:text-gray-700">Daily</button>
+                <button onclick="loadChart('weekly')" id="btn-weekly" class="px-3 py-1.5 text-xs rounded-md transition text-gray-500 hover:text-gray-700">Weekly</button>
+                <button onclick="loadChart('monthly')" id="btn-monthly" class="px-3 py-1.5 text-xs rounded-md transition bg-white shadow-sm text-gray-900 font-semibold">Monthly</button>
             </div>
         </div>
-        <!-- Chart Area -->
-        <div class="relative h-64" id="revenueChartArea">
+        <div class="relative h-64">
             <canvas id="revenueCanvas"></canvas>
         </div>
         <div class="flex items-center gap-6 mt-4 pt-4 border-t border-gray-100">
@@ -201,81 +200,58 @@
 <!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-function revenueChart() {
-    return {
-        period: '{{ $period }}',
-        chart: null,
-        init() {
-            // Wait for Chart.js to load
-            let self = this;
-            let attempts = 0;
-            function tryRender() {
-                if (typeof Chart !== 'undefined') {
-                    self.renderChart(@json($revenueData));
-                } else if (attempts < 20) {
-                    attempts++;
-                    setTimeout(tryRender, 200);
-                }
-            }
-            tryRender();
-        },
-        changePeriod(p) {
-            this.period = p;
-            fetch('/admin/reports/revenue-chart?period=' + p, { headers: { 'Accept': 'application/json' }})
-            .then(r => r.json())
-            .then(data => this.renderChart(data));
-        },
-        renderChart(data) {
-            if (this.chart) this.chart.destroy();
-            const ctx = document.getElementById('revenueCanvas').getContext('2d');
-            this.chart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.labels.map(l => {
-                        if (l.includes('-W')) return 'Week ' + l.split('-W')[1];
-                        if (l.length === 7) { let d = new Date(l + '-01'); return d.toLocaleDateString('en-IN', {month:'short', year:'2-digit'}); }
-                        if (l.length === 10) { let d = new Date(l); return d.toLocaleDateString('en-IN', {day:'numeric', month:'short'}); }
-                        return l;
-                    }),
-                    datasets: [
-                        {
-                            label: 'Revenue (₹)',
-                            data: data.revenue,
-                            backgroundColor: 'rgba(192, 109, 34, 0.7)',
-                            borderColor: '#c06d22',
-                            borderWidth: 1,
-                            borderRadius: 6,
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: 'Orders',
-                            data: data.orders,
-                            type: 'line',
-                            borderColor: '#B08840',
-                            backgroundColor: 'rgba(176, 136, 64, 0.1)',
-                            borderWidth: 2,
-                            pointRadius: 4,
-                            pointBackgroundColor: '#B08840',
-                            fill: true,
-                            tension: 0.3,
-                            yAxisID: 'y1'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { type: 'linear', position: 'left', grid: { color: '#f3f4f6' }, ticks: { callback: v => '₹' + (v >= 1000 ? (v/1000).toFixed(0) + 'k' : v) } },
-                        y1: { type: 'linear', position: 'right', grid: { display: false }, ticks: { stepSize: 1 } },
-                        x: { grid: { display: false } }
-                    }
-                }
-            });
+var revenueChart = null;
+var initialData = @json($revenueData);
+
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() { renderChart(initialData); }, 500);
+});
+
+function loadChart(period) {
+    // Update button styles
+    ['daily','weekly','monthly'].forEach(function(p) {
+        var btn = document.getElementById('btn-' + p);
+        if (p === period) {
+            btn.className = 'px-3 py-1.5 text-xs rounded-md transition bg-white shadow-sm text-gray-900 font-semibold';
+        } else {
+            btn.className = 'px-3 py-1.5 text-xs rounded-md transition text-gray-500 hover:text-gray-700';
         }
-    }
+    });
+    fetch('/admin/reports/revenue-chart?period=' + period, { headers: { 'Accept': 'application/json' }})
+    .then(function(r) { return r.json(); })
+    .then(function(data) { renderChart(data); });
+}
+
+function renderChart(data) {
+    if (typeof Chart === 'undefined') { setTimeout(function() { renderChart(data); }, 300); return; }
+    if (revenueChart) revenueChart.destroy();
+    var ctx = document.getElementById('revenueCanvas');
+    if (!ctx) return;
+    revenueChart = new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: data.labels.map(function(l) {
+                if (l.includes('-W')) return 'W' + l.split('-W')[1];
+                if (l.length === 7) { var d = new Date(l + '-01'); return d.toLocaleDateString('en-IN', {month:'short', year:'2-digit'}); }
+                if (l.length === 10) { var d = new Date(l); return d.toLocaleDateString('en-IN', {day:'numeric', month:'short'}); }
+                return l;
+            }),
+            datasets: [
+                { label: 'Revenue', data: data.revenue, backgroundColor: 'rgba(192,109,34,0.7)', borderColor: '#c06d22', borderWidth: 1, borderRadius: 6, yAxisID: 'y' },
+                { label: 'Orders', data: data.orders, type: 'line', borderColor: '#B08840', backgroundColor: 'rgba(176,136,64,0.1)', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#B08840', fill: true, tension: 0.3, yAxisID: 'y1' }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { type: 'linear', position: 'left', grid: { color: '#f3f4f6' }, ticks: { callback: function(v) { return '₹' + (v >= 1000 ? (v/1000).toFixed(0) + 'k' : v); } } },
+                y1: { type: 'linear', position: 'right', grid: { display: false }, ticks: { stepSize: 1 } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
 }
 </script>
 @endsection
