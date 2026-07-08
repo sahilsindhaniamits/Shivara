@@ -228,26 +228,6 @@
                 @else
                 <div class="w-full px-8 py-4 bg-gray-100 text-gray-500 font-bold text-sm uppercase tracking-wider rounded-full text-center">Currently Unavailable</div>
                 @endif
-
-                <!-- Trust Badges Compact -->
-                <div class="grid grid-cols-4 gap-2 pt-2">
-                    <div class="text-center p-2 rounded-lg" style="background-color:#f8f5f0;">
-                        <svg class="w-5 h-5 mx-auto mb-1" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 13l4 4L19 7"/></svg>
-                        <p class="text-[9px] font-bold" style="color:#2C2418;">Natural</p>
-                    </div>
-                    <div class="text-center p-2 rounded-lg" style="background-color:#f8f5f0;">
-                        <svg class="w-5 h-5 mx-auto mb-1" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                        <p class="text-[9px] font-bold" style="color:#2C2418;">GMP</p>
-                    </div>
-                    <div class="text-center p-2 rounded-lg" style="background-color:#f8f5f0;">
-                        <svg class="w-5 h-5 mx-auto mb-1" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                        <p class="text-[9px] font-bold" style="color:#2C2418;">Free Ship</p>
-                    </div>
-                    <div class="text-center p-2 rounded-lg" style="background-color:#f8f5f0;">
-                        <svg class="w-5 h-5 mx-auto mb-1" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                        <p class="text-[9px] font-bold" style="color:#2C2418;">Secure</p>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -363,7 +343,7 @@
 <section class="py-16 scroll-reveal" style="background-color:#2C2418;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <h3 class="font-display text-2xl md:text-3xl font-bold text-center mb-12" style="color:#FFFDF8;">The Shivara Promise</h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10">
             <div class="text-center">
                 <div class="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.15); border: 1px solid rgba(183,146,92,0.3);"><svg class="w-6 h-6" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></div>
                 <h4 class="text-sm font-bold" style="color:#FFFDF8;">100% Natural</h4>
@@ -384,8 +364,6 @@
                 <h4 class="text-sm font-bold" style="color:#FFFDF8;">5000+ Happy Customers</h4>
                 <p class="text-[11px] mt-1" style="color: rgba(255,253,248,0.5);">Trusted across India</p>
             </div>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div class="text-center">
                 <div class="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.15); border: 1px solid rgba(183,146,92,0.3);"><svg class="w-6 h-6" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></div>
                 <h4 class="text-[11px] font-bold uppercase tracking-wider" style="color:#FFFDF8;">Single-Origin</h4>
