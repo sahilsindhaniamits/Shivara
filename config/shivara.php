@@ -19,8 +19,8 @@ return [
     ],
 
     'social' => [
-        'instagram' => 'https://instagram.com/theshivara',
-        'facebook' => 'https://facebook.com/theshivara',
+        'instagram' => 'https://www.instagram.com/theshivara',
+        'facebook' => 'https://www.facebook.com/profile.php?id=61588139999665',
         'twitter' => 'https://twitter.com/theshivara',
         'youtube' => 'https://youtube.com/@theshivara',
     ],
