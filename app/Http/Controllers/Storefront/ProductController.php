@@ -72,7 +72,8 @@ class ProductController extends Controller
         $request->validate([
             'rating' => 'required|integer|min:1|max:5',
             'comment' => 'required|string|max:1000',
-            'review_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'review_images' => 'nullable|array|max:5',
+            'review_images.*' => 'nullable|file|mimes:jpeg,png,jpg,webp,gif|max:10240',
         ]);
 
         $product = Product::where('slug', $slug)->firstOrFail();
@@ -81,8 +82,12 @@ class ProductController extends Controller
         $imagePaths = [];
         if ($request->hasFile('review_images')) {
             foreach (array_slice($request->file('review_images'), 0, 5) as $image) {
-                $path = $image->store('reviews', 'public');
-                $imagePaths[] = '/storage/' . $path;
+                try {
+                    $path = $image->store('reviews', 'public');
+                    $imagePaths[] = '/storage/' . $path;
+                } catch (\Exception $e) {
+                    // Skip failed image uploads silently
+                }
             }
         }
 
