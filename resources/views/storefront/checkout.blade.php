@@ -68,12 +68,23 @@
                         Shipping Method
                     </h2>
                     <div class="space-y-3">
+                        @php
+                            $cartSubtotal = $cartItems->sum(function($item) {
+                                $price = $item->variant ? $item->variant->selling_price : $item->product->selling_price;
+                                return $price * $item->quantity;
+                            });
+                            $freeShipping = $cartSubtotal >= config('shivara.free_shipping_threshold', 299);
+                        @endphp
                         <label @click="shipping = 'standard'" :class="shipping === 'standard' ? 'border-brand-500 bg-brand-50/50' : 'border-gray-200 hover:border-gray-300'" class="flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition">
                             <div class="flex items-center gap-3">
                                 <input type="radio" name="shipping_method" value="standard" checked class="text-brand-600 focus:ring-brand-500">
                                 <div><p class="font-semibold text-sm text-gray-800">Standard Delivery</p><p class="text-xs text-gray-500">{{ config('shivara.standard_days') }}</p></div>
                             </div>
+                            @if($freeShipping)
+                            <span class="font-bold text-sm text-green-600">FREE</span>
+                            @else
                             <span class="font-bold text-sm text-gray-700">₹{{ config('shivara.standard_rate') }}</span>
+                            @endif
                         </label>
                         <label @click="shipping = 'express'" :class="shipping === 'express' ? 'border-brand-500 bg-brand-50/50' : 'border-gray-200 hover:border-gray-300'" class="flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition">
                             <div class="flex items-center gap-3">
