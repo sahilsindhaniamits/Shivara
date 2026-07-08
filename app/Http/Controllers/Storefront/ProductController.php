@@ -77,18 +77,6 @@ class ProductController extends Controller
 
         $product = Product::where('slug', $slug)->firstOrFail();
 
-        // Check if user already reviewed - allow re-submission by updating
-        $existing = \App\Models\Review::where('product_id', $product->id)->where('user_id', auth()->id())->first();
-        if ($existing) {
-            // Update existing review instead of blocking
-            $existing->update([
-                'rating' => $request->rating,
-                'comment' => $request->comment,
-                'is_approved' => false,
-            ]);
-            return back()->with('success', 'Your review has been updated and is pending approval.');
-        }
-
         // Handle image uploads
         $imagePaths = [];
         if ($request->hasFile('review_images')) {
@@ -99,16 +87,20 @@ class ProductController extends Controller
         }
 
         try {
-            \App\Models\Review::create([
-                'product_id' => $product->id,
-                'user_id' => auth()->id(),
-                'rating' => $request->rating,
-                'comment' => $request->comment,
-                'images' => count($imagePaths) ? $imagePaths : null,
-                'is_approved' => false,
-            ]);
+            \App\Models\Review::updateOrCreate(
+                [
+                    'product_id' => $product->id,
+                    'user_id' => auth()->id(),
+                ],
+                [
+                    'rating' => $request->rating,
+                    'comment' => $request->comment,
+                    'images' => count($imagePaths) ? $imagePaths : null,
+                    'is_approved' => false,
+                ]
+            );
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to submit review. Please try again.');
+            return back()->with('error', 'Failed to submit review: ' . $e->getMessage());
         }
 
         return back()->with('success', 'Thank you! Your review has been submitted and will appear after admin approval.');

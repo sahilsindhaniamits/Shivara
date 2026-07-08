@@ -20,9 +20,14 @@ class ReviewController extends Controller
             }
         }
 
-        // Show pending first, then by newest
-        $reviews = $query->orderBy('is_approved', 'asc')->orderBy('created_at', 'desc')->paginate(20);
-        return view('admin.reviews.index', compact('reviews'));
+        $reviews = $query->orderBy('created_at', 'desc')->paginate(20);
+
+        // Count stats for tabs
+        $totalCount = Review::count();
+        $pendingCount = Review::where('is_approved', false)->count();
+        $approvedCount = Review::where('is_approved', true)->count();
+
+        return view('admin.reviews.index', compact('reviews', 'totalCount', 'pendingCount', 'approvedCount'));
     }
 
     public function approve(Review $review)
