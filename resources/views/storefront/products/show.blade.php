@@ -219,15 +219,34 @@
                         </a>
                     </div>
 
-                    <!-- Return Policy -->
-                    <div class="flex items-center justify-center gap-2 pt-2">
-                        <svg class="w-4 h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                        <span class="text-xs font-medium" style="color:#6b5442;">Easy Returns — 7-day hassle-free</span>
-                    </div>
                 </form>
                 @else
                 <div class="w-full px-8 py-4 bg-gray-100 text-gray-500 font-bold text-sm uppercase tracking-wider rounded-full text-center">Currently Unavailable</div>
                 @endif
+
+                <!-- 4 Trust Points Under Buy Now -->
+                <div class="grid grid-cols-4 gap-3 pt-3">
+                    <div class="text-center">
+                        <div class="w-10 h-10 mx-auto mb-1.5 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1); border: 1px solid rgba(183,146,92,0.25);"><svg class="w-4 h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></div>
+                        <p class="text-[10px] font-bold uppercase" style="color:#2C2418;">Single-Origin</p>
+                        <p class="text-[9px]" style="color:#8c7560;">Heritage farms, Rajasthan</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-10 h-10 mx-auto mb-1.5 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1); border: 1px solid rgba(183,146,92,0.25);"><svg class="w-4 h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div>
+                        <p class="text-[10px] font-bold uppercase" style="color:#2C2418;">GMP Certified</p>
+                        <p class="text-[9px]" style="color:#8c7560;">Audited facilities</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-10 h-10 mx-auto mb-1.5 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1); border: 1px solid rgba(183,146,92,0.25);"><svg class="w-4 h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div>
+                        <p class="text-[10px] font-bold uppercase" style="color:#2C2418;">Free Shipping</p>
+                        <p class="text-[9px]" style="color:#8c7560;">All orders, pan-India</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-10 h-10 mx-auto mb-1.5 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1); border: 1px solid rgba(183,146,92,0.25);"><svg class="w-4 h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></div>
+                        <p class="text-[10px] font-bold uppercase" style="color:#2C2418;">Easy Returns</p>
+                        <p class="text-[9px]" style="color:#8c7560;">7-day hassle-free</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -339,11 +358,11 @@
 </section>
 @endif
 
-<!-- The Shivara Promise (8 points - 2 rows of 4) -->
+<!-- The Shivara Promise (4 points) -->
 <section class="py-16 scroll-reveal" style="background-color:#2C2418;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <h3 class="font-display text-2xl md:text-3xl font-bold text-center mb-12" style="color:#FFFDF8;">The Shivara Promise</h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div class="text-center">
                 <div class="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.15); border: 1px solid rgba(183,146,92,0.3);"><svg class="w-6 h-6" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></div>
                 <h4 class="text-sm font-bold" style="color:#FFFDF8;">100% Natural</h4>
@@ -363,26 +382,6 @@
                 <div class="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.15); border: 1px solid rgba(183,146,92,0.3);"><svg class="w-6 h-6" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg></div>
                 <h4 class="text-sm font-bold" style="color:#FFFDF8;">5000+ Happy Customers</h4>
                 <p class="text-[11px] mt-1" style="color: rgba(255,253,248,0.5);">Trusted across India</p>
-            </div>
-            <div class="text-center">
-                <div class="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.15); border: 1px solid rgba(183,146,92,0.3);"><svg class="w-6 h-6" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></div>
-                <h4 class="text-[11px] font-bold uppercase tracking-wider" style="color:#FFFDF8;">Single-Origin</h4>
-                <p class="text-[11px] mt-1" style="color: rgba(255,253,248,0.5);">Heritage farms, Rajasthan</p>
-            </div>
-            <div class="text-center">
-                <div class="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.15); border: 1px solid rgba(183,146,92,0.3);"><svg class="w-6 h-6" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div>
-                <h4 class="text-[11px] font-bold uppercase tracking-wider" style="color:#FFFDF8;">GMP Certified</h4>
-                <p class="text-[11px] mt-1" style="color: rgba(255,253,248,0.5);">Audited facilities</p>
-            </div>
-            <div class="text-center">
-                <div class="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.15); border: 1px solid rgba(183,146,92,0.3);"><svg class="w-6 h-6" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div>
-                <h4 class="text-[11px] font-bold uppercase tracking-wider" style="color:#FFFDF8;">Free Shipping</h4>
-                <p class="text-[11px] mt-1" style="color: rgba(255,253,248,0.5);">All orders, pan-India</p>
-            </div>
-            <div class="text-center">
-                <div class="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.15); border: 1px solid rgba(183,146,92,0.3);"><svg class="w-6 h-6" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></div>
-                <h4 class="text-[11px] font-bold uppercase tracking-wider" style="color:#FFFDF8;">Easy Returns</h4>
-                <p class="text-[11px] mt-1" style="color: rgba(255,253,248,0.5);">7-day hassle-free</p>
             </div>
         </div>
     </div>
