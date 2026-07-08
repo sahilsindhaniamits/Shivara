@@ -41,6 +41,10 @@ class VideoTestimonialController extends Controller
             $data['thumbnail'] = '/storage/' . $request->file('thumbnail')->store('testimonials', 'public');
         }
 
+        if ($request->hasFile('video_file')) {
+            $data['video_file'] = '/storage/' . $request->file('video_file')->store('testimonial-videos', 'public');
+        }
+
         VideoTestimonial::create($data);
 
         return redirect()->route('admin.testimonials.index')->with('success', 'Video testimonial added!');
@@ -69,6 +73,10 @@ class VideoTestimonialController extends Controller
 
         if ($request->hasFile('thumbnail')) {
             $data['thumbnail'] = '/storage/' . $request->file('thumbnail')->store('testimonials', 'public');
+        }
+
+        if ($request->hasFile('video_file')) {
+            $data['video_file'] = '/storage/' . $request->file('video_file')->store('testimonial-videos', 'public');
         }
 
         $testimonial->update($data);

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class VideoTestimonial extends Model
 {
     protected $fillable = [
-        'customer_name', 'video_url', 'video_type', 'thumbnail',
+        'customer_name', 'video_url', 'video_type', 'thumbnail', 'video_file',
         'product_id', 'rating', 'is_verified', 'is_active', 'sort_order',
     ];
 
