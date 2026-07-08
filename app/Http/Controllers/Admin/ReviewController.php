@@ -10,11 +10,18 @@ class ReviewController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Review::with(['product', 'user'])->orderBy('created_at', 'desc');
+        $query = Review::with(['product', 'user']);
+
         if ($request->filled('status')) {
-            $query->where('is_approved', $request->status === 'approved');
+            if ($request->status === 'pending') {
+                $query->where('is_approved', false);
+            } elseif ($request->status === 'approved') {
+                $query->where('is_approved', true);
+            }
         }
-        $reviews = $query->paginate(20);
+
+        // Show pending first, then by newest
+        $reviews = $query->orderBy('is_approved', 'asc')->orderBy('created_at', 'desc')->paginate(20);
         return view('admin.reviews.index', compact('reviews'));
     }
 
