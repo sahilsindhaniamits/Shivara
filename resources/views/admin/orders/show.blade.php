@@ -8,7 +8,13 @@
             <h1 class="text-2xl font-bold text-gray-900">Order {{ $order->order_number }}</h1>
             <p class="text-sm text-gray-500">Placed {{ $order->created_at->format('M d, Y H:i') }}</p>
         </div>
-        <a href="{{ route('admin.orders.index') }}" class="text-sm text-primary hover:underline">← Back to Orders</a>
+        <div class="flex items-center gap-3">
+            <a href="{{ route('admin.orders.invoice', $order) }}" target="_blank" class="px-4 py-2 text-sm font-semibold rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                Invoice
+            </a>
+            <a href="{{ route('admin.orders.index') }}" class="text-sm text-gray-500 hover:text-gray-700">← Back</a>
+        </div>
     </div>
 
     <div class="grid lg:grid-cols-3 gap-6">
