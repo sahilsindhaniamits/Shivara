@@ -39,7 +39,7 @@
         .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         .badge-paid { background: #dcfce7; color: #166534; }
         .badge-pending { background: #fef3c7; color: #92400e; }
-        .badge-cod { background: #e0e7ff; color: #3730a3; }
+        .badge-cod { background: #dcfce7; color: #166534; }
         @media print {
             body { background: #fff; }
             .invoice { box-shadow: none; margin: 0; padding: 30px; }
@@ -85,7 +85,7 @@
                 <h4>Order Details</h4>
                 <p>Order: <span class="highlight">{{ $order->order_number }}</span></p>
                 <p>Date: {{ $order->created_at->format('d/m/Y') }}</p>
-                <p>Method: <span class="badge badge-cod">{{ strtoupper($order->payment_method) }}</span></p>
+                <p>Method: <span class="badge badge-cod">{{ $order->payment_method === 'razorpay' ? 'PREPAID' : strtoupper($order->payment_method) }}</span></p>
                 <p>Shipping: {{ ucfirst($order->shipping_method ?? 'Standard') }}</p>
             </div>
         </div>
@@ -151,7 +151,7 @@
         <div class="footer">
             <div>
                 <h4>Payment Information</h4>
-                <p>Method: {{ strtoupper($order->payment_method) }}</p>
+                <p>Method: {{ $order->payment_method === 'razorpay' ? 'Prepaid' : strtoupper($order->payment_method) }}</p>
                 @if($order->razorpay_payment_id)<p>Transaction ID: {{ $order->razorpay_payment_id }}</p>@endif
                 @if($order->paid_at)<p>Paid on: {{ $order->paid_at->format('d M Y, h:i A') }}</p>@endif
             </div>
