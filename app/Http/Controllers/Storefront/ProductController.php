@@ -92,29 +92,15 @@ class ProductController extends Controller
         }
 
         try {
-            // Check if user already reviewed this product
-            $existing = \App\Models\Review::where('product_id', $product->id)
-                ->where('user_id', auth()->id())
-                ->first();
-
-            if ($existing) {
-                // Update only the content, keep approval status
-                $existing->update([
-                    'rating' => $request->rating,
-                    'comment' => $request->comment,
-                    'images' => count($imagePaths) ? $imagePaths : $existing->images,
-                ]);
-            } else {
-                // Create new review
-                \App\Models\Review::create([
-                    'product_id' => $product->id,
-                    'user_id' => auth()->id(),
-                    'rating' => $request->rating,
-                    'comment' => $request->comment,
-                    'images' => count($imagePaths) ? $imagePaths : null,
-                    'is_approved' => false,
-                ]);
-            }
+            // Allow multiple reviews per user per product
+            \App\Models\Review::create([
+                'product_id' => $product->id,
+                'user_id' => auth()->id(),
+                'rating' => $request->rating,
+                'comment' => $request->comment,
+                'images' => count($imagePaths) ? $imagePaths : null,
+                'is_approved' => false,
+            ]);
         } catch (\Exception $e) {
             return back()->with('error', 'Failed to submit review: ' . $e->getMessage());
         }
