@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 
 class LoginController extends Controller
 {
@@ -16,119 +15,61 @@ class LoginController extends Controller
     }
 
     /**
-     * Send OTP to WhatsApp number
+     * Login or register with phone number (WhatsApp)
      */
-    public function sendOtp(Request $request)
+    public function loginWithPhone(Request $request)
     {
         $request->validate([
             'phone' => 'required|digits:10',
+            'name' => 'nullable|string|max:255',
         ]);
 
         $phone = $request->phone;
 
-        // Rate limit: max 5 OTPs per phone per hour
-        $rateLimitKey = 'otp_rate_' . $phone;
-        $attempts = Cache::get($rateLimitKey, 0);
-        if ($attempts >= 5) {
-            return response()->json(['success' => false, 'message' => 'Too many attempts. Try again later.']);
-        }
-
-        // Generate 4-digit OTP
-        $otp = str_pad(random_int(1000, 9999), 4, '0', STR_PAD_LEFT);
-
-        // Store OTP in cache for 5 minutes
-        Cache::put('otp_' . $phone, $otp, now()->addMinutes(5));
-        Cache::put($rateLimitKey, $attempts + 1, now()->addHour());
-
-        // Send OTP via WhatsApp (using simple log for now - integrate with actual API later)
-        // For production: integrate with Twilio/MSG91/Interakt WhatsApp Business API
-        \Log::info("OTP for {$phone}: {$otp}");
-
-        // If Interakt or MSG91 API is configured, send real WhatsApp message
-        $this->sendWhatsAppOtp($phone, $otp);
-
-        return response()->json(['success' => true, 'message' => 'OTP sent successfully']);
-    }
-
-    /**
-     * Verify OTP and login/register the user
-     */
-    public function verifyOtp(Request $request)
-    {
-        $request->validate([
-            'phone' => 'required|digits:10',
-            'otp' => 'required|digits:4',
-        ]);
-
-        $phone = $request->phone;
-        $storedOtp = Cache::get('otp_' . $phone);
-
-        if (!$storedOtp || $storedOtp !== $request->otp) {
-            return response()->json(['success' => false, 'message' => 'Invalid or expired OTP']);
-        }
-
-        // OTP verified - clear it
-        Cache::forget('otp_' . $phone);
-
-        // Find or create user by phone
+        // Find existing user by phone
         $user = User::where('phone', $phone)->first();
 
         if (!$user) {
-            // Auto-register new user with phone number
+            // New user — require name for registration
+            if (!$request->filled('name')) {
+                return back()->withInput()->withErrors([
+                    'phone' => 'This number is not registered. Please enter your name to create an account.'
+                ]);
+            }
+
+            // Auto-register
             $user = User::create([
                 'phone' => $phone,
-                'name' => null, // Will ask to complete profile later
+                'name' => $request->name,
                 'role' => 'customer',
                 'is_active' => true,
             ]);
         }
 
         if (!$user->is_active) {
-            return response()->json(['success' => false, 'message' => 'Account is disabled. Contact support.']);
+            return back()->withInput()->withErrors([
+                'login' => 'Your account has been disabled. Please contact support.'
+            ]);
+        }
+
+        // Update name if provided and user has no name
+        if ($request->filled('name') && !$user->name) {
+            $user->update(['name' => $request->name]);
         }
 
         // Login the user
         Auth::login($user, true);
         $request->session()->regenerate();
 
-        $redirect = $user->isAdmin() ? '/admin/dashboard' : '/';
-
-        return response()->json(['success' => true, 'redirect' => $redirect]);
-    }
-
-    /**
-     * Send WhatsApp OTP via API
-     * Currently logs OTP - replace with actual WhatsApp Business API integration
-     */
-    private function sendWhatsAppOtp(string $phone, string $otp): void
-    {
-        // MSG91 WhatsApp OTP (if configured)
-        $authKey = config('services.msg91.auth_key');
-        $templateId = config('services.msg91.template_id');
-
-        if ($authKey && $templateId) {
-            try {
-                $client = new \GuzzleHttp\Client();
-                $client->post('https://control.msg91.com/api/v5/otp', [
-                    'headers' => ['authkey' => $authKey, 'Content-Type' => 'application/json'],
-                    'json' => [
-                        'template_id' => $templateId,
-                        'mobile' => '91' . $phone,
-                        'otp' => $otp,
-                    ]
-                ]);
-            } catch (\Exception $e) {
-                \Log::error('WhatsApp OTP send failed: ' . $e->getMessage());
-            }
-            return;
+        if ($user->isAdmin()) {
+            return redirect()->intended('/admin/dashboard');
         }
 
-        // Fallback: Simple SMS via any configured gateway
-        // For development: OTP is logged (check storage/logs/laravel.log)
+        return redirect()->intended('/')->with('success', 'Welcome back, ' . ($user->name ?: 'there') . '!');
     }
 
     /**
-     * Legacy email login (kept for admin)
+     * Legacy email login (kept for admin panel access)
      */
     public function login(Request $request)
     {
