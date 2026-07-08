@@ -92,15 +92,19 @@ class ProductController extends Controller
             }
         }
 
-        \App\Models\Review::create([
-            'product_id' => $product->id,
-            'user_id' => auth()->id(),
-            'rating' => $request->rating,
-            'comment' => $request->comment,
-            'images' => count($imagePaths) ? $imagePaths : null,
-            'is_approved' => false, // Needs admin approval
-        ]);
+        try {
+            \App\Models\Review::create([
+                'product_id' => $product->id,
+                'user_id' => auth()->id(),
+                'rating' => $request->rating,
+                'comment' => $request->comment,
+                'images' => count($imagePaths) ? $imagePaths : null,
+                'is_approved' => false,
+            ]);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to submit review. Please try again.');
+        }
 
-        return back()->with('success', 'Thank you! Your review has been submitted and will appear after approval.');
+        return back()->with('success', 'Thank you! Your review has been submitted and will appear after admin approval.');
     }
 }
