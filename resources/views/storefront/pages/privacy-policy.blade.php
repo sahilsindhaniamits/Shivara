@@ -6,7 +6,6 @@
     <div class="mb-10">
         <span class="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-500">Legal</span>
         <h1 class="font-display text-3xl md:text-4xl font-bold text-espresso-700 mt-2">Privacy Policy</h1>
-        <p class="text-sm text-espresso-400 mt-2">Last updated: July 2026</p>
     </div>
     <div class="prose prose-sm max-w-none text-espresso-600 space-y-6 leading-relaxed">
         <p>At Shivara Ayurveda ("we", "us", "our"), we are committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or make a purchase.</p>
