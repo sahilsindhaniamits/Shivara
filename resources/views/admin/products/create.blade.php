@@ -100,14 +100,61 @@
             </div>
         </div>
 
-        <!-- Variants Note -->
-        <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200 flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-100 shrink-0">
-                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+        <!-- Packs / Variants -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-5">
+            <div class="flex items-center gap-3 pb-4 border-b border-gray-100">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-50">
+                    <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                </div>
+                <div>
+                    <h2 class="text-base font-bold text-gray-900">Packs / Variants</h2>
+                    <p class="text-xs text-gray-400">Add different pack sizes (optional). You can also add more after creating.</p>
+                </div>
             </div>
-            <div>
-                <p class="text-sm font-bold text-amber-800">Packs / Variants</p>
-                <p class="text-xs text-amber-600">You can add pack variants (Pack of 1, Pack of 2, etc.) after creating the product. You'll be redirected to the edit page.</p>
+
+            <!-- Dynamic variant rows -->
+            <div x-data="{ variants: [{ name: '', mrp: '', sp: '', weight: '', unit: 'g', stock: '' }] }">
+                <template x-for="(v, i) in variants" :key="i">
+                    <div class="grid grid-cols-2 md:grid-cols-7 gap-3 mb-3 items-end">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1" x-show="i === 0">Pack Name</label>
+                            <input type="text" :name="'variants['+i+'][name]'" x-model="v.name" placeholder="Pack of 1" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1" x-show="i === 0">MRP (₹)</label>
+                            <input type="number" :name="'variants['+i+'][mrp]'" x-model="v.mrp" placeholder="599" step="0.01" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1" x-show="i === 0">Selling Price</label>
+                            <input type="number" :name="'variants['+i+'][sp]'" x-model="v.sp" placeholder="449" step="0.01" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1" x-show="i === 0">Weight/Vol</label>
+                            <input type="number" :name="'variants['+i+'][weight]'" x-model="v.weight" placeholder="100" step="0.01" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1" x-show="i === 0">Unit</label>
+                            <select :name="'variants['+i+'][unit]'" x-model="v.unit" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none">
+                                <option value="g">g</option>
+                                <option value="kg">kg</option>
+                                <option value="ml">ml</option>
+                                <option value="L">L</option>
+                                <option value="pcs">pcs</option>
+                                <option value="tabs">tabs</option>
+                                <option value="caps">caps</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1" x-show="i === 0">Stock</label>
+                            <input type="number" :name="'variants['+i+'][stock]'" x-model="v.stock" placeholder="50" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100">
+                        </div>
+                        <div>
+                            <button type="button" @click="variants.splice(i, 1)" x-show="variants.length > 1" class="px-3 py-2.5 text-red-500 text-xs font-bold rounded-lg bg-red-50 hover:bg-red-100 transition w-full">Remove</button>
+                        </div>
+                    </div>
+                </template>
+                <button type="button" @click="variants.push({ name: '', mrp: '', sp: '', weight: '', unit: 'g', stock: '' })" class="px-4 py-2 text-xs font-bold rounded-lg hover:opacity-90 transition text-white" style="background-color:#16a34a">+ Add Another Pack</button>
+                <p class="text-[10px] text-gray-400 mt-2">Leave empty if product has no variants. Fill at least Name + MRP + Selling Price for each pack.</p>
             </div>
         </div>
 
@@ -204,7 +251,7 @@
                 </button>
                 <a href="{{ route('admin.products.index') }}" class="px-6 py-3.5 border border-gray-200 text-gray-600 font-medium text-sm rounded-xl hover:bg-gray-50 transition">Cancel</a>
             </div>
-            <p class="text-xs text-gray-400 mt-3">After creating, you'll be taken to the edit page to add pack variants.</p>
+            <p class="text-xs text-gray-400 mt-3">After creating, you'll be redirected to the edit page for any further changes.</p>
         </div>
     </form>
 </div>

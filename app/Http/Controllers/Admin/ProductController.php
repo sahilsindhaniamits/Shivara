@@ -94,8 +94,26 @@ class ProductController extends Controller
             $product->update(['banners' => $bannerPaths]);
         }
 
+        // Handle variants from create form
+        if ($request->has('variants')) {
+            foreach ($request->variants as $v) {
+                if (!empty($v['name']) && !empty($v['mrp']) && !empty($v['sp'])) {
+                    $weightDisplay = (!empty($v['weight']) && !empty($v['unit'])) ? $v['weight'] . ' ' . $v['unit'] : null;
+                    \App\Models\ProductVariant::create([
+                        'product_id' => $product->id,
+                        'name' => $v['name'],
+                        'mrp' => $v['mrp'],
+                        'selling_price' => $v['sp'],
+                        'stock' => $v['stock'] ?? 0,
+                        'weight' => $v['weight'] ?? null,
+                        'weight_display' => $weightDisplay,
+                    ]);
+                }
+            }
+        }
+
         return redirect()->route('admin.products.edit', $product)
-            ->with('success', 'Product created! Now add variants and banners below.');
+            ->with('success', 'Product created successfully!');
     }
 
     public function edit(Product $product)
