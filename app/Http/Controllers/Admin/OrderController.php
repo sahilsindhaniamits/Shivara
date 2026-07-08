@@ -65,6 +65,10 @@ class OrderController extends Controller
             'shipping_charge' => $shipping,
             'total_amount' => $total,
             'shipping_method' => $request->shipping_method ?? 'standard',
+            'courier_name' => $request->courier_name,
+            'tracking_number' => $request->tracking_number,
+            'tracking_url' => $request->tracking_url,
+            'awb_number' => $request->tracking_number,
             'admin_notes' => $request->admin_notes,
             'paid_at' => $isPrepaid ? now() : null,
         ]);
