@@ -116,6 +116,30 @@
             </div>
         </div>
 
+            <!-- Shipping & Tracking -->
+            <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+                <h2 class="text-base font-bold text-gray-900 pb-3 border-b border-gray-100">Shipping & Tracking</h2>
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Courier Name</label>
+                        <select name="courier_name" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none">
+                            <option value="">Select Courier (optional)</option>
+                            @foreach(['Delhivery','DTDC','Blue Dart','Ekart','India Post','Shiprocket','Ecom Express','Shadowfax','XpressBees','Other'] as $c)
+                            <option value="{{ $c }}">{{ $c }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">AWB / Tracking Number</label>
+                        <input type="text" name="tracking_number" placeholder="e.g. DL1234567890" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Tracking URL <span class="text-gray-400">(optional)</span></label>
+                    <input type="url" name="tracking_url" placeholder="https://www.delhivery.com/track/..." class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition">
+                </div>
+            </div>
+
         <div class="flex gap-3">
             <button type="submit" class="px-8 py-3.5 text-white font-bold text-sm rounded-xl hover:opacity-90 transition shadow-lg" style="background-color:#B7925C">Create Order</button>
             <a href="{{ route('admin.orders.index') }}" class="px-6 py-3.5 border border-gray-200 text-gray-600 font-medium text-sm rounded-xl hover:bg-gray-50 transition">Cancel</a>
