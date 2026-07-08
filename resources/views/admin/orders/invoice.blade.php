@@ -160,7 +160,7 @@
                 <p>Shivara Ayurveda</p>
                 <p>{{ config('shivara.email', 'support@shivara.in') }}</p>
                 <p>{{ config('shivara.phone', '+91 9876543210') }}</p>
-                <p>GSTIN: {{ config('shivara.gstin', 'N/A') }}</p>
+                <p>GSTIN: 08PQWPS3195F1ZN</p>
             </div>
         </div>
 
