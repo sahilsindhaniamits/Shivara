@@ -49,7 +49,8 @@
                     <li><a href="{{ route('about') }}" class="text-sm text-cream-400 hover:text-cream-100 transition">About Us</a></li>
                     <li><a href="{{ route('blog.index') }}" class="text-sm text-cream-400 hover:text-cream-100 transition">Blog</a></li>
                     <li><a href="{{ route('contact') }}" class="text-sm text-cream-400 hover:text-cream-100 transition">Contact Us</a></li>
-                    @auth<li><a href="{{ route('account.orders') }}" class="text-sm text-cream-400 hover:text-cream-100 transition">Track Order</a></li>@endauth
+                    @auth<li><a href="{{ route('account.orders') }}" class="text-sm text-cream-400 hover:text-cream-100 transition">My Orders</a></li>@endauth
+                    <li><a href="{{ route('track.order') }}" class="text-sm text-cream-400 hover:text-cream-100 transition">Track Order</a></li>
                 </ul>
             </div>
             <div>
