@@ -358,6 +358,64 @@
 </section>
 @endif
 
+<!-- Product Video Testimonials -->
+@php $productTestimonials = \App\Models\VideoTestimonial::active()->where('product_id', $product->id)->orderBy('sort_order')->get(); @endphp
+@if($productTestimonials->count())
+<section class="py-16 scroll-reveal" style="background-color: #FFFDF8;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="text-center mb-10">
+            <span class="text-[11px] font-bold uppercase tracking-[0.3em]" style="color:#B7925C;">Real Results</span>
+            <h2 class="font-display text-3xl md:text-4xl font-bold mt-2" style="color:#2C2418;">Customers Using {{ $product->name }}</h2>
+        </div>
+
+        <div x-data="{ ptPaused: false }" x-init="
+            let ptEl = $refs.ptCarousel;
+            setInterval(() => {
+                if (!ptPaused && ptEl) {
+                    const max = ptEl.scrollWidth - ptEl.clientWidth;
+                    if (ptEl.scrollLeft >= max - 10) { ptEl.scrollTo({ left: 0, behavior: 'smooth' }); }
+                    else { ptEl.scrollBy({ left: 200, behavior: 'smooth' }); }
+                }
+            }, 3000);
+        ">
+            <div x-ref="ptCarousel"
+                 @mouseenter="ptPaused = true"
+                 @mouseleave="ptPaused = false"
+                 class="flex gap-4 overflow-x-auto pb-6 px-2 justify-center" style="scrollbar-width: none; -ms-overflow-style: none;">
+
+                @foreach($productTestimonials as $vt)
+                <div @click="window.dispatchEvent(new CustomEvent('open-video-modal', { detail: { id: {{ $vt->id }}, url: '{{ $vt->video_type === 'youtube' ? 'https://www.youtube.com/embed/' . $vt->embed_url . '?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1' : $vt->embed_url }}', product: {{ json_encode(['name' => $product->name, 'price' => '₹' . number_format($product->selling_price), 'image' => $product->primary_image_url, 'url' => route('products.show', $product->slug)]) }} } }))"
+                     class="shrink-0 w-[155px] sm:w-[180px] md:w-[200px] cursor-pointer group transition-transform duration-300 hover:scale-105">
+                    <div class="relative aspect-[9/16] rounded-2xl overflow-hidden shadow-md group-hover:shadow-2xl transition-all duration-300" style="border: 2px solid #e5e7eb; background-color: #1a1a1a;">
+                        @if($vt->video_file)
+                        <video autoplay muted loop playsinline class="w-full h-full object-cover" poster="{{ $vt->thumbnail_url }}">
+                            <source src="{{ str_starts_with($vt->video_file, '/storage/') ? '/public' . $vt->video_file : $vt->video_file }}" type="video/mp4">
+                        </video>
+                        @elseif($vt->video_type === 'youtube')
+                        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                            <iframe class="absolute top-1/2 left-1/2" style="width: 300%; height: 300%; transform: translate(-50%, -50%);" src="https://www.youtube.com/embed/{{ $vt->embed_url }}?autoplay=1&mute=1&loop=1&playlist={{ $vt->embed_url }}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&disablekb=1&fs=0&iv_load_policy=3" frameborder="0" allow="autoplay; encrypted-media" loading="lazy"></iframe>
+                        </div>
+                        @else
+                        <img src="{{ $vt->thumbnail_url }}" alt="{{ $vt->customer_name }}" class="w-full h-full object-cover">
+                        @endif
+                    </div>
+                    <div class="mt-2.5 px-1">
+                        <p class="text-[11px] font-medium truncate" style="color:#2C2418;">{{ $vt->customer_name }}</p>
+                        <div class="flex items-center gap-0.5 mt-1">
+                            @for($s = 1; $s <= $vt->rating; $s++)
+                            <svg class="w-3 h-3" style="color:#f59e0b; fill:#f59e0b;" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            @endfor
+                            <span class="text-[9px] ml-1" style="color:#6b7280;">Verified review</span>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+</section>
+@endif
+
 <!-- The Shivara Promise (4 points) -->
 <section class="py-16 scroll-reveal" style="background-color:#2C2418;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
@@ -526,4 +584,44 @@
 </div>
 
 </div>{{-- end main x-data --}}
+
+{{-- Video Testimonial Modal for product page --}}
+@if($productTestimonials->count())
+<div x-data="{ open: false, videoUrl: '', product: null, muted: false }"
+     x-show="open" x-cloak style="display:none;"
+     class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+     @keydown.escape.window="open = false; videoUrl = ''; document.body.style.overflow = '';"
+     x-init="window.addEventListener('open-video-modal', (e) => { videoUrl = e.detail.url; product = e.detail.product; muted = false; open = true; document.body.style.overflow = 'hidden'; })">
+    <div class="absolute inset-0" style="background-color: rgba(0,0,0,0.8);" @click="open = false; videoUrl = ''; document.body.style.overflow = '';"></div>
+    <div class="relative w-full max-w-[360px] mx-auto" @click.stop>
+        <button @click="open = false; videoUrl = ''; document.body.style.overflow = '';"
+                class="absolute top-3 right-3 z-30 w-9 h-9 rounded-full flex items-center justify-center"
+                style="background-color: rgba(255,255,255,0.9);">
+            <svg class="w-5 h-5" style="color:#2C2418;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+        <button @click="muted = !muted; if($refs.pvFrame) { let s = $refs.pvFrame.src; $refs.pvFrame.src = s.replace(/mute=[01]/, 'mute=' + (muted ? '1' : '0')); }"
+                class="absolute top-3 left-3 z-30 w-9 h-9 rounded-full flex items-center justify-center"
+                style="background-color: rgba(255,255,255,0.9);">
+            <svg x-show="!muted" class="w-5 h-5" style="color:#2C2418;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9M6 9H3v6h3l5 5V4L6 9z"/></svg>
+            <svg x-show="muted" class="w-5 h-5" style="color:#2C2418;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707A1 1 0 0112 5v14a1 1 0 01-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/></svg>
+        </button>
+        <div class="relative rounded-2xl overflow-hidden shadow-2xl" style="background-color:#000; aspect-ratio: 9/16; max-height: 80vh;">
+            <iframe x-ref="pvFrame" class="absolute inset-0 w-full h-full" :src="videoUrl" frameborder="0" allow="autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <div x-show="product && product.name" class="absolute bottom-0 left-0 right-0 z-20 p-3">
+                <div class="flex items-center gap-3 p-3 rounded-xl" style="background-color: rgba(255,255,255,0.95); backdrop-filter: blur(10px);">
+                    <div class="w-11 h-11 rounded-lg overflow-hidden shrink-0" style="background-color:#f3f4f6;">
+                        <img x-show="product && product.image" :src="product ? product.image : ''" class="w-full h-full object-cover" alt="">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-bold truncate" style="color:#2C2418;" x-text="product ? product.name : ''"></p>
+                        <p class="text-xs font-semibold mt-0.5" style="color:#6b7280;" x-text="product ? product.price : ''"></p>
+                    </div>
+                    <a :href="product ? product.url : '#'" class="px-4 py-2.5 text-white text-xs font-bold rounded-lg whitespace-nowrap" style="background-color:#2C2418;">Shop Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 @endsection
