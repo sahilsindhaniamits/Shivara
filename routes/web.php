@@ -29,6 +29,11 @@ Route::get('/products', [ProductController::class, 'index'])->name('products.ind
 Route::get('/products/{slug}', [ProductController::class, 'show'])->name('products.show');
 Route::post('/products/{slug}/review', [ProductController::class, 'storeReview'])->name('products.review')->middleware('auth');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
+Route::get('/about', [HomeController::class, 'about'])->name('about');
+Route::get('/privacy-policy', fn() => view('storefront.pages.privacy-policy'))->name('privacy-policy');
+Route::get('/return-policy', fn() => view('storefront.pages.return-policy'))->name('return-policy');
+Route::get('/shipping-policy', fn() => view('storefront.pages.shipping-policy'))->name('shipping-policy');
+Route::get('/terms-and-conditions', fn() => view('storefront.pages.terms'))->name('terms');
 Route::get('/blog', [StorefrontBlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [StorefrontBlogController::class, 'show'])->name('blog.show');
 

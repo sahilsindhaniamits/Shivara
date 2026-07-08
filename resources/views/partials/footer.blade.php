@@ -46,7 +46,8 @@
                 <h4 class="text-xs font-bold uppercase tracking-[0.2em] text-gold-400 mb-5">Quick Links</h4>
                 <ul class="space-y-3">
                     <li><a href="{{ route('products.index') }}" class="text-sm text-cream-400 hover:text-cream-100 transition">All Products</a></li>
-                    <li><a href="{{ route('products.index', ['category' => 'capsules']) }}" class="text-sm text-cream-400 hover:text-cream-100 transition">Capsules</a></li>
+                    <li><a href="{{ route('about') }}" class="text-sm text-cream-400 hover:text-cream-100 transition">About Us</a></li>
+                    <li><a href="{{ route('blog.index') }}" class="text-sm text-cream-400 hover:text-cream-100 transition">Blog</a></li>
                     <li><a href="{{ route('contact') }}" class="text-sm text-cream-400 hover:text-cream-100 transition">Contact Us</a></li>
                     @auth<li><a href="{{ route('account.orders') }}" class="text-sm text-cream-400 hover:text-cream-100 transition">Track Order</a></li>@endauth
                 </ul>
@@ -54,10 +55,10 @@
             <div>
                 <h4 class="text-xs font-bold uppercase tracking-[0.2em] text-gold-400 mb-5">Policies</h4>
                 <ul class="space-y-3">
-                    <li><a href="#" class="text-sm text-cream-400 hover:text-cream-100 transition">Shipping Policy</a></li>
-                    <li><a href="#" class="text-sm text-cream-400 hover:text-cream-100 transition">Return & Refund</a></li>
-                    <li><a href="#" class="text-sm text-cream-400 hover:text-cream-100 transition">Privacy Policy</a></li>
-                    <li><a href="#" class="text-sm text-cream-400 hover:text-cream-100 transition">Terms & Conditions</a></li>
+                    <li><a href="{{ route('shipping-policy') }}" class="text-sm text-cream-400 hover:text-cream-100 transition">Shipping Policy</a></li>
+                    <li><a href="{{ route('return-policy') }}" class="text-sm text-cream-400 hover:text-cream-100 transition">Return & Refund</a></li>
+                    <li><a href="{{ route('privacy-policy') }}" class="text-sm text-cream-400 hover:text-cream-100 transition">Privacy Policy</a></li>
+                    <li><a href="{{ route('terms') }}" class="text-sm text-cream-400 hover:text-cream-100 transition">Terms & Conditions</a></li>
                 </ul>
             </div>
             <div>
