@@ -30,6 +30,15 @@ Route::get('/products/{slug}', [ProductController::class, 'show'])->name('produc
 Route::post('/products/{slug}/review', [ProductController::class, 'storeReview'])->name('products.review')->middleware('auth');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
 Route::get('/about', [HomeController::class, 'about'])->name('about');
+Route::get('/track-order', function (\Illuminate\Http\Request $request) {
+    $order = null;
+    if ($request->filled('order_number')) {
+        $order = \App\Models\Order::where('order_number', $request->order_number)
+            ->with(['items', 'timeline'])
+            ->first();
+    }
+    return view('storefront.track-order', compact('order'));
+})->name('track.order');
 Route::get('/privacy-policy', fn() => view('storefront.pages.privacy-policy'))->name('privacy-policy');
 Route::get('/return-policy', fn() => view('storefront.pages.return-policy'))->name('return-policy');
 Route::get('/shipping-policy', fn() => view('storefront.pages.shipping-policy'))->name('shipping-policy');
@@ -120,6 +129,7 @@ Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\AdminMiddleware
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::get('/orders/{order}/invoice', [AdminOrderController::class, 'invoice'])->name('orders.invoice');
     Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
+    Route::patch('/orders/{order}/tracking', [AdminOrderController::class, 'updateTracking'])->name('orders.updateTracking');
 
     // Coupons
     Route::resource('coupons', AdminCouponController::class);

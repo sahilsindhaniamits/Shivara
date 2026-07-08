@@ -70,6 +70,24 @@
                 <p class="text-sm text-gray-600 mt-1">Phone: {{ $order->address->phone }}</p>
                 @endif
             </div>
+
+            <!-- Order Timeline -->
+            @if($order->timeline && $order->timeline->count())
+            <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                <h2 class="font-bold text-gray-900 mb-4">Order Timeline</h2>
+                <div class="space-y-3">
+                    @foreach($order->timeline as $event)
+                    <div class="flex gap-3">
+                        <div class="w-2 h-2 rounded-full bg-gold-400 mt-1.5 shrink-0"></div>
+                        <div>
+                            <p class="text-sm text-gray-700">{{ $event->message }}</p>
+                            <p class="text-[10px] text-gray-400">{{ $event->created_at->format('d M Y, h:i A') }}</p>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
         </div>
 
         <!-- Sidebar -->
@@ -96,6 +114,38 @@
                 <div class="flex justify-between text-sm"><span class="text-gray-500">Shipping</span><span class="font-medium">{{ ucfirst($order->shipping_method) }}</span></div>
                 @if($order->coupon_code)<div class="flex justify-between text-sm"><span class="text-gray-500">Coupon</span><span class="font-medium text-primary">{{ $order->coupon_code }}</span></div>@endif
                 <div class="flex justify-between text-sm"><span class="text-gray-500">Customer</span><span class="font-medium">{{ $order->user->name }}</span></div>
+            </div>
+
+            <!-- Tracking Info -->
+            <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                <h3 class="font-bold text-gray-900 mb-4">Shipping & Tracking</h3>
+                <form method="POST" action="{{ route('admin.orders.updateTracking', $order) }}" class="space-y-3">
+                    @csrf @method('PATCH')
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Courier Name</label>
+                        <select name="courier_name" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none">
+                            <option value="">Select Courier</option>
+                            @foreach(['Delhivery','DTDC','Blue Dart','Ekart','India Post','Shiprocket','Ecom Express','Shadowfax','XpressBees','Other'] as $c)
+                            <option value="{{ $c }}" {{ $order->courier_name == $c ? 'selected' : '' }}>{{ $c }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">AWB / Tracking Number</label>
+                        <input type="text" name="tracking_number" value="{{ $order->tracking_number }}" placeholder="e.g. DL1234567890" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Tracking URL <span class="text-gray-400">(optional)</span></label>
+                        <input type="url" name="tracking_url" value="{{ $order->tracking_url }}" placeholder="https://www.delhivery.com/track/..." class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-100">
+                    </div>
+                    <button type="submit" class="w-full px-4 py-2.5 text-white text-sm font-medium rounded-xl hover:opacity-90 transition" style="background-color:#2C2418">Save Tracking</button>
+                </form>
+                @if($order->tracking_number)
+                <div class="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                    <p class="text-xs font-semibold text-green-700">Tracking Active: {{ $order->courier_name }} - {{ $order->tracking_number }}</p>
+                    @if($order->tracking_url)<a href="{{ $order->tracking_url }}" target="_blank" class="text-[10px] text-green-600 hover:underline">Open tracking page →</a>@endif
+                </div>
+                @endif
             </div>
         </div>
     </div>
