@@ -148,6 +148,16 @@ Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\AdminMiddleware
     Route::put('/profile', [\App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [\App\Http\Controllers\Admin\ProfileController::class, 'updatePassword'])->name('profile.password');
 
+    // Announcement Marquee
+    Route::get('/marquee', function () { return view('admin.marquee'); })->name('marquee.index');
+    Route::post('/marquee', function (\Illuminate\Http\Request $request) {
+        \App\Models\Setting::set('marquee_text', $request->marquee_text);
+        if ($request->filled('marquee_bg_color')) {
+            \App\Models\Setting::set('marquee_bg_color', $request->marquee_bg_color);
+        }
+        return back()->with('success', 'Announcement bar updated!');
+    })->name('marquee.update');
+
     // Reports & Analytics
     Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/revenue-chart', [AdminReportController::class, 'revenueChart'])->name('reports.revenueChart');
