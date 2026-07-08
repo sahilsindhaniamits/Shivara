@@ -36,6 +36,14 @@ class VideoTestimonial extends Model
             preg_match('/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/', $this->video_url, $matches);
             return $matches[1] ?? $this->video_url;
         }
+        if ($this->video_type === 'instagram') {
+            // Instagram reels embed format: add /embed/ to the reel URL
+            $url = rtrim($this->video_url, '/');
+            if (!str_contains($url, '/embed')) {
+                return $url . '/embed';
+            }
+            return $url;
+        }
         return $this->video_url;
     }
 
