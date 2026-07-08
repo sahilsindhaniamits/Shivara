@@ -24,7 +24,10 @@
             <div><label class="block text-sm font-medium text-slate-700 mb-1">Start Date *</label><input type="date" name="start_date" value="{{ old('start_date', date('Y-m-d')) }}" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-200 focus:bg-white"></div>
             <div><label class="block text-sm font-medium text-slate-700 mb-1">End Date *</label><input type="date" name="end_date" value="{{ old('end_date') }}" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-200 focus:bg-white"></div>
         </div>
-        <label class="flex items-center gap-2"><input type="checkbox" name="is_active" value="1" checked class="rounded text-brand-600"><span class="text-sm text-slate-700">Active</span></label>
+        <div class="flex flex-wrap gap-6">
+            <label class="flex items-center gap-2"><input type="checkbox" name="is_active" value="1" checked class="rounded text-brand-600"><span class="text-sm text-slate-700">Active</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox" name="show_as_popup" value="1" class="rounded text-brand-600"><span class="text-sm text-slate-700">Show as Popup on Website</span></label>
+        </div>
         <div class="flex gap-3 pt-2">
             <button type="submit" class="px-6 py-3 text-white font-semibold rounded-xl hover:opacity-90 transition text-sm" style="background-color:#c06d22">Create Coupon</button>
             <a href="{{ route('admin.coupons.index') }}" class="px-6 py-3 border border-slate-200 text-slate-600 font-medium rounded-xl hover:bg-slate-50 transition text-sm">Cancel</a>

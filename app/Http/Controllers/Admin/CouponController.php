@@ -37,6 +37,7 @@ class CouponController extends Controller
 
         $validated['code'] = strtoupper($validated['code']);
         $validated['is_active'] = $request->has('is_active');
+        $validated['show_as_popup'] = $request->has('show_as_popup');
 
         Coupon::create($validated);
 
@@ -67,6 +68,7 @@ class CouponController extends Controller
 
         $validated['code'] = strtoupper($validated['code']);
         $validated['is_active'] = $request->has('is_active');
+        $validated['show_as_popup'] = $request->has('show_as_popup');
 
         $coupon->update($validated);
 
