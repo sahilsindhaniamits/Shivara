@@ -427,15 +427,18 @@
         <div class="mb-3 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm font-medium">{{ session('error') }}</div>
         @endif
 
-        <form method="POST" action="{{ route('products.review', $product->slug) }}" enctype="multipart/form-data" class="space-y-3" x-data="{ rating: 5 }">
+        <form method="POST" action="{{ route('products.review', $product->slug) }}" enctype="multipart/form-data" class="space-y-3" x-data="{ rating: 0 }">
             @csrf
             <div class="flex items-center gap-1">
                 @for($s = 1; $s <= 5; $s++)
-                <button type="button" @click="rating = {{ $s }}" :class="{{ $s }} <= rating ? 'text-amber-400' : 'text-gray-300'" class="transition">
+                <button type="button" @click="rating = {{ $s }}" :class="{{ $s }} <= rating ? 'text-amber-400' : 'text-gray-300'" class="transition hover:scale-110">
                     <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                 </button>
                 @endfor
+                <span class="text-xs text-espresso-400 ml-2" x-show="rating > 0" x-text="rating + '/5'"></span>
+                <span class="text-xs text-red-400 ml-2" x-show="rating === 0">← Click to rate</span>
             </div>
+            @error('rating')<p class="text-red-500 text-xs">Please select a star rating</p>@enderror
             <input type="hidden" name="rating" x-bind:value="rating">
             <textarea name="comment" rows="3" placeholder="Share your experience..." class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold-200 placeholder:text-gray-400" required></textarea>
             <!-- Image Upload -->
