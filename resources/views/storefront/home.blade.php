@@ -398,11 +398,16 @@
                         @endif
                     " class="shrink-0 w-[155px] sm:w-[180px] md:w-[200px] cursor-pointer group transition-transform duration-300 hover:scale-105">
                         <div class="relative aspect-[9/16] rounded-2xl overflow-hidden shadow-md group-hover:shadow-2xl transition-all duration-300" style="border: 2px solid #e5e7eb; background-color: #1a1a1a;">
-                            {{-- Only thumbnail images in cards - no iframes, no play button overlays --}}
                             @if($vt->video_file)
+                            {{-- MP4 autoplay muted --}}
                             <video autoplay muted loop playsinline class="w-full h-full object-cover" poster="{{ $vt->thumbnail_url }}">
                                 <source src="{{ str_starts_with($vt->video_file, '/storage/') ? '/public' . $vt->video_file : $vt->video_file }}" type="video/mp4">
                             </video>
+                            @elseif($vt->video_type === 'youtube')
+                            {{-- YouTube iframe autoplay muted with controls hidden via CSS scaling --}}
+                            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                                <iframe class="absolute top-1/2 left-1/2" style="width: 300%; height: 300%; transform: translate(-50%, -50%);" src="https://www.youtube.com/embed/{{ $vt->embed_url }}?autoplay=1&mute=1&loop=1&playlist={{ $vt->embed_url }}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&disablekb=1&fs=0&iv_load_policy=3" frameborder="0" allow="autoplay; encrypted-media" loading="lazy"></iframe>
+                            </div>
                             @else
                             <img src="{{ $vt->thumbnail_url }}" alt="{{ $vt->customer_name }}" class="w-full h-full object-cover">
                             @endif
