@@ -1,25 +1,23 @@
 <!-- Announcement Marquee -->
-<div class="text-white overflow-hidden" style="background-color: rgb(183, 146, 92);">
+@php
+    $marqueeText = \App\Models\Setting::get('marquee_text', 'Free Shipping Pan-India,10% Off — Code: WOW10,100% Natural Ayurvedic,GMP Certified Lab Tested');
+    $marqueeItems = array_filter(array_map('trim', explode(',', $marqueeText)));
+    $marqueeBg = \App\Models\Setting::get('marquee_bg_color', 'rgb(183, 146, 92)');
+@endphp
+@if(count($marqueeItems))
+<div class="text-white overflow-hidden" style="background-color: {{ $marqueeBg }};">
     <div class="flex py-2.5">
         <div class="animate-marquee flex items-center gap-8 whitespace-nowrap text-[11px] tracking-[0.2em] uppercase font-medium">
-            <span>Free Shipping Pan-India</span>
+            @for($m = 0; $m < 2; $m++)
+            @foreach($marqueeItems as $item)
+            <span>{{ $item }}</span>
             <span class="opacity-60">✦</span>
-            <span>10% Off — Code: WOW10</span>
-            <span class="opacity-60">✦</span>
-            <span>100% Natural Ayurvedic</span>
-            <span class="opacity-60">✦</span>
-            <span>GMP Certified Lab Tested</span>
-            <span class="opacity-60">✦</span>
-            <span>Free Shipping Pan-India</span>
-            <span class="opacity-60">✦</span>
-            <span>10% Off — Code: WOW10</span>
-            <span class="opacity-60">✦</span>
-            <span>100% Natural Ayurvedic</span>
-            <span class="opacity-60">✦</span>
-            <span>GMP Certified Lab Tested</span>
+            @endforeach
+            @endfor
         </div>
     </div>
 </div>
+@endif
 
 <!-- Main Header -->
 <header class="sticky top-0 z-50 glass border-b border-gold-100/50 shadow-sm" x-data="{ mobileMenu: false, searchOpen: false }">
