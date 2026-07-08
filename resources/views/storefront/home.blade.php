@@ -372,20 +372,20 @@
 <!-- Video Testimonials Section -->
 @php $videoTestimonials = \App\Models\VideoTestimonial::active()->with('product')->orderBy('sort_order')->take(10)->get(); @endphp
 @if($videoTestimonials->count())
-<section class="py-16 md:py-20 scroll-reveal" style="background-color: #FFFDF8;">
+<section class="py-16 md:py-20 scroll-reveal" style="background-color: #FFFDF8;" x-data="{ openVideo: null, openUrl: '' }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="text-center mb-10">
             <h2 class="font-display text-3xl md:text-4xl font-bold text-espresso-700">Real Customers, Real Reviews</h2>
         </div>
-        <div class="flex gap-4 overflow-x-auto scrollbar-hide pb-4 cursor-grab active:cursor-grabbing" x-data="{ openVideo: null }">
+        <div class="flex gap-4 overflow-x-auto scrollbar-hide pb-4">
             @foreach($videoTestimonials as $vt)
-            <div @click="openVideo = {{ $vt->id }}" class="shrink-0 w-[180px] sm:w-[200px] cursor-pointer group">
+            <div @click="openVideo = {{ $vt->id }}; openUrl = '{{ $vt->video_type === 'youtube' ? 'https://www.youtube.com/embed/' . $vt->embed_url . '?autoplay=1&rel=0' : $vt->embed_url }}'" class="shrink-0 w-[180px] sm:w-[200px] cursor-pointer group">
                 <div class="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-100 shadow-sm group-hover:shadow-xl transition">
-                    <img src="{{ $vt->thumbnail_url }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                    <img src="{{ $vt->thumbnail_url }}" alt="{{ $vt->customer_name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                     <!-- Play icon -->
-                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                        <div class="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition">
                             <svg class="w-5 h-5 text-espresso-700 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                         </div>
                     </div>
@@ -394,58 +394,52 @@
                         @if($vt->product)
                         <p class="text-white text-xs font-semibold truncate">{{ $vt->product->name }}</p>
                         <p class="text-white/80 text-[10px]">₹{{ number_format($vt->product->selling_price) }}</p>
+                        @else
+                        <p class="text-white text-xs font-semibold">{{ $vt->customer_name }}</p>
                         @endif
                         <div class="flex items-center gap-1 mt-1">
                             @for($s = 1; $s <= $vt->rating; $s++)
                             <svg class="w-3 h-3 text-amber-400 fill-amber-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                             @endfor
-                            @if($vt->is_verified)<span class="text-[9px] text-white/70 ml-1">Verified review</span>@endif
+                            @if($vt->is_verified)<span class="text-[9px] text-green-300 ml-1">✓ Verified</span>@endif
                         </div>
                     </div>
-                </div>
-            </div>
-            @endforeach
-
-            <!-- Video Lightbox Popup -->
-            @foreach($videoTestimonials as $vt)
-            <div x-show="openVideo === {{ $vt->id }}" x-cloak x-transition.opacity @click.self="openVideo = null" @keydown.escape.window="openVideo = null" class="fixed inset-0 z-[300] bg-black/90 flex items-center justify-center p-4">
-                <div class="relative max-w-lg w-full bg-white rounded-3xl overflow-hidden shadow-2xl" @click.stop>
-                    <button @click="openVideo = null" class="absolute top-3 right-3 z-10 w-8 h-8 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-                    <!-- Video Embed -->
-                    <div class="aspect-[9/16] max-h-[70vh] bg-black">
-                        @if($vt->video_type === 'youtube')
-                        <iframe x-show="openVideo === {{ $vt->id }}" class="w-full h-full" src="" :src="openVideo === {{ $vt->id }} ? 'https://www.youtube.com/embed/{{ $vt->embed_url }}?autoplay=1&rel=0' : ''" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-                        @elseif($vt->video_type === 'instagram')
-                        <div class="w-full h-full flex items-center justify-center">
-                            <a href="{{ $vt->video_url }}" target="_blank" class="text-white text-center">
-                                <svg class="w-16 h-16 mx-auto mb-3 text-pink-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0z"/></svg>
-                                <p class="text-lg font-bold">Watch on Instagram</p>
-                                <p class="text-sm text-white/60 mt-1">Tap to open reel</p>
-                            </a>
-                        </div>
-                        @endif
-                    </div>
-                    <!-- Product Card Overlay -->
-                    @if($vt->product)
-                    <div class="p-4 flex items-center gap-3 border-t border-gray-100">
-                        @php $prodImg = $vt->product->primary_image_url; @endphp
-                        <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 shrink-0">
-                            @if($prodImg)<img src="{{ $prodImg }}" class="w-full h-full object-cover">@endif
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-bold text-espresso-700 truncate">{{ $vt->product->name }}</p>
-                            <p class="text-xs text-espresso-500">₹{{ number_format($vt->product->selling_price) }}</p>
-                        </div>
-                        <a href="{{ route('products.show', $vt->product->slug) }}" class="px-5 py-2.5 text-white text-xs font-bold rounded-xl hover:opacity-90 transition" style="background-color:#2C2418">Shop Now</a>
-                    </div>
-                    @endif
                 </div>
             </div>
             @endforeach
         </div>
     </div>
+
+    <!-- Video Lightbox Popup (outside the scroll container) -->
+    <template x-if="openVideo">
+        <div x-transition.opacity @click.self="openVideo = null; openUrl = ''" @keydown.escape.window="openVideo = null; openUrl = ''" class="fixed inset-0 z-[300] bg-black/90 flex items-center justify-center p-4">
+            <div class="relative w-full max-w-sm bg-black rounded-3xl overflow-hidden shadow-2xl" @click.stop>
+                <button @click="openVideo = null; openUrl = ''" class="absolute top-3 right-3 z-10 w-8 h-8 bg-white/20 hover:bg-white/40 rounded-full flex items-center justify-center text-white">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+                <!-- Video -->
+                <div class="aspect-[9/16] bg-black">
+                    <iframe class="w-full h-full" :src="openUrl" frameborder="0" allow="autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+                <!-- Product card -->
+                @foreach($videoTestimonials as $vt)
+                @if($vt->product)
+                <div x-show="openVideo === {{ $vt->id }}" class="p-4 flex items-center gap-3 bg-white">
+                    @php $prodImg = $vt->product->primary_image_url; @endphp
+                    <div class="w-11 h-11 rounded-lg overflow-hidden bg-gray-100 shrink-0">
+                        @if($prodImg)<img src="{{ $prodImg }}" class="w-full h-full object-cover">@endif
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-bold text-espresso-700 truncate">{{ $vt->product->name }}</p>
+                        <p class="text-xs text-espresso-500">₹{{ number_format($vt->product->selling_price) }}</p>
+                    </div>
+                    <a href="{{ route('products.show', $vt->product->slug) }}" class="px-4 py-2 text-white text-xs font-bold rounded-lg hover:opacity-90 transition" style="background-color:#2C2418">Shop Now</a>
+                </div>
+                @endif
+                @endforeach
+            </div>
+        </div>
+    </template>
 </section>
 @endif
 
