@@ -65,9 +65,13 @@ class CheckoutController extends Controller
             return $price * $item->quantity;
         });
 
-        $shippingCharge = $subtotal >= config('shivara.free_shipping_threshold')
-            ? 0
-            : ($request->shipping_method === 'express' ? config('shivara.express_rate') : config('shivara.standard_rate'));
+        $shippingCharge = 0;
+        if ($request->shipping_method === 'express') {
+            $shippingCharge = config('shivara.express_rate', 149);
+        } elseif ($subtotal < config('shivara.free_shipping_threshold', 299)) {
+            $shippingCharge = config('shivara.standard_rate', 79);
+        }
+        // Free standard shipping if above threshold, Express always charged
 
         $codCharge = $request->payment_method === 'cod' ? config('shivara.cod_charge') : 0;
         $discount = 0;
@@ -141,8 +145,8 @@ class CheckoutController extends Controller
             return $this->initiateRazorpay($order);
         }
 
-        // COD - confirm directly
-        $order->update(['status' => 'confirmed']);
+        // COD - keep as pending (admin will confirm manually)
+        $order->update(['status' => 'pending']);
 
         return redirect()->route('order.success', $order->order_number)
             ->with('success', 'Order placed successfully!');
