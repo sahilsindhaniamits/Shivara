@@ -434,19 +434,13 @@
                         @endif
                     " class="shrink-0 w-[155px] sm:w-[180px] md:w-[200px] cursor-pointer group transition-transform duration-300 hover:scale-105">
                         <div class="relative aspect-[9/16] rounded-2xl overflow-hidden bg-gray-200 shadow-md group-hover:shadow-2xl transition-all duration-300" style="border: 2px solid #e5e7eb;">
-                            @if($vt->video_type === 'youtube')
-                            <iframe class="w-full h-full pointer-events-none absolute inset-0" src="https://www.youtube.com/embed/{{ $vt->embed_url }}?autoplay=1&mute=1&loop=1&playlist={{ $vt->embed_url }}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen loading="lazy"></iframe>
-                            @elseif($vt->video_file)
+                            {{-- Use thumbnail image for all cards (no iframes) to avoid YouTube controls showing --}}
+                            @if($vt->video_file)
                             <video autoplay muted loop playsinline class="w-full h-full object-cover" poster="{{ $vt->thumbnail_url }}">
                                 <source src="{{ str_starts_with($vt->video_file, '/storage/') ? '/public' . $vt->video_file : $vt->video_file }}" type="video/mp4">
                             </video>
                             @else
                             <img src="{{ $vt->thumbnail_url }}" alt="{{ $vt->customer_name }}" class="w-full h-full object-cover">
-                            <div class="absolute inset-0 flex items-center justify-center bg-black/10">
-                                <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: rgba(255,255,255,0.9);">
-                                    <svg class="w-5 h-5 ml-0.5" style="color:#2C2418;" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                </div>
-                            </div>
                             @endif
                         </div>
                         <div class="mt-2.5 px-1">
@@ -479,7 +473,7 @@
                      class="fixed inset-0 z-[300] flex items-center justify-center p-4"
                      style="background-color: rgba(0,0,0,0.75);">
 
-                    <div class="relative w-full max-w-[380px]" @click.stop>
+                    <div class="relative w-full max-w-[380px]" style="max-height: 90vh;" @click.stop>
                         <!-- Close Button (top-right inside) -->
                         <button @click="closeModal()"
                                 class="absolute top-3 right-3 z-20 w-9 h-9 rounded-full flex items-center justify-center transition hover:scale-110"
@@ -499,28 +493,30 @@
                             </template>
                         </button>
 
-                        <!-- Video Container (portrait 9:16 aspect ratio) -->
-                        <div class="aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl" style="background-color:#000;">
-                            <iframe x-ref="modalIframe" class="w-full h-full" :src="openUrl" frameborder="0" allow="autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                        </div>
+                        <!-- Video Container with Product Card overlaid at bottom -->
+                        <div class="relative rounded-2xl overflow-hidden shadow-2xl" style="background-color:#000; aspect-ratio: 9/16; max-height: 85vh;">
+                            <iframe x-ref="modalIframe" class="w-full h-full absolute inset-0" :src="openUrl" frameborder="0" allow="autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-                        <!-- Product Card at Bottom (inside modal) -->
-                        <template x-if="openProduct && openProduct.name">
-                            <div class="mt-3 p-3 flex items-center gap-3 rounded-xl shadow-lg" style="background-color: rgba(255,255,255,0.97);">
-                                <div class="w-12 h-12 rounded-lg overflow-hidden shrink-0" style="background-color:#f3f4f6;">
-                                    <template x-if="openProduct.image">
-                                        <img :src="openProduct.image" class="w-full h-full object-cover" alt="">
-                                    </template>
+                            <!-- Product Card overlaid at bottom of video (inside the frame) -->
+                            <template x-if="openProduct && openProduct.name">
+                                <div class="absolute bottom-0 left-0 right-0 z-10 p-3">
+                                    <div class="p-3 flex items-center gap-3 rounded-xl" style="background-color: rgba(255,255,255,0.95); backdrop-filter: blur(8px);">
+                                        <div class="w-11 h-11 rounded-lg overflow-hidden shrink-0" style="background-color:#f3f4f6;">
+                                            <template x-if="openProduct.image">
+                                                <img :src="openProduct.image" class="w-full h-full object-cover" alt="">
+                                            </template>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-bold truncate" style="color:#2C2418;" x-text="openProduct.name"></p>
+                                            <p class="text-xs font-semibold mt-0.5" style="color:#6b7280;" x-text="openProduct.price"></p>
+                                        </div>
+                                        <a :href="openProduct.url"
+                                           class="px-4 py-2.5 text-white text-xs font-bold rounded-lg hover:opacity-90 transition whitespace-nowrap"
+                                           style="background-color:#2C2418;">Shop Now</a>
+                                    </div>
                                 </div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-bold truncate" style="color:#2C2418;" x-text="openProduct.name"></p>
-                                    <p class="text-xs font-semibold mt-0.5" style="color:#6b7280;" x-text="openProduct.price"></p>
-                                </div>
-                                <a :href="openProduct.url"
-                                   class="px-5 py-2.5 text-white text-xs font-bold rounded-lg hover:opacity-90 transition whitespace-nowrap"
-                                   style="background-color:#2C2418;">Shop Now</a>
-                            </div>
-                        </template>
+                            </template>
+                        </div>
                     </div>
                 </div>
             </template>
