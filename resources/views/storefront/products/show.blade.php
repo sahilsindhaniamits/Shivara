@@ -225,26 +225,22 @@
                 @endif
 
                 <!-- 4 Trust Points Under Buy Now -->
-                <div class="grid grid-cols-4 gap-3 pt-3">
+                <div class="grid grid-cols-4 gap-2 sm:gap-3 pt-3">
                     <div class="text-center">
-                        <div class="w-10 h-10 mx-auto mb-1.5 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1); border: 1px solid rgba(183,146,92,0.25);"><svg class="w-4 h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></div>
-                        <p class="text-[10px] font-bold uppercase" style="color:#2C2418;">Single-Origin</p>
-                        <p class="text-[9px]" style="color:#8c7560;">Heritage farms, Rajasthan</p>
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 mx-auto mb-1 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1); border: 1px solid rgba(183,146,92,0.25);"><svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></div>
+                        <p class="text-[8px] sm:text-[10px] font-bold uppercase leading-tight" style="color:#2C2418;">Single-Origin</p>
                     </div>
                     <div class="text-center">
-                        <div class="w-10 h-10 mx-auto mb-1.5 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1); border: 1px solid rgba(183,146,92,0.25);"><svg class="w-4 h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div>
-                        <p class="text-[10px] font-bold uppercase" style="color:#2C2418;">GMP Certified</p>
-                        <p class="text-[9px]" style="color:#8c7560;">Audited facilities</p>
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 mx-auto mb-1 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1); border: 1px solid rgba(183,146,92,0.25);"><svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div>
+                        <p class="text-[8px] sm:text-[10px] font-bold uppercase leading-tight" style="color:#2C2418;">GMP Certified</p>
                     </div>
                     <div class="text-center">
-                        <div class="w-10 h-10 mx-auto mb-1.5 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1); border: 1px solid rgba(183,146,92,0.25);"><svg class="w-4 h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div>
-                        <p class="text-[10px] font-bold uppercase" style="color:#2C2418;">Free Shipping</p>
-                        <p class="text-[9px]" style="color:#8c7560;">All orders, pan-India</p>
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 mx-auto mb-1 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1); border: 1px solid rgba(183,146,92,0.25);"><svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div>
+                        <p class="text-[8px] sm:text-[10px] font-bold uppercase leading-tight" style="color:#2C2418;">Free Shipping</p>
                     </div>
                     <div class="text-center">
-                        <div class="w-10 h-10 mx-auto mb-1.5 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1); border: 1px solid rgba(183,146,92,0.25);"><svg class="w-4 h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></div>
-                        <p class="text-[10px] font-bold uppercase" style="color:#2C2418;">Easy Returns</p>
-                        <p class="text-[9px]" style="color:#8c7560;">7-day hassle-free</p>
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 mx-auto mb-1 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1); border: 1px solid rgba(183,146,92,0.25);"><svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></div>
+                        <p class="text-[8px] sm:text-[10px] font-bold uppercase leading-tight" style="color:#2C2418;">Easy Returns</p>
                     </div>
                 </div>
             </div>
@@ -255,14 +251,14 @@
 
 <!-- Active Offers Strip -->
 @if($activeCoupons->count())
-<section class="py-8 scroll-reveal" style="background-color:#2C2418;">
+<section class="py-5 sm:py-8 scroll-reveal" style="background-color:#2C2418;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="flex items-center gap-6 overflow-x-auto scrollbar-hide">
-            <span class="shrink-0 text-xs font-bold uppercase tracking-wider" style="color:#B7925C;">Active Offers</span>
+        <div class="flex items-center gap-4 sm:gap-6 overflow-x-auto scrollbar-hide pb-1">
+            <span class="shrink-0 text-[10px] sm:text-xs font-bold uppercase tracking-wider" style="color:#B7925C;">Offers</span>
             @foreach($activeCoupons as $coupon)
-            <div class="shrink-0 flex items-center gap-3 px-5 py-3 rounded-full border border-dashed" style="border-color: rgba(183,146,92,0.5);">
-                <span class="text-xs font-bold text-white">{{ $coupon->description ?? ($coupon->type == 'percentage' ? $coupon->value.'% OFF' : '₹'.$coupon->value.' OFF') }}</span>
-                <span class="px-3 py-1 text-[10px] font-bold rounded-full" style="background-color:#B7925C; color:#fff;">{{ $coupon->code }}</span>
+            <div class="shrink-0 flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2 sm:py-3 rounded-full border border-dashed" style="border-color: rgba(183,146,92,0.5);">
+                <span class="text-[10px] sm:text-xs font-bold text-white whitespace-nowrap">{{ $coupon->description ?? ($coupon->type == 'percentage' ? $coupon->value.'% OFF' : '₹'.$coupon->value.' OFF') }}</span>
+                <span class="px-2 sm:px-3 py-0.5 sm:py-1 text-[9px] sm:text-[10px] font-bold rounded-full" style="background-color:#B7925C; color:#fff;">{{ $coupon->code }}</span>
             </div>
             @endforeach
         </div>
@@ -417,10 +413,10 @@
 @endif
 
 <!-- The Shivara Promise (4 points) -->
-<section class="py-16 scroll-reveal" style="background-color:#2C2418;">
+<section class="py-10 sm:py-16 scroll-reveal" style="background-color:#2C2418;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <h3 class="font-display text-2xl md:text-3xl font-bold text-center mb-12" style="color:#FFFDF8;">The Shivara Promise</h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <h3 class="font-display text-xl sm:text-2xl md:text-3xl font-bold text-center mb-8 sm:mb-12" style="color:#FFFDF8;">The Shivara Promise</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
             <div class="text-center">
                 <div class="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.15); border: 1px solid rgba(183,146,92,0.3);"><svg class="w-6 h-6" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></div>
                 <h4 class="text-sm font-bold" style="color:#FFFDF8;">100% Natural</h4>
