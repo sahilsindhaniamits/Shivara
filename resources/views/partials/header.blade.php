@@ -95,11 +95,12 @@
     </div>
 
     <!-- Mobile Nav -->
-    <div x-show="mobileMenu" x-transition x-cloak class="lg:hidden fixed inset-0 top-[102px] bg-cream-50 z-50 overflow-y-auto">
+    <div x-show="mobileMenu" x-transition x-cloak class="lg:hidden fixed left-0 right-0 bottom-0 bg-cream-50 z-[100] overflow-y-auto" style="top: 70px;">
         <nav class="p-6 space-y-1">
             <a href="{{ route('home') }}" class="block px-4 py-4 text-base font-medium text-espresso-700 border-b border-gold-100">Home</a>
             <a href="{{ route('products.index') }}" class="block px-4 py-4 text-base font-medium text-espresso-700 border-b border-gold-100">All Products</a>
             <a href="{{ route('contact') }}" class="block px-4 py-4 text-base font-medium text-espresso-700 border-b border-gold-100">Contact</a>
+            <a href="{{ route('blog.index') }}" class="block px-4 py-4 text-base font-medium text-espresso-700 border-b border-gold-100">Blog</a>
             <a href="{{ route('track.order') }}" class="block px-4 py-4 text-base font-medium text-espresso-700 border-b border-gold-100">Track Order</a>
             @guest
             <a href="{{ route('login') }}" class="block px-4 py-4 text-base font-bold text-gold-600 border-b border-gold-100">Login / Register</a>
