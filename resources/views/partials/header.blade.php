@@ -19,8 +19,9 @@
 </div>
 @endif
 
-<!-- Main Header + Mobile Menu Wrapper -->
-<div x-data="{ mobileMenu: false, searchOpen: false }">
+<!-- Main Header + Mobile Menu -->
+<div x-data="{ mobileMenu: false, searchOpen: false }"
+     x-effect="document.body.style.overflow = mobileMenu ? 'hidden' : ''">
 
 <header class="sticky top-0 z-50 border-b shadow-sm" style="background: rgba(255,253,248,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
@@ -28,13 +29,11 @@
 
             <!-- Left: Mobile Menu + Desktop Nav -->
             <div class="flex items-center">
-                <!-- Mobile Menu Button -->
-                <button @click="mobileMenu = !mobileMenu" class="lg:hidden p-2 -ml-2 text-espresso-600 hover:text-espresso-700 transition">
+                <button @click="mobileMenu = !mobileMenu" class="lg:hidden p-2 -ml-2 transition" style="color:#2C2418; position: relative; z-index: 10001;">
                     <svg x-show="!mobileMenu" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
                     <svg x-show="mobileMenu" x-cloak class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
 
-                <!-- Desktop Nav -->
                 <nav class="hidden lg:flex items-center gap-5">
                     <a href="{{ route('home') }}" class="text-[12px] font-bold uppercase tracking-[0.15em] text-espresso-600 hover:text-gold-600 transition">Home</a>
                     <div class="relative group">
@@ -97,26 +96,33 @@
     </div>
 </header>
 
-<!-- Mobile Nav (OUTSIDE header to avoid backdrop-filter/sticky clipping) -->
+<!-- Mobile Nav Fullscreen Overlay (OUTSIDE header) -->
 <div x-show="mobileMenu" x-cloak
-     x-transition:enter="transition ease-out duration-200"
-     x-transition:enter-start="opacity-0 -translate-y-4"
-     x-transition:enter-end="opacity-100 translate-y-0"
-     x-transition:leave="transition ease-in duration-150"
-     x-transition:leave-start="opacity-100 translate-y-0"
-     x-transition:leave-end="opacity-0 -translate-y-4"
-     class="lg:hidden fixed left-0 right-0 bottom-0 overflow-y-auto"
-     style="top: 70px; z-index: 9999; background-color: #FFFDF8;">
-    <nav class="p-6 space-y-1">
-        <a href="{{ route('home') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.2);">Home</a>
-        <a href="{{ route('products.index') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.2);">All Products</a>
-        <a href="{{ route('contact') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.2);">Contact</a>
-        <a href="{{ route('blog.index') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.2);">Blog</a>
-        <a href="{{ route('track.order') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.2);">Track Order</a>
+     class="lg:hidden fixed inset-0 overflow-y-auto"
+     style="z-index: 10000; background-color: #FFFDF8;">
+
+    <!-- Close button at top -->
+    <div class="flex items-center justify-between px-6 h-[70px] border-b" style="border-color: rgba(183,146,92,0.2);">
+        <button @click="mobileMenu = false" class="p-2 -ml-2" style="color:#2C2418;">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+        <a href="{{ route('home') }}">
+            <img src="/public/shivaralogo.png" alt="Shivara" class="h-10 w-auto" onerror="this.style.display='none';">
+        </a>
+        <div class="w-10"></div>
+    </div>
+
+    <!-- Menu Links -->
+    <nav class="p-6 space-y-0">
+        <a href="{{ route('home') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.15);">Home</a>
+        <a href="{{ route('products.index') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.15);">All Products</a>
+        <a href="{{ route('contact') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.15);">Contact</a>
+        <a href="{{ route('blog.index') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.15);">Blog</a>
+        <a href="{{ route('track.order') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.15);">Track Order</a>
         @guest
-        <a href="{{ route('login') }}" class="block px-4 py-4 text-base font-bold border-b" style="color:#B7925C; border-color: rgba(183,146,92,0.2);">Login / Register</a>
+        <a href="{{ route('login') }}" class="block px-4 py-4 text-base font-bold border-b" style="color:#B7925C; border-color: rgba(183,146,92,0.15);">Login / Register</a>
         @else
-        <a href="{{ route('account.dashboard') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.2);">My Account</a>
+        <a href="{{ route('account.dashboard') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.15);">My Account</a>
         <form method="POST" action="{{ route('logout') }}">@csrf<button class="block w-full text-left px-4 py-4 text-base font-medium" style="color:#dc2626;">Logout</button></form>
         @endguest
     </nav>
