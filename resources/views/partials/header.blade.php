@@ -19,8 +19,10 @@
 </div>
 @endif
 
-<!-- Main Header -->
-<header class="sticky top-0 z-50 glass border-b border-gold-100/50 shadow-sm" x-data="{ mobileMenu: false, searchOpen: false }">
+<!-- Main Header + Mobile Menu Wrapper -->
+<div x-data="{ mobileMenu: false, searchOpen: false }">
+
+<header class="sticky top-0 z-50 border-b shadow-sm" style="background: rgba(255,253,248,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="grid grid-cols-3 items-center h-[70px]">
 
@@ -87,27 +89,37 @@
     </div>
 
     <!-- Search Overlay -->
-    <div x-show="searchOpen" x-transition x-cloak class="absolute top-full left-0 right-0 bg-cream-50 border-b border-gold-100 shadow-xl p-5">
+    <div x-show="searchOpen" x-transition x-cloak class="absolute top-full left-0 right-0 bg-cream-50 border-b border-gold-100 shadow-xl p-5" style="z-index: 60;">
         <form action="{{ route('products.index') }}" method="GET" class="max-w-2xl mx-auto relative">
             <input type="text" name="search" placeholder="Search products, ingredients, concerns..." class="w-full pl-12 pr-4 py-4 bg-white border border-gold-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-gold-300 placeholder:text-espresso-300" autofocus>
             <svg class="w-5 h-5 text-gold-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
         </form>
     </div>
-
-    <!-- Mobile Nav -->
-    <div x-show="mobileMenu" x-transition x-cloak class="lg:hidden fixed left-0 right-0 bottom-0 bg-cream-50 z-[100] overflow-y-auto" style="top: 70px;">
-        <nav class="p-6 space-y-1">
-            <a href="{{ route('home') }}" class="block px-4 py-4 text-base font-medium text-espresso-700 border-b border-gold-100">Home</a>
-            <a href="{{ route('products.index') }}" class="block px-4 py-4 text-base font-medium text-espresso-700 border-b border-gold-100">All Products</a>
-            <a href="{{ route('contact') }}" class="block px-4 py-4 text-base font-medium text-espresso-700 border-b border-gold-100">Contact</a>
-            <a href="{{ route('blog.index') }}" class="block px-4 py-4 text-base font-medium text-espresso-700 border-b border-gold-100">Blog</a>
-            <a href="{{ route('track.order') }}" class="block px-4 py-4 text-base font-medium text-espresso-700 border-b border-gold-100">Track Order</a>
-            @guest
-            <a href="{{ route('login') }}" class="block px-4 py-4 text-base font-bold text-gold-600 border-b border-gold-100">Login / Register</a>
-            @else
-            <a href="{{ route('account.dashboard') }}" class="block px-4 py-4 text-base font-medium text-espresso-700 border-b border-gold-100">My Account</a>
-            <form method="POST" action="{{ route('logout') }}">@csrf<button class="block w-full text-left px-4 py-4 text-base font-medium text-red-600">Logout</button></form>
-            @endguest
-        </nav>
-    </div>
 </header>
+
+<!-- Mobile Nav (OUTSIDE header to avoid backdrop-filter/sticky clipping) -->
+<div x-show="mobileMenu" x-cloak
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0 -translate-y-4"
+     x-transition:enter-end="opacity-100 translate-y-0"
+     x-transition:leave="transition ease-in duration-150"
+     x-transition:leave-start="opacity-100 translate-y-0"
+     x-transition:leave-end="opacity-0 -translate-y-4"
+     class="lg:hidden fixed left-0 right-0 bottom-0 overflow-y-auto"
+     style="top: 70px; z-index: 9999; background-color: #FFFDF8;">
+    <nav class="p-6 space-y-1">
+        <a href="{{ route('home') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.2);">Home</a>
+        <a href="{{ route('products.index') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.2);">All Products</a>
+        <a href="{{ route('contact') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.2);">Contact</a>
+        <a href="{{ route('blog.index') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.2);">Blog</a>
+        <a href="{{ route('track.order') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.2);">Track Order</a>
+        @guest
+        <a href="{{ route('login') }}" class="block px-4 py-4 text-base font-bold border-b" style="color:#B7925C; border-color: rgba(183,146,92,0.2);">Login / Register</a>
+        @else
+        <a href="{{ route('account.dashboard') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.2);">My Account</a>
+        <form method="POST" action="{{ route('logout') }}">@csrf<button class="block w-full text-left px-4 py-4 text-base font-medium" style="color:#dc2626;">Logout</button></form>
+        @endguest
+    </nav>
+</div>
+
+</div>{{-- end x-data wrapper --}}
