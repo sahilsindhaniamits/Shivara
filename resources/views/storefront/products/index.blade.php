@@ -60,19 +60,25 @@
                 </p>
                 <div class="flex items-center gap-3">
                     <!-- Mobile Filter Toggle -->
-                    <div x-data="{ open: false }" class="lg:hidden relative">
+                    <div x-data="{ open: false }" class="lg:hidden">
                         <button @click="open = !open" class="flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:border-gray-300 transition">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
                             Filter
                         </button>
-                        <!-- Mobile filter dropdown -->
-                        <div x-show="open" @click.outside="open = false" x-cloak x-transition class="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-100 p-4" style="z-index: 100;">
-                            <h4 class="font-semibold text-sm mb-3">Categories</h4>
-                            <div class="space-y-1 max-h-48 overflow-y-auto">
-                                <a href="{{ route('products.index') }}" class="block px-3 py-2 rounded-lg text-sm {{ !request('category') ? 'font-medium' : '' }}" style="{{ !request('category') ? 'background-color: rgba(183,146,92,0.1); color:#2C2418;' : 'color:#6b5442;' }}">All</a>
-                                @foreach($categories as $cat)
-                                <a href="{{ route('products.index', ['category' => $cat->slug]) }}" class="block px-3 py-2 rounded-lg text-sm {{ request('category') == $cat->slug ? 'font-medium' : '' }}" style="{{ request('category') == $cat->slug ? 'background-color: rgba(183,146,92,0.1); color:#2C2418;' : 'color:#6b5442;' }}">{{ $cat->name }}</a>
-                                @endforeach
+                        <!-- Mobile filter - full width below the bar -->
+                        <div x-show="open" @click.outside="open = false" x-cloak x-transition
+                             class="fixed left-0 right-0 bg-white shadow-2xl border-t border-gray-100 p-4" style="z-index: 100; top: auto; margin-top: 8px;">
+                            <div class="max-w-7xl mx-auto">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="font-semibold text-sm" style="color:#2C2418;">Categories</h4>
+                                    <button @click="open = false" class="text-xs" style="color:#B7925C;">Close</button>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <a href="{{ route('products.index') }}" class="px-3 py-2 rounded-full text-xs font-medium border" style="{{ !request('category') ? 'background-color:#2C2418; color:#fff; border-color:#2C2418;' : 'border-color:#e5e7eb; color:#6b5442;' }}">All</a>
+                                    @foreach($categories as $cat)
+                                    <a href="{{ route('products.index', ['category' => $cat->slug]) }}" class="px-3 py-2 rounded-full text-xs font-medium border" style="{{ request('category') == $cat->slug ? 'background-color:#2C2418; color:#fff; border-color:#2C2418;' : 'border-color:#e5e7eb; color:#6b5442;' }}">{{ $cat->name }}</a>
+                                    @endforeach
+                                </div>
                             </div>
                         </div>
                     </div>
