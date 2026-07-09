@@ -66,12 +66,12 @@
                             Filter
                         </button>
                         <!-- Mobile filter dropdown -->
-                        <div x-show="open" @click.outside="open = false" x-cloak class="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-100 p-4 z-50">
+                        <div x-show="open" @click.outside="open = false" x-cloak x-transition class="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-100 p-4" style="z-index: 100;">
                             <h4 class="font-semibold text-sm mb-3">Categories</h4>
                             <div class="space-y-1 max-h-48 overflow-y-auto">
-                                <a href="{{ route('products.index') }}" class="block px-3 py-2 rounded-lg text-sm {{ !request('category') ? 'bg-brand-50 text-brand-700 font-medium' : 'text-gray-600' }}">All</a>
+                                <a href="{{ route('products.index') }}" class="block px-3 py-2 rounded-lg text-sm {{ !request('category') ? 'font-medium' : '' }}" style="{{ !request('category') ? 'background-color: rgba(183,146,92,0.1); color:#2C2418;' : 'color:#6b5442;' }}">All</a>
                                 @foreach($categories as $cat)
-                                <a href="{{ route('products.index', ['category' => $cat->slug]) }}" class="block px-3 py-2 rounded-lg text-sm {{ request('category') == $cat->slug ? 'bg-brand-50 text-brand-700 font-medium' : 'text-gray-600' }}">{{ $cat->name }}</a>
+                                <a href="{{ route('products.index', ['category' => $cat->slug]) }}" class="block px-3 py-2 rounded-lg text-sm {{ request('category') == $cat->slug ? 'font-medium' : '' }}" style="{{ request('category') == $cat->slug ? 'background-color: rgba(183,146,92,0.1); color:#2C2418;' : 'color:#6b5442;' }}">{{ $cat->name }}</a>
                                 @endforeach
                             </div>
                         </div>

@@ -114,16 +114,28 @@
 
     <!-- Menu Links -->
     <nav class="p-6 space-y-0">
-        <a href="{{ route('home') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.15);">Home</a>
-        <a href="{{ route('products.index') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.15);">All Products</a>
-        <a href="{{ route('contact') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.15);">Contact</a>
-        <a href="{{ route('blog.index') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.15);">Blog</a>
-        <a href="{{ route('track.order') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.15);">Track Order</a>
+        <a href="{{ route('home') }}" class="block px-4 py-4 text-[13px] font-bold uppercase tracking-[0.15em] border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.15);">Home</a>
+        <div x-data="{ shopOpen: false }">
+            <button @click="shopOpen = !shopOpen" class="w-full flex items-center justify-between px-4 py-4 text-[13px] font-bold uppercase tracking-[0.15em] border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.15);">
+                <span>Shop</span>
+                <svg :class="shopOpen ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div x-show="shopOpen" x-cloak class="pl-6 pb-2" style="background-color: rgba(183,146,92,0.03);">
+                <a href="{{ route('products.index') }}" class="block px-4 py-2.5 text-sm font-medium" style="color:#2C2418;">All Products</a>
+                <a href="{{ route('products.index', ['category' => 'capsules']) }}" class="block px-4 py-2.5 text-sm" style="color:#6b5442;">Capsules & Tablets</a>
+                <a href="{{ route('products.index', ['category' => 'powders']) }}" class="block px-4 py-2.5 text-sm" style="color:#6b5442;">Herbal Powders</a>
+                <a href="{{ route('products.index', ['category' => 'oils']) }}" class="block px-4 py-2.5 text-sm" style="color:#6b5442;">Oils & Syrups</a>
+                <a href="{{ route('products.index', ['category' => 'skincare']) }}" class="block px-4 py-2.5 text-sm" style="color:#6b5442;">Skin & Hair Care</a>
+            </div>
+        </div>
+        <a href="{{ route('contact') }}" class="block px-4 py-4 text-[13px] font-bold uppercase tracking-[0.15em] border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.15);">Contact</a>
+        <a href="{{ route('blog.index') }}" class="block px-4 py-4 text-[13px] font-bold uppercase tracking-[0.15em] border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.15);">Blog</a>
+        <a href="{{ route('track.order') }}" class="block px-4 py-4 text-[13px] font-bold uppercase tracking-[0.15em] border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.15);">Track Order</a>
         @guest
-        <a href="{{ route('login') }}" class="block px-4 py-4 text-base font-bold border-b" style="color:#B7925C; border-color: rgba(183,146,92,0.15);">Login / Register</a>
+        <a href="{{ route('login') }}" class="block px-4 py-4 text-[13px] font-bold uppercase tracking-[0.15em] border-b" style="color:#B7925C; border-color: rgba(183,146,92,0.15);">Login / Register</a>
         @else
-        <a href="{{ route('account.dashboard') }}" class="block px-4 py-4 text-base font-medium border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.15);">My Account</a>
-        <form method="POST" action="{{ route('logout') }}">@csrf<button class="block w-full text-left px-4 py-4 text-base font-medium" style="color:#dc2626;">Logout</button></form>
+        <a href="{{ route('account.dashboard') }}" class="block px-4 py-4 text-[13px] font-bold uppercase tracking-[0.15em] border-b" style="color:#2C2418; border-color: rgba(183,146,92,0.15);">My Account</a>
+        <form method="POST" action="{{ route('logout') }}">@csrf<button class="block w-full text-left px-4 py-4 text-[13px] font-bold uppercase tracking-[0.15em]" style="color:#dc2626;">Logout</button></form>
         @endguest
     </nav>
 </div>
