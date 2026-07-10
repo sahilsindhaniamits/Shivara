@@ -98,13 +98,21 @@
             @endif
         </div>
 
-        <!-- Save Button for main form -->
-        <div class="flex items-center gap-3">
-            <button type="submit" class="px-8 py-3 text-white font-bold text-sm rounded-xl hover:opacity-90 transition shadow-sm" style="background-color:#c06d22">Save Product</button>
-            <a href="{{ route('admin.products.index') }}" class="px-6 py-3 border border-gray-200 text-gray-600 font-medium text-sm rounded-xl hover:bg-gray-50 transition">Cancel</a>
+        <!-- Status inside main form -->
+        <div class="flex flex-wrap gap-6 px-1">
+            <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" name="is_active" value="1" {{ $product->is_active ? 'checked' : '' }} class="w-5 h-5 rounded border-gray-300 text-orange-500 focus:ring-orange-200">
+                <span class="text-sm font-medium text-gray-700">Active</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" name="is_featured" value="1" {{ $product->is_featured ? 'checked' : '' }} class="w-5 h-5 rounded border-gray-300 text-orange-500 focus:ring-orange-200">
+                <span class="text-sm font-medium text-gray-700">Featured</span>
+            </label>
         </div>
 
+        <button type="submit" class="px-8 py-3 text-white font-bold text-sm rounded-xl hover:opacity-90 transition shadow-sm" style="background-color:#c06d22">Save Product</button>
     </form>
+
 
     <!-- Variants / Packs (OUTSIDE main form) -->
     <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-5 mt-6">
@@ -241,15 +249,12 @@
     </div>
 
 
-    <form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" class="space-y-6 mt-6">
+    <form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" class="space-y-6">
         @csrf @method('PUT')
         <input type="hidden" name="name" value="{{ $product->name }}">
         <input type="hidden" name="mrp" value="{{ $product->mrp }}">
         <input type="hidden" name="selling_price" value="{{ $product->selling_price }}">
         <input type="hidden" name="stock" value="{{ $product->stock }}">
-        @if($product->is_active)<input type="hidden" name="is_active" value="1">@endif
-        @if($product->is_featured)<input type="hidden" name="is_featured" value="1">@endif
-
 
         <!-- Ayurvedic Details -->
         <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-5">
