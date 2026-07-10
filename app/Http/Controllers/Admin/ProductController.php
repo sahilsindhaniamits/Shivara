@@ -264,7 +264,9 @@ class ProductController extends Controller
                     Product::whereIn('id', $ids)->update(['is_active' => false]);
                     break;
                 case 'delete':
-                    // Delete related records first to avoid FK constraints
+                    // Nullify order_items product_id (keep order history but unlink product)
+                    \App\Models\OrderItem::whereIn('product_id', $ids)->update(['product_id' => null]);
+                    // Delete related records
                     \App\Models\ProductImage::whereIn('product_id', $ids)->delete();
                     \App\Models\ProductVariant::whereIn('product_id', $ids)->delete();
                     \App\Models\ProductAttribute::whereIn('product_id', $ids)->each(function ($attr) {
