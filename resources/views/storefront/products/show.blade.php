@@ -20,8 +20,8 @@
 
 
 <!-- Main Product Section -->
-<section style="background: linear-gradient(180deg, #FFFDF8 0%, #FFF9ED 100%); min-width: 100vw;">
-    <div class="w-full px-4 sm:px-6 lg:px-10 xl:px-16 pt-6 pb-16">
+<section style="background: linear-gradient(180deg, #FFFDF8 0%, #FFF9ED 100%);">
+    <div class="w-full px-4 sm:px-6 lg:px-10 xl:px-16 pt-6 pb-16" style="min-width: min(100vw, 1200px);">
         <!-- Breadcrumb -->
         <nav class="flex items-center gap-2 text-xs text-espresso-400 mb-6">
             <a href="{{ route('home') }}" class="hover:text-gold-600 transition">Home</a>
@@ -70,25 +70,44 @@
                 <script>
                 function mobileSlider(count) {
                     return {
-                        current: 0, total: count, startX: 0, moveX: 0, dragging: false, dragged: false,
+                        current: 0,
+                        total: count,
+                        startX: 0,
+                        currentX: 0,
+                        isDragging: false,
+                        dragged: false,
                         get trackStyle() {
-                            var offset = -(this.current * 100);
-                            if (this.dragging) {
-                                var w = this.$refs.track ? this.$refs.track.offsetWidth : 300;
-                                offset += (this.moveX / w) * 100;
+                            var baseOffset = -(this.current * 100);
+                            if (this.isDragging) {
+                                var trackW = this.$refs.track ? this.$refs.track.offsetWidth : window.innerWidth;
+                                var dragPercent = ((this.currentX - this.startX) / trackW) * 100;
+                                return 'transform:translateX(' + (baseOffset + dragPercent) + '%;transition:none';
                             }
-                            return 'transform: translateX(' + offset + '%); transition: ' + (this.dragging ? 'none' : 'transform 0.3s ease');
+                            return 'transform:translateX(' + baseOffset + '%);transition:transform 0.3s ease';
                         },
-                        touchStart(e) { this.startX = e.touches[0].clientX; this.moveX = 0; this.dragging = true; this.dragged = false; },
-                        touchMove(e) { this.moveX = e.touches[0].clientX - this.startX; if(Math.abs(this.moveX) > 5) this.dragged = true; },
+                        touchStart(e) {
+                            this.startX = e.touches[0].clientX;
+                            this.currentX = this.startX;
+                            this.isDragging = true;
+                            this.dragged = false;
+                        },
+                        touchMove(e) {
+                            if (!this.isDragging) return;
+                            this.currentX = e.touches[0].clientX;
+                            if (Math.abs(this.currentX - this.startX) > 8) this.dragged = true;
+                        },
                         touchEnd(e) {
-                            this.dragging = false;
-                            if (this.moveX < -40 && this.current < this.total - 1) this.current++;
-                            else if (this.moveX > 40 && this.current > 0) this.current--;
-                            this.moveX = 0;
+                            if (!this.isDragging) return;
+                            this.isDragging = false;
+                            var diff = this.currentX - this.startX;
+                            if (diff < -50 && this.current < this.total - 1) {
+                                this.current++;
+                            } else if (diff > 50 && this.current > 0) {
+                                this.current--;
+                            }
                         },
-                        next() { if(this.current < this.total-1) this.current++; },
-                        prev() { if(this.current > 0) this.current--; },
+                        next() { if (this.current < this.total - 1) this.current++; },
+                        prev() { if (this.current > 0) this.current--; },
                         goTo(i) { this.current = i; }
                     }
                 }
