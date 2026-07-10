@@ -91,6 +91,15 @@ class Product extends Model
         return (int) round((($this->mrp - $this->selling_price) / $this->mrp) * 100);
     }
 
+    /**
+     * Check if product is in stock (null stock = unlimited)
+     */
+    public function getInStockAttribute(): bool
+    {
+        if (is_null($this->stock)) return true; // null = unlimited
+        return $this->stock > 0;
+    }
+
     public function getAverageRatingAttribute(): float
     {
         return $this->reviews()->avg('rating') ?? 0;
