@@ -3,12 +3,18 @@
 @section('content')
 <!-- Hero Banner Slider (Dynamic from Admin) -->
 @php $heroBanners = \App\Models\Banner::active()->orderBy('sort_order')->get(); @endphp
+<style>
+.shivara-banner { max-height: 220px; }
+@media (min-width: 768px) { .shivara-banner { max-height: 400px; } }
+@media (min-width: 1024px) { .shivara-banner { max-height: 600px; } }
+@media (min-width: 1280px) { .shivara-banner { max-height: none; } }
+</style>
 @if($heroBanners->count())
 <section x-data="{ current: 0, slides: {{ $heroBanners->count() }} }" x-init="setInterval(() => current = (current + 1) % slides, 5000); initSwipe($el, () => current = (current+1)%slides, () => current = (current-1+slides)%slides)" class="relative overflow-hidden select-none cursor-grab active:cursor-grabbing">
     @foreach($heroBanners as $i => $banner)
-    <div x-show="current === {{ $i }}" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 scale-105" x-transition:enter-end="opacity-100 scale-100" {{ $i > 0 ? 'x-cloak' : '' }} class="relative w-full">
-        {{-- Single image - scales to full width, no cropping --}}
-        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="w-full h-auto block">
+    <div x-show="current === {{ $i }}" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 scale-105" x-transition:enter-end="opacity-100 scale-100" {{ $i > 0 ? 'x-cloak' : '' }} class="relative w-full shivara-banner overflow-hidden">
+        {{-- Single image - full width, height limited on mobile --}}
+        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="w-full h-full object-cover object-center">
         {{-- Overlay + Content (only if title/subtitle exists) --}}
         @if($banner->title || $banner->subtitle)
         <div class="absolute inset-0 flex items-center" style="background: linear-gradient(135deg, rgba(44,36,24,0.5), rgba(44,36,24,0.1));">
@@ -57,7 +63,7 @@
 
 <!-- Scrolling Marquee Trust Strip -->
 <div class="overflow-hidden py-2.5" style="background-color: #342a1b;">
-    <div class="animate-marquee flex items-center gap-8 whitespace-nowrap">
+    <div class="flex items-center gap-8 whitespace-nowrap" style="animation: marquee 45s linear infinite;">
         @for($m = 0; $m < 2; $m++)
         <span class="flex items-center gap-2 text-xs font-semibold text-white/90"><svg class="w-4 h-4 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg> Secure Payments — UPI, Cards & COD</span>
         <span class="text-gold-500">✦</span>
