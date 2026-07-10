@@ -148,13 +148,42 @@
                     <hr class="border-gray-100 mb-4">
                     @php
                         $subtotal = $cartItems->sum(function($item) { return ($item->variant ? $item->variant->selling_price : $item->product->selling_price) * $item->quantity; });
+                        $freeShip = $subtotal >= config('shivara.free_shipping_threshold', 299);
+                        $shippingEst = $freeShip ? 0 : config('shivara.standard_rate', 79);
+
+                        // Check for auto-apply coupon or session coupon
+                        $checkoutCoupon = null;
+                        $checkoutDiscount = 0;
+                        if (session()->has('coupon')) {
+                            $checkoutCoupon = \App\Models\Coupon::find(session('coupon.id'));
+                            if ($checkoutCoupon && $checkoutCoupon->isValid()) {
+                                $checkoutDiscount = $checkoutCoupon->calculateDiscount($subtotal);
+                            } else {
+                                $checkoutCoupon = null;
+                            }
+                        }
+                        if (!$checkoutCoupon && $subtotal > 0) {
+                            $checkoutCoupon = \App\Models\Coupon::getBestAutoApply($subtotal);
+                            if ($checkoutCoupon) {
+                                $checkoutDiscount = $checkoutCoupon->calculateDiscount($subtotal);
+                            }
+                        }
+                        $estimatedTotal = $subtotal - $checkoutDiscount + $shippingEst;
                     @endphp
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between text-gray-600"><span>Subtotal</span><span>₹{{ number_format($subtotal) }}</span></div>
-                        <div class="flex justify-between text-gray-600"><span>Shipping</span><span class="text-gray-400">Calculated next</span></div>
+                        <div class="flex justify-between text-gray-600"><span>Shipping</span><span class="{{ $freeShip ? 'text-green-600 font-semibold' : 'text-gray-600' }}">{{ $freeShip ? 'FREE' : '₹' . config('shivara.standard_rate', 79) }}</span></div>
+                        @if($checkoutCoupon && $checkoutDiscount > 0)
+                        <div class="flex justify-between text-green-600"><span>Coupon ({{ $checkoutCoupon->code }})</span><span class="font-semibold">-₹{{ number_format($checkoutDiscount) }}</span></div>
+                        @endif
                         <hr class="border-gray-100">
-                        <div class="flex justify-between text-lg font-bold text-gray-900 pt-1"><span>Estimated Total</span><span class="text-brand-600">₹{{ number_format($subtotal) }}</span></div>
+                        <div class="flex justify-between text-lg font-bold text-gray-900 pt-1"><span>Estimated Total</span><span class="text-brand-600">₹{{ number_format($estimatedTotal) }}</span></div>
                     </div>
+                    @if($checkoutCoupon && $checkoutDiscount > 0)
+                    <div class="mt-3 px-3 py-2 bg-green-50 border border-green-200 rounded-xl">
+                        <p class="text-[11px] font-semibold text-green-700">✓ {{ $checkoutCoupon->description ?: $checkoutCoupon->code }} applied — you save ₹{{ number_format($checkoutDiscount) }}!</p>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
