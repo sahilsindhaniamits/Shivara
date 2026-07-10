@@ -188,100 +188,121 @@
                 </div>
                 <h2 class="text-base font-bold text-gray-900">Product Images</h2>
             </div>
-            <div x-data="createImageManager()">
-                <!-- Sortable image previews -->
-                <div x-show="images.length > 0" id="createSortableImages" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3 mb-4">
-                    <template x-for="(img, i) in images" :key="img.id">
-                        <div class="relative group aspect-square cursor-grab active:cursor-grabbing" :data-id="img.id">
-                            <div class="w-full h-full rounded-xl overflow-hidden border-2 border-gray-100 group-hover:border-blue-200 transition">
-                                <img :src="img.preview" class="w-full h-full object-cover">
-                            </div>
-                            <button type="button" @click="removeImage(img.id)" class="absolute -top-1.5 -right-1.5 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md cursor-pointer hover:bg-red-600 z-10">&times;</button>
-                            <span x-show="i === 0" class="absolute bottom-0 inset-x-0 bg-green-500/90 text-white text-[8px] text-center font-bold py-0.5 rounded-b-xl">Primary</span>
-                            <button type="button" x-show="i !== 0" @click="setPrimary(img.id)" class="absolute bottom-0 inset-x-0 bg-gray-700/80 text-white text-[8px] text-center font-bold py-0.5 rounded-b-xl cursor-pointer hover:bg-blue-600/90 opacity-0 group-hover:opacity-100 transition">Set Primary</button>
-                        </div>
-                    </template>
-                </div>
-                <p x-show="images.length > 1" class="text-[10px] text-gray-400 mb-2">↕ Drag to reorder &bull; First image = primary thumbnail on frontend</p>
 
-                <!-- Upload button -->
-                <label class="block border-2 border-dashed border-gray-200 rounded-xl p-6 text-center cursor-pointer hover:border-orange-300 hover:bg-orange-50/30 transition group">
-                    <svg class="w-8 h-8 text-gray-300 mx-auto mb-2 group-hover:text-orange-400 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/></svg>
-                    <p class="text-sm font-medium text-gray-500">Click to upload images</p>
-                    <p class="text-xs text-gray-400 mt-1">PNG, JPG, WebP up to 5MB &bull; First image = primary thumbnail</p>
-                    <input type="file" multiple accept="image/*" class="hidden" @change="addFiles($event)">
-                </label>
+            <!-- Image grid rendered by vanilla JS (SortableJS compatible) -->
+            <div id="createImgGrid" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3" style="display:none;"></div>
+            <p id="createImgHint" class="text-[10px] text-gray-400" style="display:none;">↕ Drag to reorder &bull; First image = primary thumbnail on frontend</p>
 
-                <!-- Hidden file input that actually submits with the form -->
-                <input type="file" name="images[]" multiple x-ref="hiddenFileInput" class="hidden">
-            </div>
+            <!-- Upload button -->
+            <label class="block border-2 border-dashed border-gray-200 rounded-xl p-6 text-center cursor-pointer hover:border-orange-300 hover:bg-orange-50/30 transition group">
+                <svg class="w-8 h-8 text-gray-300 mx-auto mb-2 group-hover:text-orange-400 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/></svg>
+                <p class="text-sm font-medium text-gray-500">Click to upload images</p>
+                <p class="text-xs text-gray-400 mt-1">PNG, JPG, WebP up to 5MB &bull; First image = primary thumbnail</p>
+                <input type="file" id="createImgInput" multiple accept="image/*" class="hidden">
+            </label>
+
+            <!-- Hidden file input that actually submits with the form -->
+            <input type="file" name="images[]" id="createImgHidden" multiple class="hidden">
         </div>
         <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
         <script>
-        function createImageManager() {
-            return {
-                images: [],
-                nextId: 0,
-                sortableInstance: null,
+        (function() {
+            var imageFiles = []; // Array of { id, file, dataUrl }
+            var nextId = 0;
+            var sortableInst = null;
+            var grid = document.getElementById('createImgGrid');
+            var hint = document.getElementById('createImgHint');
+            var hiddenInput = document.getElementById('createImgHidden');
+            var fileInput = document.getElementById('createImgInput');
 
-                addFiles(event) {
-                    const files = Array.from(event.target.files);
-                    files.forEach(file => {
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
-                            this.images.push({ id: this.nextId++, file: file, preview: e.target.result });
-                            this.$nextTick(() => {
-                                this.initSortable();
-                                this.syncFileInput();
-                            });
-                        };
-                        reader.readAsDataURL(file);
+            fileInput.addEventListener('change', function(e) {
+                var files = Array.from(e.target.files);
+                files.forEach(function(file) {
+                    var reader = new FileReader();
+                    reader.onload = function(ev) {
+                        imageFiles.push({ id: nextId++, file: file, dataUrl: ev.target.result });
+                        renderGrid();
+                        syncHiddenInput();
+                    };
+                    reader.readAsDataURL(file);
+                });
+                e.target.value = '';
+            });
+
+            function renderGrid() {
+                grid.innerHTML = '';
+                if (imageFiles.length === 0) {
+                    grid.style.display = 'none';
+                    hint.style.display = 'none';
+                    return;
+                }
+                grid.style.display = 'grid';
+                hint.style.display = imageFiles.length > 1 ? 'block' : 'none';
+
+                imageFiles.forEach(function(img, i) {
+                    var div = document.createElement('div');
+                    div.className = 'relative group aspect-square cursor-grab active:cursor-grabbing';
+                    div.setAttribute('data-id', img.id);
+                    div.innerHTML = '<div class="w-full h-full rounded-xl overflow-hidden border-2 border-gray-100 group-hover:border-blue-200 transition"><img src="' + img.dataUrl + '" class="w-full h-full object-cover"></div>'
+                        + '<button type="button" class="cimg-del absolute -top-1.5 -right-1.5 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md cursor-pointer hover:bg-red-600 z-10">&times;</button>'
+                        + (i === 0
+                            ? '<span class="absolute bottom-0 inset-x-0 bg-green-500/90 text-white text-[8px] text-center font-bold py-0.5 rounded-b-xl">Primary</span>'
+                            : '<button type="button" class="cimg-pri absolute bottom-0 inset-x-0 bg-gray-700/80 text-white text-[8px] text-center font-bold py-0.5 rounded-b-xl cursor-pointer hover:bg-blue-600/90 opacity-0 group-hover:opacity-100 transition">Set Primary</button>');
+                    grid.appendChild(div);
+                });
+
+                // Attach delete & set-primary handlers
+                grid.querySelectorAll('.cimg-del').forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var id = parseInt(btn.closest('[data-id]').getAttribute('data-id'));
+                        imageFiles = imageFiles.filter(function(img) { return img.id !== id; });
+                        renderGrid();
+                        syncHiddenInput();
                     });
-                    // Reset the clicked input so same files can be re-selected
-                    event.target.value = '';
-                },
-
-                removeImage(id) {
-                    this.images = this.images.filter(img => img.id !== id);
-                    this.$nextTick(() => this.syncFileInput());
-                },
-
-                setPrimary(id) {
-                    const idx = this.images.findIndex(img => img.id === id);
-                    if (idx > 0) {
-                        const [item] = this.images.splice(idx, 1);
-                        this.images.unshift(item);
-                        this.$nextTick(() => this.syncFileInput());
-                    }
-                },
-
-                initSortable() {
-                    if (this.sortableInstance) return;
-                    const el = document.getElementById('createSortableImages');
-                    if (!el) return;
-                    this.sortableInstance = new Sortable(el, {
-                        animation: 150,
-                        ghostClass: 'opacity-40',
-                        onEnd: (evt) => {
-                            // Reorder the images array to match DOM order
-                            const ids = Array.from(el.querySelectorAll('[data-id]')).map(el => parseInt(el.dataset.id));
-                            const reordered = ids.map(id => this.images.find(img => img.id === id)).filter(Boolean);
-                            this.images = reordered;
-                            this.$nextTick(() => this.syncFileInput());
+                });
+                grid.querySelectorAll('.cimg-pri').forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var id = parseInt(btn.closest('[data-id]').getAttribute('data-id'));
+                        var idx = imageFiles.findIndex(function(img) { return img.id === id; });
+                        if (idx > 0) {
+                            var item = imageFiles.splice(idx, 1)[0];
+                            imageFiles.unshift(item);
+                            renderGrid();
+                            syncHiddenInput();
                         }
                     });
-                },
+                });
 
-                syncFileInput() {
-                    // Rebuild the hidden file input with files in correct order
-                    const dt = new DataTransfer();
-                    this.images.forEach(img => {
-                        dt.items.add(img.file);
-                    });
-                    this.$refs.hiddenFileInput.files = dt.files;
-                }
+                initSortable();
             }
-        }
+
+            function initSortable() {
+                if (sortableInst) { sortableInst.destroy(); sortableInst = null; }
+                if (imageFiles.length < 2) return;
+                sortableInst = new Sortable(grid, {
+                    animation: 150,
+                    ghostClass: 'opacity-40',
+                    onEnd: function() {
+                        // Read new order from DOM
+                        var ids = Array.from(grid.querySelectorAll('[data-id]')).map(function(el) { return parseInt(el.getAttribute('data-id')); });
+                        var reordered = ids.map(function(id) { return imageFiles.find(function(img) { return img.id === id; }); }).filter(Boolean);
+                        imageFiles = reordered;
+                        renderGrid();
+                        syncHiddenInput();
+                    }
+                });
+            }
+
+            function syncHiddenInput() {
+                var dt = new DataTransfer();
+                imageFiles.forEach(function(img) { dt.items.add(img.file); });
+                hiddenInput.files = dt.files;
+            }
+        })();
         </script>
 
         <!-- Product Page Banners -->
