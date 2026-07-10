@@ -17,8 +17,7 @@
         </a>
     </div>
 
-    <form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" class="space-y-6" id="productForm">
-        @csrf @method('PUT')
+    <div class="space-y-6" id="productForm">
 
 
         <!-- Basic Information -->
@@ -87,7 +86,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Stock <span class="text-gray-400 font-normal normal-case">(blank = unlimited)</span></label>
-                    <input type="number" name="stock" value="{{ old('stock', $product->stock) }}" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition" placeholder="Leave blank for unlimited">
+                    <input type="number" name="stock" id="stock_input" value="{{ old('stock', $product->stock) }}" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition" placeholder="Leave blank for unlimited">
                 </div>
             </div>
             @if($product->discount_percent > 0)
@@ -97,21 +96,7 @@
             </div>
             @endif
         </div>
-
-        <!-- Status inside main form -->
-        <div class="flex flex-wrap gap-6 px-1">
-            <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" name="is_active" value="1" {{ $product->is_active ? 'checked' : '' }} class="w-5 h-5 rounded border-gray-300 text-orange-500 focus:ring-orange-200">
-                <span class="text-sm font-medium text-gray-700">Active</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" name="is_featured" value="1" {{ $product->is_featured ? 'checked' : '' }} class="w-5 h-5 rounded border-gray-300 text-orange-500 focus:ring-orange-200">
-                <span class="text-sm font-medium text-gray-700">Featured</span>
-            </label>
-        </div>
-
-        <button type="submit" class="px-8 py-3 text-white font-bold text-sm rounded-xl hover:opacity-90 transition shadow-sm" style="background-color:#c06d22">Save Product</button>
-    </form>
+    </div>
 
 
     <!-- Variants / Packs (OUTSIDE main form) -->
@@ -249,7 +234,7 @@
     </div>
 
 
-    <form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" class="space-y-6">
+    <form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" class="space-y-6" onsubmit="var pf=document.getElementById('productForm'); this.querySelector('[name=stock]').value=pf.querySelector('#stock_input').value||''; this.querySelector('[name=mrp]').value=pf.querySelector('[name=mrp]').value; this.querySelector('[name=selling_price]').value=pf.querySelector('[name=selling_price]').value; this.querySelector('input[name=name]').value=pf.querySelector('[name=name]').value;">
         @csrf @method('PUT')
         <input type="hidden" name="name" value="{{ $product->name }}">
         <input type="hidden" name="mrp" value="{{ $product->mrp }}">
