@@ -240,10 +240,22 @@ class ProductController extends Controller
     public function setPrimaryImage(Product $product, \App\Models\ProductImage $image)
     {
         if ($image->product_id === $product->id) {
-            // Unset all as primary
             $product->images()->update(['is_primary' => false]);
-            // Set this one as primary
             $image->update(['is_primary' => true, 'sort_order' => 0]);
+        }
+        return response()->json(['success' => true]);
+    }
+
+    public function reorderImages(Request $request, Product $product)
+    {
+        $order = $request->input('order', []);
+        foreach ($order as $index => $imageId) {
+            \App\Models\ProductImage::where('id', $imageId)->where('product_id', $product->id)->update(['sort_order' => $index]);
+        }
+        // First image in order becomes primary
+        if (!empty($order)) {
+            $product->images()->update(['is_primary' => false]);
+            \App\Models\ProductImage::where('id', $order[0])->where('product_id', $product->id)->update(['is_primary' => true]);
         }
         return response()->json(['success' => true]);
     }
