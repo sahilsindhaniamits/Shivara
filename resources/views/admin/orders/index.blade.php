@@ -190,7 +190,7 @@ function ordersPage() {
             if (!this.bulkStatus || this.selected.length === 0) return;
             if (!confirm('Update ' + this.selected.length + ' orders to "' + this.bulkStatus + '"?')) return;
 
-            fetch('{{ route("admin.orders.index") }}/bulk-status', {
+            fetch('{{ route("admin.orders.bulkStatus") }}', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' },
                 body: JSON.stringify({ ids: this.selected, status: this.bulkStatus })
