@@ -17,8 +17,8 @@
         </a>
     </div>
 
-    <div class="space-y-6" id="productForm">
-
+    <form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" id="productForm" class="space-y-6">
+        @csrf @method('PUT')
 
         <!-- Basic Information -->
         <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-5">
@@ -41,6 +41,7 @@
                     <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Full Description</label>
                     <textarea name="description" rows="4" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition" placeholder="Detailed product description...">{{ old('description', $product->description) }}</textarea>
                 </div>
+
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Category</label>
                     <select name="category_id" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition">
@@ -65,6 +66,7 @@
                 </div>
             </div>
         </div>
+
 
 
         <!-- Pricing & Inventory -->
@@ -96,7 +98,124 @@
             </div>
             @endif
         </div>
-    </div>
+
+
+
+        <!-- Ayurvedic Details -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-5">
+            <div class="flex items-center gap-3 pb-4 border-b border-gray-100">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: rgba(176,136,64,0.1)">
+                    <svg class="w-4 h-4" style="color:#B08840" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                </div>
+                <h2 class="text-base font-bold text-gray-900">Ayurvedic Details</h2>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Ingredients</label>
+                <textarea name="ingredients" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition" placeholder="Comma-separated: Turmeric, Neem, Aloe Vera...">{{ old('ingredients', $product->ingredients) }}</textarea>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">How to Use</label>
+                <textarea name="how_to_use" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition" placeholder="Step-by-step usage instructions...">{{ old('how_to_use', $product->how_to_use) }}</textarea>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Key Benefits</label>
+                <textarea name="benefits" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition" placeholder="One benefit per line or comma-separated...">{{ old('benefits', $product->benefits) }}</textarea>
+            </div>
+        </div>
+
+
+
+        <!-- Product Images -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+            <div class="flex items-center gap-3 pb-4 border-b border-gray-100">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-purple-50">
+                    <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                <h2 class="text-base font-bold text-gray-900">Product Images</h2>
+            </div>
+            @if($product->images->count())
+            <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3 mb-4">
+                @foreach($product->images as $img)
+                <div class="relative group aspect-square">
+                    <div class="w-full h-full rounded-xl overflow-hidden border-2 border-gray-100 group-hover:border-red-200 transition">
+                        <img src="{{ str_starts_with($img->url, '/storage/') ? '/public' . $img->url : $img->url }}" class="w-full h-full object-cover">
+                    </div>
+                    <button type="button" onclick="if(confirm('Delete this image?')){fetch('{{ route('admin.products.deleteImage', [$product, $img]) }}',{method:'POST',headers:{'X-CSRF-TOKEN':document.querySelector('meta[name=csrf-token]').content,'Content-Type':'application/json'},body:JSON.stringify({_method:'DELETE'})}).then(()=>this.closest('.relative').remove())}" class="absolute -top-1.5 -right-1.5 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md cursor-pointer hover:bg-red-600 z-10">&times;</button>
+                    @if($img->is_primary)<span class="absolute bottom-0 inset-x-0 bg-green-500/90 text-white text-[8px] text-center font-bold py-0.5 rounded-b-xl">Primary</span>@endif
+                </div>
+                @endforeach
+            </div>
+            @endif
+            <label class="block border-2 border-dashed border-gray-200 rounded-xl p-6 text-center cursor-pointer hover:border-orange-300 hover:bg-orange-50/30 transition">
+                <svg class="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/></svg>
+                <p class="text-sm font-medium text-gray-500">Click to upload images</p>
+                <p class="text-xs text-gray-400 mt-1">PNG, JPG, WebP up to 5MB each</p>
+                <input type="file" name="images[]" multiple accept="image/*" class="hidden">
+            </label>
+        </div>
+
+
+        <!-- Product Page Banners -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+            <div class="flex items-center gap-3 pb-4 border-b border-gray-100">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-indigo-50">
+                    <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
+                </div>
+                <div>
+                    <h2 class="text-base font-bold text-gray-900">Product Page Banners</h2>
+                    <p class="text-xs text-gray-400">Carousel banners on this product's page (1200×400px)</p>
+                </div>
+            </div>
+            @if($product->banners && count($product->banners))
+            <div class="flex gap-3 flex-wrap">
+                @foreach($product->banners as $idx => $b)
+                <div class="relative group">
+                    <div class="w-40 h-16 rounded-xl overflow-hidden border border-gray-200">
+                        <img src="{{ str_starts_with($b, '/storage/') ? '/public' . $b : $b }}" class="w-full h-full object-cover">
+                    </div>
+                    <button type="button" onclick="if(confirm('Delete?')){fetch('{{ route('admin.products.deleteBanner', [$product, $idx]) }}',{method:'POST',headers:{'X-CSRF-TOKEN':document.querySelector('meta[name=csrf-token]').content,'Content-Type':'application/json'},body:JSON.stringify({_method:'DELETE'})}).then(()=>this.closest('.relative').remove())}" class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] shadow-md opacity-0 group-hover:opacity-100 transition cursor-pointer">&times;</button>
+                </div>
+                @endforeach
+            </div>
+            @endif
+            <input type="file" name="banners[]" multiple accept="image/*" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm">
+        </div>
+
+
+        <!-- Status -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+            <div class="flex items-center gap-3 pb-4 border-b border-gray-100 mb-4">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-50">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <h2 class="text-base font-bold text-gray-900">Status & Visibility</h2>
+            </div>
+            <div class="flex flex-wrap gap-6">
+                <label class="flex items-center gap-3 cursor-pointer group">
+                    <input type="checkbox" name="is_active" value="1" {{ $product->is_active ? 'checked' : '' }} class="w-5 h-5 rounded border-gray-300 text-orange-500 focus:ring-orange-200">
+                    <div>
+                        <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900">Active</span>
+                        <p class="text-xs text-gray-400">Visible on storefront</p>
+                    </div>
+                </label>
+                <label class="flex items-center gap-3 cursor-pointer group">
+                    <input type="checkbox" name="is_featured" value="1" {{ $product->is_featured ? 'checked' : '' }} class="w-5 h-5 rounded border-gray-300 text-orange-500 focus:ring-orange-200">
+                    <div>
+                        <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900">Featured</span>
+                        <p class="text-xs text-gray-400">Show on homepage</p>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-4">
+            <button type="submit" class="px-8 py-3.5 text-white font-bold text-sm rounded-xl hover:opacity-90 transition shadow-lg" style="background-color:#c06d22">
+                <span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Update Product</span>
+            </button>
+            <a href="{{ route('admin.products.index') }}" class="px-6 py-3.5 border border-gray-200 text-gray-600 font-medium text-sm rounded-xl hover:bg-gray-50 transition">Cancel</a>
+        </div>
+    </form>
 
 
     <!-- Variants / Packs (OUTSIDE main form) -->
@@ -121,6 +240,7 @@
                         <p class="text-sm font-bold text-gray-900">{{ $v->name }}@if($v->weight_display) <span class="text-gray-400 font-normal text-xs">/ {{ $v->weight_display }}</span>@elseif($v->weight) <span class="text-gray-400 font-normal text-xs">/ {{ $v->weight >= 1000 ? number_format($v->weight/1000, 1) . ' kg' : intval($v->weight) . ' g' }}</span>@endif</p>
                         <p class="text-xs text-gray-500 mt-0.5">₹{{ number_format($v->selling_price) }} <span class="line-through text-gray-400">₹{{ number_format($v->mrp) }}</span> &bull; Stock: {{ $v->stock }}</p>
                     </div>
+
                     <!-- Edit Mode -->
                     <div class="flex-1" x-show="editing" x-cloak>
                         <form method="POST" action="{{ route('admin.products.update', $product) }}" class="grid grid-cols-2 md:grid-cols-7 gap-3 items-end">
@@ -185,6 +305,7 @@
             </div>
             @endif
 
+
             <!-- Add Variant Form (Alpine.js driven) -->
             <div class="p-5 bg-slate-50 rounded-xl border border-gray-200 space-y-4">
                 <p class="text-xs font-bold text-gray-600 uppercase tracking-wide flex items-center gap-2">
@@ -231,138 +352,8 @@
                 </button>
             </div>
         </div>
-    </div>
-
-
-    <form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" class="space-y-6" onsubmit="var pf=document.getElementById('productForm'); ['name','mrp','selling_price','short_description','description','category_id','sku','return_policy'].forEach(function(f){var src=pf.querySelector('[name='+f+']'); var dest=this.querySelector('[name='+f+']'); if(src&&dest){dest.value=src.tagName==='TEXTAREA'?src.value:src.value;}}.bind(this)); var si=pf.querySelector('#stock_input'); if(si){this.querySelector('[name=stock]').value=si.value;}">
-        @csrf @method('PUT')
-        <input type="hidden" name="name" value="{{ $product->name }}">
-        <input type="hidden" name="short_description" value="{{ $product->short_description }}">
-        <input type="hidden" name="description" value="{{ $product->description }}">
-        <input type="hidden" name="category_id" value="{{ $product->category_id }}">
-        <input type="hidden" name="sku" value="{{ $product->sku }}">
-        <input type="hidden" name="return_policy" value="{{ $product->return_policy }}">
-        <input type="hidden" name="mrp" value="{{ $product->mrp }}">
-        <input type="hidden" name="selling_price" value="{{ $product->selling_price }}">
-        <input type="hidden" name="stock" value="{{ $product->stock }}">
-
-        <!-- Ayurvedic Details -->
-        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-5">
-            <div class="flex items-center gap-3 pb-4 border-b border-gray-100">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: rgba(176,136,64,0.1)">
-                    <svg class="w-4 h-4" style="color:#B08840" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
-                </div>
-                <h2 class="text-base font-bold text-gray-900">Ayurvedic Details</h2>
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Ingredients</label>
-                <textarea name="ingredients" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition" placeholder="Comma-separated: Turmeric, Neem, Aloe Vera...">{{ old('ingredients', $product->ingredients) }}</textarea>
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">How to Use</label>
-                <textarea name="how_to_use" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition" placeholder="Step-by-step usage instructions...">{{ old('how_to_use', $product->how_to_use) }}</textarea>
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Key Benefits</label>
-                <textarea name="benefits" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition" placeholder="One benefit per line or comma-separated...">{{ old('benefits', $product->benefits) }}</textarea>
-            </div>
-        </div>
-
-
-        <!-- Product Images -->
-        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
-            <div class="flex items-center gap-3 pb-4 border-b border-gray-100">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-purple-50">
-                    <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                </div>
-                <h2 class="text-base font-bold text-gray-900">Product Images</h2>
-            </div>
-            @if($product->images->count())
-            <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3 mb-4">
-                @foreach($product->images as $img)
-                <div class="relative group aspect-square">
-                    <div class="w-full h-full rounded-xl overflow-hidden border-2 border-gray-100 group-hover:border-red-200 transition">
-                        <img src="{{ str_starts_with($img->url, '/storage/') ? '/public' . $img->url : $img->url }}" class="w-full h-full object-cover">
-                    </div>
-                    <button type="button" onclick="if(confirm('Delete this image?')){fetch('{{ route('admin.products.deleteImage', [$product, $img]) }}',{method:'POST',headers:{'X-CSRF-TOKEN':document.querySelector('meta[name=csrf-token]').content,'Content-Type':'application/json'},body:JSON.stringify({_method:'DELETE'})}).then(()=>this.closest('.relative').remove())}" class="absolute -top-1.5 -right-1.5 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md cursor-pointer hover:bg-red-600 z-10">&times;</button>
-                    @if($img->is_primary)<span class="absolute bottom-0 inset-x-0 bg-green-500/90 text-white text-[8px] text-center font-bold py-0.5 rounded-b-xl">Primary</span>@endif
-                </div>
-                @endforeach
-            </div>
-            @endif
-            <label class="block border-2 border-dashed border-gray-200 rounded-xl p-6 text-center cursor-pointer hover:border-orange-300 hover:bg-orange-50/30 transition">
-                <svg class="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/></svg>
-                <p class="text-sm font-medium text-gray-500">Click to upload images</p>
-                <p class="text-xs text-gray-400 mt-1">PNG, JPG, WebP up to 5MB each</p>
-                <input type="file" name="images[]" multiple accept="image/*" class="hidden">
-            </label>
-        </div>
-
-        <!-- Product Page Banners -->
-        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
-            <div class="flex items-center gap-3 pb-4 border-b border-gray-100">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-indigo-50">
-                    <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
-                </div>
-                <div>
-                    <h2 class="text-base font-bold text-gray-900">Product Page Banners</h2>
-                    <p class="text-xs text-gray-400">Carousel banners on this product's page (1200×400px)</p>
-                </div>
-            </div>
-            @if($product->banners && count($product->banners))
-            <div class="flex gap-3 flex-wrap">
-                @foreach($product->banners as $idx => $b)
-                <div class="relative group">
-                    <div class="w-40 h-16 rounded-xl overflow-hidden border border-gray-200">
-                        <img src="{{ str_starts_with($b, '/storage/') ? '/public' . $b : $b }}" class="w-full h-full object-cover">
-                    </div>
-                    <button type="button" onclick="if(confirm('Delete?')){fetch('{{ route('admin.products.deleteBanner', [$product, $idx]) }}',{method:'POST',headers:{'X-CSRF-TOKEN':document.querySelector('meta[name=csrf-token]').content,'Content-Type':'application/json'},body:JSON.stringify({_method:'DELETE'})}).then(()=>this.closest('.relative').remove())}" class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] shadow-md opacity-0 group-hover:opacity-100 transition cursor-pointer">&times;</button>
-                </div>
-                @endforeach
-            </div>
-            @endif
-            <input type="file" name="banners[]" multiple accept="image/*" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm">
-        </div>
-
-
-        <!-- Status -->
-        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-            <div class="flex items-center gap-3 pb-4 border-b border-gray-100 mb-4">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-50">
-                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                </div>
-                <h2 class="text-base font-bold text-gray-900">Status & Visibility</h2>
-            </div>
-            <div class="flex flex-wrap gap-6">
-                <label class="flex items-center gap-3 cursor-pointer group">
-                    <input type="checkbox" name="is_active" value="1" {{ $product->is_active ? 'checked' : '' }} class="w-5 h-5 rounded border-gray-300 text-orange-500 focus:ring-orange-200">
-                    <div>
-                        <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900">Active</span>
-                        <p class="text-xs text-gray-400">Visible on storefront</p>
-                    </div>
-                </label>
-                <label class="flex items-center gap-3 cursor-pointer group">
-                    <input type="checkbox" name="is_featured" value="1" {{ $product->is_featured ? 'checked' : '' }} class="w-5 h-5 rounded border-gray-300 text-orange-500 focus:ring-orange-200">
-                    <div>
-                        <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900">Featured</span>
-                        <p class="text-xs text-gray-400">Show on homepage</p>
-                    </div>
-                </label>
-            </div>
-        </div>
-
-
-        <!-- Action Buttons -->
-
-        <!-- Action Button -->
-        <div class="flex items-center gap-4">
-            <button type="submit" class="px-8 py-3.5 text-white font-bold text-sm rounded-xl hover:opacity-90 transition shadow-lg" style="background-color:#c06d22">
-                <span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Update Product</span>
-            </button>
-            <a href="{{ route('admin.products.index') }}" class="px-6 py-3.5 border border-gray-200 text-gray-600 font-medium text-sm rounded-xl hover:bg-gray-50 transition">Cancel</a>
-        </div>
-    </form>
 </div>
+
 
 
 <script>
