@@ -39,78 +39,61 @@
             <!-- IMAGE AREA -->
             <div class="lg:w-[60%]">
                 @if($product->images->count() > 1)
-                <!-- MOBILE: Touch swipe slider with finger-follow drag -->
-                <div class="lg:hidden" x-data="mobileSlider({{ $product->images->count() }})" x-ref="sliderWrap">
-                    <div class="relative overflow-hidden rounded-xl">
-                        <div x-ref="track" class="flex" :style="trackStyle"
-                             @touchstart.passive="touchStart($event)"
-                             @touchmove.passive="touchMove($event)"
-                             @touchend="touchEnd($event)">
+                <!-- MOBILE: Swipe slider + auto-slide -->
+                <div class="lg:hidden relative" id="prodSlider">
+                    <div class="overflow-hidden rounded-xl">
+                        <div id="prodSliderTrack" class="flex" style="transition:transform 0.3s ease">
                             @foreach($product->images as $i => $image)
                             @php $imgSrc = str_starts_with($image->url, '/storage/') ? '/public' . $image->url : $image->url; @endphp
-                            <div class="w-full shrink-0" @click="if(!dragged){lbImg = {{ $i }}; lightbox = true}">
-                                <img src="{{ $imgSrc }}" alt="{{ $product->name }}" class="w-full object-cover cursor-pointer select-none pointer-events-none" style="aspect-ratio: 4/5;" loading="{{ $i === 0 ? 'eager' : 'lazy' }}" draggable="false">
+                            <div class="w-full shrink-0">
+                                <img src="{{ $imgSrc }}" alt="{{ $product->name }}" class="w-full object-cover select-none" style="aspect-ratio:4/5;-webkit-user-drag:none;" draggable="false" loading="{{ $i === 0 ? 'eager' : 'lazy' }}">
                             </div>
                             @endforeach
                         </div>
                         @if($product->discount_percent > 0)
                         <span class="absolute top-3 left-3 px-3 py-1.5 text-white text-[10px] font-bold rounded-full shadow-lg z-10" style="background-color:#c06d22;">{{ $product->discount_percent }}% OFF</span>
                         @endif
-                        <!-- Arrows -->
-                        <button @click="prev()" x-show="current > 0" class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center z-10" style="background-color: rgba(255,255,255,0.85);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
-                        <button @click="next()" x-show="current < total-1" class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center z-10" style="background-color: rgba(255,255,255,0.85);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
                     </div>
-                    <!-- Dots -->
-                    <div class="flex justify-center gap-1.5 mt-3">
-                        @foreach($product->images as $i => $dot)
-                        <button @click="goTo({{ $i }})" :class="current === {{ $i }} ? 'w-6 bg-espresso-700' : 'w-2 bg-gray-300'" class="h-2 rounded-full transition-all duration-300"></button>
-                        @endforeach
-                    </div>
+                    <div id="prodSliderDots" class="flex justify-center gap-1.5 mt-3"></div>
                 </div>
                 <script>
-                function mobileSlider(count) {
-                    return {
-                        current: 0,
-                        total: count,
-                        startX: 0,
-                        currentX: 0,
-                        isDragging: false,
-                        dragged: false,
-                        get trackStyle() {
-                            var baseOffset = -(this.current * 100);
-                            if (this.isDragging) {
-                                var trackW = this.$refs.track ? this.$refs.track.offsetWidth : window.innerWidth;
-                                var dragPercent = ((this.currentX - this.startX) / trackW) * 100;
-                                return 'transform:translateX(' + (baseOffset + dragPercent) + '%;transition:none';
-                            }
-                            return 'transform:translateX(' + baseOffset + '%);transition:transform 0.3s ease';
-                        },
-                        touchStart(e) {
-                            this.startX = e.touches[0].clientX;
-                            this.currentX = this.startX;
-                            this.isDragging = true;
-                            this.dragged = false;
-                        },
-                        touchMove(e) {
-                            if (!this.isDragging) return;
-                            this.currentX = e.touches[0].clientX;
-                            if (Math.abs(this.currentX - this.startX) > 8) this.dragged = true;
-                        },
-                        touchEnd(e) {
-                            if (!this.isDragging) return;
-                            this.isDragging = false;
-                            var diff = this.currentX - this.startX;
-                            if (diff < -50 && this.current < this.total - 1) {
-                                this.current++;
-                            } else if (diff > 50 && this.current > 0) {
-                                this.current--;
-                            }
-                        },
-                        next() { if (this.current < this.total - 1) this.current++; },
-                        prev() { if (this.current > 0) this.current--; },
-                        goTo(i) { this.current = i; }
+                (function(){
+                    var track = document.getElementById('prodSliderTrack');
+                    var dotsC = document.getElementById('prodSliderDots');
+                    if(!track) return;
+                    var total = {{ $product->images->count() }};
+                    var cur = 0, startX = 0, curX = 0, dragging = false, autoTimer;
+
+                    // Build dots
+                    for(var d=0;d<total;d++){
+                        var dot = document.createElement('button');
+                        dot.dataset.i = d;
+                        dot.className = 'h-2 rounded-full transition-all duration-300 ' + (d===0?'w-6':'w-2');
+                        dot.style.backgroundColor = d===0?'#2C2418':'#d1d5db';
+                        dotsC.appendChild(dot);
                     }
-                }
+                    dotsC.addEventListener('click',function(e){var b=e.target.closest('[data-i]');if(b)slideTo(parseInt(b.dataset.i));});
+
+                    function slideTo(i){
+                        cur = Math.max(0, Math.min(total-1, i));
+                        track.style.transition = 'transform 0.3s ease';
+                        track.style.transform = 'translateX(-'+(cur*100)+'%)';
+                        dotsC.querySelectorAll('button').forEach(function(b,idx){
+                            b.className = 'h-2 rounded-full transition-all duration-300 '+(idx===cur?'w-6':'w-2');
+                            b.style.backgroundColor = idx===cur?'#2C2418':'#d1d5db';
+                        });
+                        resetAuto();
+                    }
+
+                    // Touch
+                    track.addEventListener('touchstart',function(e){startX=e.touches[0].clientX;curX=startX;dragging=true;track.style.transition='none';clearInterval(autoTimer);},{passive:true});
+                    track.addEventListener('touchmove',function(e){if(!dragging)return;curX=e.touches[0].clientX;var pct=-(cur*100)+((curX-startX)/track.offsetWidth)*100;track.style.transform='translateX('+pct+'%)';},{passive:true});
+                    track.addEventListener('touchend',function(){if(!dragging)return;dragging=false;var diff=curX-startX;if(diff<-40)slideTo(cur+1);else if(diff>40)slideTo(cur-1);else slideTo(cur);});
+
+                    // Auto-slide every 4s
+                    function resetAuto(){clearInterval(autoTimer);autoTimer=setInterval(function(){slideTo(cur>=total-1?0:cur+1);},4000);}
+                    resetAuto();
+                })();
                 </script>
 
                 <!-- DESKTOP: 2-column — left sticky, right scrolls (bluorng style) -->
