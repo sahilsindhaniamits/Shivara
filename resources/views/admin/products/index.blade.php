@@ -107,14 +107,18 @@
                             @endif
                         </td>
                         <td class="px-4 py-3">
+                            @if(is_null($product->stock))
+                            <span class="text-sm font-bold text-blue-600">∞</span>
+                            @else
                             <span class="text-sm font-bold {{ $product->stock <= 0 ? 'text-red-600' : ($product->stock <= ($product->low_stock_alert ?? 5) ? 'text-amber-600' : 'text-green-600') }}">{{ $product->stock }}</span>
+                            @endif
                         </td>
                         <td class="px-4 py-3">
                             @if(!$product->is_active)
                             <span class="inline-flex items-center px-2 py-1 text-[10px] font-bold uppercase rounded-md bg-gray-100 text-gray-500">Inactive</span>
-                            @elseif($product->stock <= 0)
+                            @elseif(!$product->in_stock)
                             <span class="inline-flex items-center px-2 py-1 text-[10px] font-bold uppercase rounded-md bg-red-50 text-red-700">Out of Stock</span>
-                            @elseif($product->stock <= ($product->low_stock_alert ?? 5))
+                            @elseif(!is_null($product->stock) && $product->stock <= ($product->low_stock_alert ?? 5))
                             <span class="inline-flex items-center px-2 py-1 text-[10px] font-bold uppercase rounded-md bg-amber-50 text-amber-700">Low Stock</span>
                             @else
                             <span class="inline-flex items-center px-2 py-1 text-[10px] font-bold uppercase rounded-md bg-green-50 text-green-700">Active</span>

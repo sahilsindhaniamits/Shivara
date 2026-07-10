@@ -10,7 +10,7 @@
             @if($product->discount_percent > 0)
             <span class="absolute top-2.5 left-2.5 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm" style="background-color:#c06d22">-{{ $product->discount_percent }}%</span>
             @endif
-            @if($product->stock <= 0)
+            @if(!is_null($product->stock) && $product->stock <= 0)
             <div class="absolute inset-0 bg-cream-50/80 backdrop-blur-[1px] flex items-center justify-center">
                 <span class="text-xs font-bold uppercase tracking-widest text-espresso-500 bg-white px-4 py-2 rounded-full border border-espresso-200">Sold Out</span>
             </div>
@@ -51,7 +51,7 @@
         </div>
     </a>
     <!-- Add to Cart -->
-    @if($product->stock > 0)
+    @if(is_null($product->stock) || $product->stock > 0)
     <div class="px-3 sm:px-4 pb-3 sm:pb-4">
         <form method="POST" action="{{ route('cart.add') }}" @submit.prevent="
             let fd = new FormData($el);

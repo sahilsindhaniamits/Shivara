@@ -25,9 +25,9 @@ class ProductController extends Controller
 
         if ($request->filled('status')) {
             match ($request->status) {
-                'active' => $query->where('is_active', true)->where('stock', '>', 0),
-                'low_stock' => $query->where('stock', '<=', \DB::raw('low_stock_alert'))->where('stock', '>', 0),
-                'out_of_stock' => $query->where('stock', '<=', 0),
+                'active' => $query->where('is_active', true)->where(function($q) { $q->whereNull('stock')->orWhere('stock', '>', 0); }),
+                'low_stock' => $query->whereNotNull('stock')->where('stock', '<=', \DB::raw('low_stock_alert'))->where('stock', '>', 0),
+                'out_of_stock' => $query->whereNotNull('stock')->where('stock', '<=', 0),
                 default => null,
             };
         }
