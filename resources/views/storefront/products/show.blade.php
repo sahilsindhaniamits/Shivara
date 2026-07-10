@@ -266,6 +266,48 @@
 </section>
 @endif
 
+<!-- Description & How to Use -->
+@if($product->description || $product->how_to_use)
+<section class="py-16 scroll-reveal" style="background-color:#FFFDF8;">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+        @if($product->description && $product->how_to_use)
+        <div class="grid md:grid-cols-2 gap-8">
+            <div class="p-8 rounded-3xl" style="background-color:#fff; border: 1px solid rgba(183,146,92,0.15);">
+                <h3 class="text-lg font-bold mb-4 flex items-center gap-2" style="color:#2C2418;">
+                    <span class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1);"><svg class="w-4 h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>
+                    About This Product
+                </h3>
+                <div class="text-sm leading-relaxed" style="color:#6b5442;">{!! nl2br(e($product->description)) !!}</div>
+            </div>
+            <div class="p-8 rounded-3xl" style="background-color:#fff; border: 1px solid rgba(183,146,92,0.15);">
+                <h3 class="text-lg font-bold mb-4 flex items-center gap-2" style="color:#2C2418;">
+                    <span class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1);"><svg class="w-4 h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg></span>
+                    How to Use
+                </h3>
+                <div class="text-sm leading-relaxed" style="color:#6b5442;">{!! nl2br(e($product->how_to_use)) !!}</div>
+            </div>
+        </div>
+        @elseif($product->description)
+        <div class="p-8 rounded-3xl" style="background-color:#fff; border: 1px solid rgba(183,146,92,0.15);">
+            <h3 class="text-lg font-bold mb-4 flex items-center gap-2" style="color:#2C2418;">
+                <span class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1);"><svg class="w-4 h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>
+                About This Product
+            </h3>
+            <div class="text-sm leading-relaxed" style="color:#6b5442;">{!! nl2br(e($product->description)) !!}</div>
+        </div>
+        @elseif($product->how_to_use)
+        <div class="p-8 rounded-3xl" style="background-color:#fff; border: 1px solid rgba(183,146,92,0.15);">
+            <h3 class="text-lg font-bold mb-4 flex items-center gap-2" style="color:#2C2418;">
+                <span class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1);"><svg class="w-4 h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg></span>
+                How to Use
+            </h3>
+            <div class="text-sm leading-relaxed" style="color:#6b5442;">{!! nl2br(e($product->how_to_use)) !!}</div>
+        </div>
+        @endif
+    </div>
+</section>
+@endif
+
 <!-- Key Benefits Section -->
 @if($product->benefits)
 <section class="py-16 scroll-reveal" style="background-color:#FFFDF8;">
@@ -287,9 +329,6 @@
     </div>
 </section>
 @endif
-
-
-<!-- Ingredients Spotlight -->
 @if($product->ingredients)
 <section class="py-16 scroll-reveal" style="background-color:#fff;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
@@ -310,50 +349,6 @@
     </div>
 </section>
 @endif
-
-<!-- Description & How to Use -->
-<section class="py-16 scroll-reveal" style="background-color:#FFFDF8;">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6">
-        @if($product->description && $product->how_to_use)
-        {{-- Both exist: side by side --}}
-        <div class="grid md:grid-cols-2 gap-8">
-            <div class="p-8 rounded-3xl" style="background-color:#fff; border: 1px solid rgba(183,146,92,0.15);">
-                <h3 class="text-lg font-bold mb-4 flex items-center gap-2" style="color:#2C2418;">
-                    <span class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1);"><svg class="w-4 h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>
-                    About This Product
-                </h3>
-                <div class="text-sm leading-relaxed" style="color:#6b5442;">{!! nl2br(e($product->description)) !!}</div>
-            </div>
-            <div class="p-8 rounded-3xl" style="background-color:#fff; border: 1px solid rgba(183,146,92,0.15);">
-                <h3 class="text-lg font-bold mb-4 flex items-center gap-2" style="color:#2C2418;">
-                    <span class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1);"><svg class="w-4 h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg></span>
-                    How to Use
-                </h3>
-                <div class="text-sm leading-relaxed" style="color:#6b5442;">{!! nl2br(e($product->how_to_use)) !!}</div>
-            </div>
-        </div>
-        @elseif($product->description)
-        {{-- Only description: full width --}}
-        <div class="p-8 rounded-3xl" style="background-color:#fff; border: 1px solid rgba(183,146,92,0.15);">
-            <h3 class="text-lg font-bold mb-4 flex items-center gap-2" style="color:#2C2418;">
-                <span class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1);"><svg class="w-4 h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>
-                About This Product
-            </h3>
-            <div class="text-sm leading-relaxed" style="color:#6b5442;">{!! nl2br(e($product->description)) !!}</div>
-        </div>
-        @elseif($product->how_to_use)
-        {{-- Only how to use: full width --}}
-        <div class="p-8 rounded-3xl" style="background-color:#fff; border: 1px solid rgba(183,146,92,0.15);">
-            <h3 class="text-lg font-bold mb-4 flex items-center gap-2" style="color:#2C2418;">
-                <span class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1);"><svg class="w-4 h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg></span>
-                How to Use
-            </h3>
-            <div class="text-sm leading-relaxed" style="color:#6b5442;">{!! nl2br(e($product->how_to_use)) !!}</div>
-        </div>
-        @endif
-    </div>
-</section>
-
 
 <!-- Product Banners -->
 @if($product->banners && count($product->banners))
