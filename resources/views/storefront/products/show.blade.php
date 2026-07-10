@@ -16,34 +16,7 @@
     $productTestimonials = \App\Models\VideoTestimonial::active()->where('product_id', $product->id)->orderBy('sort_order')->get();
 @endphp
 
-<div x-data="{ qty: 1, selectedPack: -1, lightbox: false, lbImg: 0, stickyCart: false, activeTab: 'description' }"
-     x-init="window.addEventListener('scroll', () => { stickyCart = window.scrollY > 600 })">
-
-
-<!-- Sticky Add to Cart Bar (appears on scroll) -->
-<div x-show="stickyCart" x-transition:enter="transition ease-out duration-300 transform"
-     x-transition:enter-start="-translate-y-full" x-transition:enter-end="translate-y-0"
-     x-transition:leave="transition ease-in duration-200 transform"
-     x-transition:leave-start="translate-y-0" x-transition:leave-end="-translate-y-full"
-     class="fixed top-[70px] left-0 right-0 z-40 border-b shadow-lg" style="background-color:#FFFDF8; border-color: rgba(183,146,92,0.2);" x-cloak>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
-        <div class="flex items-center gap-3 min-w-0">
-            @if($product->images->count())
-            <img src="{{ str_starts_with($product->images->first()->url, '/storage/') ? '/public' . $product->images->first()->url : $product->images->first()->url }}" class="w-10 h-10 rounded-lg object-cover shrink-0 border" alt="">
-            @endif
-            <div class="min-w-0">
-                <p class="text-sm font-bold truncate" style="color:#2C2418;">{{ $product->name }}</p>
-                <p class="text-xs font-bold" style="color:#B7925C;">₹{{ number_format($product->selling_price) }}</p>
-            </div>
-        </div>
-        <form method="POST" action="{{ route('cart.add') }}" class="shrink-0">
-            @csrf
-            <input type="hidden" name="product_id" value="{{ $product->id }}">
-            <input type="hidden" name="quantity" value="1">
-            <button type="submit" class="px-6 py-2.5 text-white text-xs font-bold uppercase tracking-wider rounded-full hover:opacity-90 transition" style="background-color:#2C2418;">Add to Cart</button>
-        </form>
-    </div>
-</div>
+<div x-data="{ qty: 1, selectedPack: -1, lightbox: false, lbImg: 0, activeTab: 'description' }">
 
 
 <!-- Main Product Section -->
@@ -63,29 +36,31 @@
         </nav>
 
         <div class="flex flex-col lg:flex-row gap-8 lg:gap-12">
-            <!-- LEFT: Scrolling Images (stacked vertically — scroll through them naturally) -->
-            <div class="lg:w-[58%] space-y-4">
+            <!-- LEFT: Images in 2-column grid (bluorng style) -->
+            <div class="lg:w-[58%]">
                 @if($product->images->count())
+                <div class="grid grid-cols-2 gap-2 sm:gap-3">
                     @foreach($product->images as $i => $image)
                     @php $imgSrc = str_starts_with($image->url, '/storage/') ? '/public' . $image->url : $image->url; @endphp
-                    <div class="relative rounded-2xl overflow-hidden cursor-pointer" style="background-color:#f8f5f0;" @click="lbImg = {{ $i }}; lightbox = true">
-                        <img src="{{ $imgSrc }}" alt="{{ $product->name }}" class="w-full aspect-square object-cover hover:scale-105 transition-transform duration-700" loading="{{ $i === 0 ? 'eager' : 'lazy' }}">
+                    <div class="relative rounded-xl overflow-hidden cursor-pointer {{ $product->images->count() == 1 || ($i === 0 && $product->images->count() % 2 !== 0 && $product->images->count() > 2) ? '' : '' }}" style="background-color:#f8f5f0;" @click="lbImg = {{ $i }}; lightbox = true">
+                        <img src="{{ $imgSrc }}" alt="{{ $product->name }}" class="w-full aspect-[4/5] object-cover hover:scale-105 transition-transform duration-700" loading="{{ $i < 2 ? 'eager' : 'lazy' }}">
                         @if($i === 0 && $product->discount_percent > 0)
-                        <span class="absolute top-4 left-4 px-4 py-2 text-white text-xs font-bold rounded-full shadow-xl" style="background-color:#c06d22;">{{ $product->discount_percent }}% OFF</span>
+                        <span class="absolute top-3 left-3 px-3 py-1.5 text-white text-[10px] font-bold rounded-full shadow-lg" style="background-color:#c06d22;">{{ $product->discount_percent }}% OFF</span>
                         @endif
                     </div>
                     @endforeach
+                </div>
                 @else
-                    <div class="rounded-2xl overflow-hidden" style="background-color:#f8f5f0;">
-                        <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=800&h=800&fit=crop" alt="{{ $product->name }}" class="w-full aspect-square object-cover">
-                    </div>
+                <div class="rounded-xl overflow-hidden" style="background-color:#f8f5f0;">
+                    <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=800&h=1000&fit=crop" alt="{{ $product->name }}" class="w-full aspect-[4/5] object-cover">
+                </div>
                 @endif
             </div>
 
 
-            <!-- RIGHT: Sticky Product Info -->
+            <!-- RIGHT: Sticky Product Info (stays fixed while left images scroll) -->
             <div class="lg:w-[42%]">
-                <div class="lg:sticky lg:top-[90px] space-y-5 lg:max-h-[calc(100vh-110px)] lg:overflow-y-auto lg:scrollbar-hide">
+                <div class="lg:sticky lg:top-[90px] space-y-5">
                 <!-- Category Badge -->
                 @if($product->category)
                 <div><span class="inline-block px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full border" style="color:#B7925C; border-color:#B7925C;">{{ $product->category->name }}</span></div>
@@ -441,6 +416,48 @@
         @endforeach
     </div>
 </div>
+
+<!-- Bottom Sticky Add to Cart Bar (like grovya) -->
+@if($product->in_stock)
+<div class="fixed bottom-0 left-0 right-0 z-50 border-t shadow-2xl lg:hidden" style="background-color:#FFFDF8; border-color: rgba(183,146,92,0.2);">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+            @if($product->images->count())
+            <img src="{{ str_starts_with($product->images->first()->url, '/storage/') ? '/public' . $product->images->first()->url : $product->images->first()->url }}" class="w-11 h-11 rounded-lg object-cover shrink-0 border" style="border-color:#e5e7eb;" alt="">
+            @endif
+            <div class="min-w-0">
+                <p class="text-xs font-bold truncate" style="color:#2C2418;">{{ $product->name }}</p>
+                <div class="flex items-center gap-1.5">
+                    <span class="text-sm font-bold" style="color:#2C2418;">₹{{ number_format($product->selling_price) }}</span>
+                    @if($product->discount_percent > 0)
+                    <span class="text-[10px] px-1.5 py-0.5 font-bold rounded" style="background-color:#2C2418; color:#fff;">-{{ $product->discount_percent }}%</span>
+                    @endif
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+            <div class="flex items-center border rounded-lg" style="border-color:#e5e7eb;">
+                <button type="button" @click="qty = Math.max(1, qty - 1)" class="w-8 h-8 flex items-center justify-center text-sm font-bold">−</button>
+                <span class="w-6 h-8 flex items-center justify-center text-xs font-bold" x-text="qty"></span>
+                <button type="button" @click="qty = Math.min({{ $product->stock ?? 999 }}, qty + 1)" class="w-8 h-8 flex items-center justify-center text-sm font-bold">+</button>
+            </div>
+            <form method="POST" action="{{ route('cart.add') }}" @submit.prevent="
+                let fd = new FormData($el);
+                fetch('{{ route('cart.add') }}', { method:'POST', headers:{'X-CSRF-TOKEN':document.querySelector('meta[name=csrf-token]').content,'Accept':'application/json'}, body:fd })
+                .then(r=>r.json()).then(d=>{ if(d.success){window.dispatchEvent(new CustomEvent('cart-updated'));window.dispatchEvent(new CustomEvent('open-cart'))} }).catch(()=>{$el.submit()});">
+                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                <input type="hidden" name="quantity" x-bind:value="qty">
+                @if($product->variants->count())
+                <input type="hidden" name="variant_id" x-bind:value="selectedPack >= 0 ? [{{ $product->variants->pluck('id')->implode(',') }}][selectedPack] : ''">
+                @endif
+                <button type="submit" class="w-10 h-10 flex items-center justify-center rounded-lg text-white" style="background-color:#2C2418;">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+@endif
 
 </div>{{-- end main x-data --}}
 
