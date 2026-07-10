@@ -12,11 +12,11 @@
     @forelse($banners as $banner)
     <div class="bg-white rounded-2xl border border-slate-100 overflow-hidden group">
         <div class="aspect-[16/7] bg-slate-100 relative">
-            @if($banner->image)<img src="{{ $banner->image }}" class="w-full h-full object-cover">@endif
+            @if($banner->image)<img src="{{ $banner->image_url }}" class="w-full h-full object-cover">@endif
             <span class="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-md {{ $banner->is_active ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-600' }}">{{ $banner->is_active ? 'Active' : 'Inactive' }}</span>
         </div>
         <div class="p-4">
-            <h3 class="font-semibold text-sm text-slate-900">{{ $banner->title }}</h3>
+            <h3 class="font-semibold text-sm text-slate-900">{{ $banner->title ?: 'Image Banner' }}</h3>
             @if($banner->subtitle)<p class="text-xs text-slate-500 mt-0.5">{{ $banner->subtitle }}</p>@endif
             <div class="flex items-center gap-2 mt-3">
                 <a href="{{ route('admin.banners.edit', $banner) }}" class="text-xs text-brand-600 font-medium hover:underline">Edit</a>
