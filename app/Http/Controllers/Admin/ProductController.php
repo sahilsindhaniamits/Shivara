@@ -255,23 +255,44 @@ class ProductController extends Controller
 
         $ids = $request->ids;
 
-        switch ($request->action) {
-            case 'activate':
-                Product::whereIn('id', $ids)->update(['is_active' => true]);
-                break;
-            case 'deactivate':
-                Product::whereIn('id', $ids)->update(['is_active' => false]);
-                break;
-            case 'delete':
-                Product::whereIn('id', $ids)->delete();
-                break;
-        }
+        try {
+            switch ($request->action) {
+                case 'activate':
+                    Product::whereIn('id', $ids)->update(['is_active' => true]);
+                    break;
+                case 'deactivate':
+                    Product::whereIn('id', $ids)->update(['is_active' => false]);
+                    break;
+                case 'delete':
+                    // Delete related records first to avoid FK constraints
+                    \App\Models\ProductImage::whereIn('product_id', $ids)->delete();
+                    \App\Models\ProductVariant::whereIn('product_id', $ids)->delete();
+                    \App\Models\ProductAttribute::whereIn('product_id', $ids)->each(function ($attr) {
+                        $attr->values()->delete();
+                        $attr->delete();
+                    });
+                    \App\Models\Review::whereIn('product_id', $ids)->delete();
+                    \App\Models\CartItem::whereIn('product_id', $ids)->delete();
+                    \App\Models\WishlistItem::whereIn('product_id', $ids)->delete();
+                    \App\Models\VideoTestimonial::whereIn('product_id', $ids)->update(['product_id' => null]);
+                    Product::whereIn('id', $ids)->delete();
+                    break;
+            }
 
-        if ($request->expectsJson()) {
-            return response()->json(['success' => true, 'message' => ucfirst($request->action) . ' completed for ' . count($ids) . ' products.']);
-        }
+            $message = ucfirst($request->action) . ' completed for ' . count($ids) . ' products.';
 
-        return redirect()->route('admin.products.index')->with('success', ucfirst($request->action) . ' completed for ' . count($ids) . ' products.');
+            if ($request->expectsJson()) {
+                return response()->json(['success' => true, 'message' => $message]);
+            }
+            return redirect()->route('admin.products.index')->with('success', $message);
+
+        } catch (\Exception $e) {
+            \Log::error('Bulk action failed: ' . $e->getMessage());
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Some products have orders and cannot be deleted. Try deactivating instead.'], 422);
+            }
+            return redirect()->route('admin.products.index')->with('error', 'Some products could not be deleted due to existing orders.');
+        }
     }
 
     public function storeAttribute(Request $request, Product $product)
