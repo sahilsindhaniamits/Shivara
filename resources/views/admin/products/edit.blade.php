@@ -98,6 +98,12 @@
             @endif
         </div>
 
+        <!-- Save Button for main form -->
+        <div class="flex items-center gap-3">
+            <button type="submit" class="px-8 py-3 text-white font-bold text-sm rounded-xl hover:opacity-90 transition shadow-sm" style="background-color:#c06d22">Save Product</button>
+            <a href="{{ route('admin.products.index') }}" class="px-6 py-3 border border-gray-200 text-gray-600 font-medium text-sm rounded-xl hover:bg-gray-50 transition">Cancel</a>
+        </div>
+
     </form>
 
     <!-- Variants / Packs (OUTSIDE main form) -->
