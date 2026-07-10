@@ -3,17 +3,17 @@
 @section('content')
 <!-- Hero Banner Slider (Dynamic from Admin) -->
 @php $heroBanners = \App\Models\Banner::active()->orderBy('sort_order')->get(); @endphp
+<style>
+.shivara-banner-slide { aspect-ratio: 3/4; } /* Mobile: portrait-ish */
+@media (min-width: 768px) { .shivara-banner-slide { aspect-ratio: 16/7; } } /* Tablet */
+@media (min-width: 1024px) { .shivara-banner-slide { aspect-ratio: 16/6; } } /* Desktop */
+</style>
 @if($heroBanners->count())
 <section x-data="{ current: 0, slides: {{ $heroBanners->count() }} }" x-init="setInterval(() => current = (current + 1) % slides, 5000); initSwipe($el, () => current = (current+1)%slides, () => current = (current-1+slides)%slides)" class="relative overflow-hidden select-none cursor-grab active:cursor-grabbing">
     @foreach($heroBanners as $i => $banner)
-    <div x-show="current === {{ $i }}" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 scale-105" x-transition:enter-end="opacity-100 scale-100" {{ $i > 0 ? 'x-cloak' : '' }} class="relative w-full">
-        {{-- Banner Image (shows full image, no cropping) --}}
-        @if($banner->mobile_image)
-        <img src="{{ $banner->mobile_image_url }}" alt="{{ $banner->title }}" class="w-full h-auto block md:hidden">
-        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="w-full h-auto hidden md:block">
-        @else
-        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="w-full h-auto block">
-        @endif
+    <div x-show="current === {{ $i }}" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 scale-105" x-transition:enter-end="opacity-100 scale-100" {{ $i > 0 ? 'x-cloak' : '' }} class="relative w-full shivara-banner-slide">
+        {{-- Single responsive image - covers the container on all screens --}}
+        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full object-cover object-center">
         {{-- Overlay + Content (only if title/subtitle exists) --}}
         @if($banner->title || $banner->subtitle)
         <div class="absolute inset-0 flex items-center" style="background: linear-gradient(135deg, rgba(44,36,24,0.6), rgba(44,36,24,0.2));">
