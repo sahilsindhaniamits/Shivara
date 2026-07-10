@@ -234,9 +234,14 @@
     </div>
 
 
-    <form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" class="space-y-6" onsubmit="var pf=document.getElementById('productForm'); this.querySelector('[name=stock]').value=pf.querySelector('#stock_input').value||''; this.querySelector('[name=mrp]').value=pf.querySelector('[name=mrp]').value; this.querySelector('[name=selling_price]').value=pf.querySelector('[name=selling_price]').value; this.querySelector('input[name=name]').value=pf.querySelector('[name=name]').value;">
+    <form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" class="space-y-6" onsubmit="var pf=document.getElementById('productForm'); var fields=['name','mrp','selling_price','short_description','description','category_id','sku','return_policy']; fields.forEach(function(f){var el=pf.querySelector('[name='+f+']'); if(el) { var h=this.querySelector('input[name='+f+']')||this.querySelector('select[name='+f+']'); if(h) h.value=el.value; }}.bind(this)); this.querySelector('input[name=stock]').value=pf.querySelector('#stock_input').value||'';">
         @csrf @method('PUT')
         <input type="hidden" name="name" value="{{ $product->name }}">
+        <input type="hidden" name="short_description" value="{{ $product->short_description }}">
+        <input type="hidden" name="description" value="{{ $product->description }}">
+        <input type="hidden" name="category_id" value="{{ $product->category_id }}">
+        <input type="hidden" name="sku" value="{{ $product->sku }}">
+        <input type="hidden" name="return_policy" value="{{ $product->return_policy }}">
         <input type="hidden" name="mrp" value="{{ $product->mrp }}">
         <input type="hidden" name="selling_price" value="{{ $product->selling_price }}">
         <input type="hidden" name="stock" value="{{ $product->stock }}">

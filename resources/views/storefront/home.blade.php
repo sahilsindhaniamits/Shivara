@@ -145,10 +145,12 @@
 @php
     $amazingDeals = \App\Models\Product::where('is_active', true)
         ->whereColumn('mrp', '>', 'selling_price')
-        ->with(['primaryImage', 'images', 'category', 'variants'])
+        ->where(function($q) { $q->whereNull('stock')->orWhere('stock', '>', 0); })
+        ->with(['primaryImage', 'category'])
         ->orderByRaw('((mrp - selling_price) / mrp) DESC')
         ->take(12)
         ->get()
+        ->unique('id')
         ->filter(function($p) { return $p->discount_percent > 10; });
 @endphp
 @if($amazingDeals->count())
