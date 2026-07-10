@@ -17,11 +17,13 @@
         </a>
     </div>
 
-    <form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" id="productForm" class="space-y-6">
+    <div class="flex flex-col gap-6">
+
+    <form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" id="productForm" class="space-y-6 contents">
         @csrf @method('PUT')
 
         <!-- Basic Information -->
-        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-5">
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-5" style="order:1;">
             <div class="flex items-center gap-3 pb-4 border-b border-gray-100">
                 <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: rgba(192,109,34,0.1)">
                     <svg class="w-4 h-4" style="color:#c06d22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -70,7 +72,7 @@
 
 
         <!-- Pricing & Inventory -->
-        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-5">
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-5" style="order:2;">
             <div class="flex items-center gap-3 pb-4 border-b border-gray-100">
                 <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: rgba(16,163,127,0.1)">
                     <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -102,7 +104,7 @@
 
 
         <!-- Ayurvedic Details -->
-        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-5">
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-5" style="order:4;">
             <div class="flex items-center gap-3 pb-4 border-b border-gray-100">
                 <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: rgba(176,136,64,0.1)">
                     <svg class="w-4 h-4" style="color:#B08840" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
@@ -126,7 +128,7 @@
 
 
         <!-- Product Images -->
-        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4" style="order:5;">
             <div class="flex items-center gap-3 pb-4 border-b border-gray-100">
                 <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-purple-50">
                     <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -141,7 +143,7 @@
                         <img src="{{ str_starts_with($img->url, '/storage/') ? '/public' . $img->url : $img->url }}" class="w-full h-full object-cover">
                     </div>
                     <button type="button" onclick="if(confirm('Delete this image?')){fetch('{{ route('admin.products.deleteImage', [$product, $img]) }}',{method:'POST',headers:{'X-CSRF-TOKEN':document.querySelector('meta[name=csrf-token]').content,'Content-Type':'application/json'},body:JSON.stringify({_method:'DELETE'})}).then(()=>this.closest('.relative').remove())}" class="absolute -top-1.5 -right-1.5 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md cursor-pointer hover:bg-red-600 z-10">&times;</button>
-                    @if($img->is_primary)<span class="absolute bottom-0 inset-x-0 bg-green-500/90 text-white text-[8px] text-center font-bold py-0.5 rounded-b-xl">Primary</span>@endif
+                    @if($img->is_primary)<span class="absolute bottom-0 inset-x-0 bg-green-500/90 text-white text-[8px] text-center font-bold py-0.5 rounded-b-xl">Primary</span>@else<button type="button" onclick="fetch('/admin/products/{{ $product->id }}/image/{{ $img->id }}/primary',{method:'POST',headers:{'X-CSRF-TOKEN':document.querySelector('meta[name=csrf-token]').content,'Content-Type':'application/json'}}).then(()=>location.reload())" class="absolute bottom-0 inset-x-0 bg-gray-700/80 text-white text-[8px] text-center font-bold py-0.5 rounded-b-xl cursor-pointer hover:bg-blue-600/90 opacity-0 group-hover:opacity-100 transition">Set Primary</button>@endif
                 </div>
                 @endforeach
             </div>
@@ -157,7 +159,7 @@
 
 
         <!-- Product Page Banners -->
-        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4" style="order:6;">
             <div class="flex items-center gap-3 pb-4 border-b border-gray-100">
                 <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-indigo-50">
                     <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
@@ -184,7 +186,7 @@
 
 
         <!-- Status -->
-        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm" style="order:7;">
             <div class="flex items-center gap-3 pb-4 border-b border-gray-100 mb-4">
                 <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-50">
                     <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -210,7 +212,7 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-4" style="order:8;">
             <button type="submit" class="px-8 py-3.5 text-white font-bold text-sm rounded-xl hover:opacity-90 transition shadow-lg" style="background-color:#c06d22">
                 <span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Update Product</span>
             </button>
@@ -220,7 +222,7 @@
 
 
     <!-- Variants / Packs (OUTSIDE main form) -->
-    <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-5 mt-6">
+    <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-5" style="order:3;">
             <div class="flex items-center gap-3 pb-4 border-b border-gray-100">
                 <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-50">
                     <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
@@ -353,6 +355,9 @@
                 </button>
             </div>
         </div>
+</div>
+
+    </div>{{-- end flex container --}}
 </div>
 
 
