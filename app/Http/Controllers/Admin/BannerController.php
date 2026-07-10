@@ -22,19 +22,20 @@ class BannerController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'nullable|string|max:255',
             'subtitle' => 'nullable|string|max:255',
-            'link' => 'nullable|url|max:500',
+            'link' => 'nullable|string|max:500',
             'is_active' => 'boolean',
-            'sort_order' => 'integer|min:0',
-            'image' => 'required|image|max:5120',
-            'mobile_image' => 'nullable|image|max:5120',
+            'sort_order' => 'nullable|integer|min:0',
+            'image' => 'required|file|mimes:jpg,jpeg,png,webp,gif|max:10240',
+            'mobile_image' => 'nullable|file|mimes:jpg,jpeg,png,webp,gif|max:10240',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after:start_date',
         ]);
 
         $validated['is_active'] = $request->has('is_active');
         $validated['sort_order'] = $request->input('sort_order', 0);
+        $validated['title'] = $request->input('title', '');
         $validated['image'] = '/storage/' . $request->file('image')->store('banners', 'public');
 
         if ($request->hasFile('mobile_image')) {
@@ -55,13 +56,13 @@ class BannerController extends Controller
     public function update(Request $request, Banner $banner)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'nullable|string|max:255',
             'subtitle' => 'nullable|string|max:255',
-            'link' => 'nullable|url|max:500',
+            'link' => 'nullable|string|max:500',
             'is_active' => 'boolean',
-            'sort_order' => 'integer|min:0',
-            'image' => 'nullable|image|max:5120',
-            'mobile_image' => 'nullable|image|max:5120',
+            'sort_order' => 'nullable|integer|min:0',
+            'image' => 'nullable|file|mimes:jpg,jpeg,png,webp,gif|max:10240',
+            'mobile_image' => 'nullable|file|mimes:jpg,jpeg,png,webp,gif|max:10240',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after:start_date',
         ]);

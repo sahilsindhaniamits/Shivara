@@ -1,58 +1,63 @@
 @extends('layouts.app')
 
 @section('content')
-<!-- Hero Banner Slider -->
-<section x-data="{ current: 0, slides: 3 }" x-init="setInterval(() => current = (current + 1) % slides, 5000); initSwipe($el, () => current = (current+1)%slides, () => current = (current-1+slides)%slides)" class="relative overflow-hidden select-none cursor-grab active:cursor-grabbing">
-    <!-- Slide 1 -->
-    <div x-show="current === 0" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 scale-105" x-transition:enter-end="opacity-100 scale-100" class="relative min-h-[500px] md:min-h-[600px] lg:min-h-[650px] flex items-center" style="background: linear-gradient(135deg, rgba(44,36,24,0.7), rgba(44,36,24,0.4)), url('https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=1920&q=80') center/cover;">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-20 w-full">
-            <div class="max-w-2xl animate-fadeInUp">
-                <span class="inline-block text-[11px] font-bold uppercase tracking-[0.3em] text-gold-300 bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full mb-6 border border-white/20">Heritage Ayurveda</span>
-                <h1 class="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.05] mb-6">
-                    Ancient wisdom.<br><span class="text-gold-300">Modern purity.</span>
-                </h1>
-                <p class="text-cream-200/90 text-base md:text-lg max-w-lg mb-8 leading-relaxed">
-                    Formulations rooted in 5,000 years of Ayurvedic tradition, crafted with single-origin herbs from Rajasthan.
-                </p>
-                <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 px-8 py-4 bg-white text-espresso-700 font-bold rounded-full hover:bg-cream-100 transition shadow-2xl">
-                    Shop Collection
+<!-- Hero Banner Slider (Dynamic from Admin) -->
+@php $heroBanners = \App\Models\Banner::active()->orderBy('sort_order')->get(); @endphp
+@if($heroBanners->count())
+<section x-data="{ current: 0, slides: {{ $heroBanners->count() }} }" x-init="setInterval(() => current = (current + 1) % slides, 5000); initSwipe($el, () => current = (current+1)%slides, () => current = (current-1+slides)%slides)" class="relative overflow-hidden select-none cursor-grab active:cursor-grabbing">
+    @foreach($heroBanners as $i => $banner)
+    <div x-show="current === {{ $i }}" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 scale-105" x-transition:enter-end="opacity-100 scale-100" {{ $i > 0 ? 'x-cloak' : '' }} class="relative min-h-[400px] md:min-h-[550px] lg:min-h-[650px] flex items-center">
+        {{-- Background Image --}}
+        <img src="{{ str_starts_with($banner->image, '/storage/') ? '/public' . $banner->image : $banner->image }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full object-cover">
+        {{-- Mobile Image (if uploaded) --}}
+        @if($banner->mobile_image)
+        <img src="{{ str_starts_with($banner->mobile_image, '/storage/') ? '/public' . $banner->mobile_image : $banner->mobile_image }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full object-cover md:hidden">
+        <img src="{{ str_starts_with($banner->image, '/storage/') ? '/public' . $banner->image : $banner->image }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full object-cover hidden md:block">
+        @endif
+        {{-- Overlay + Content (only if title/subtitle exists) --}}
+        @if($banner->title || $banner->subtitle)
+        <div class="absolute inset-0" style="background: linear-gradient(135deg, rgba(44,36,24,0.6), rgba(44,36,24,0.2));"></div>
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 w-full">
+            <div class="max-w-2xl">
+                @if($banner->title)
+                <h2 class="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">{{ $banner->title }}</h2>
+                @endif
+                @if($banner->subtitle)
+                <p class="text-white/90 text-base md:text-lg max-w-lg mb-8">{{ $banner->subtitle }}</p>
+                @endif
+                @if($banner->link)
+                <a href="{{ $banner->link }}" class="inline-flex items-center gap-2 px-8 py-4 bg-white font-bold rounded-full hover:bg-cream-100 transition shadow-2xl" style="color:#2C2418;">
+                    Shop Now
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                 </a>
+                @endif
             </div>
         </div>
+        @endif
     </div>
-
-    <!-- Slide 2 -->
-    <div x-show="current === 1" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 scale-105" x-transition:enter-end="opacity-100 scale-100" x-cloak class="relative min-h-[500px] md:min-h-[600px] lg:min-h-[650px] flex items-center" style="background: linear-gradient(135deg, rgba(176,136,64,0.85), rgba(150,112,58,0.75)), url('https://images.unsplash.com/photo-1611241893603-3c359704e0ee?w=1920&q=80') center/cover;">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-20 w-full text-center">
-            <span class="inline-block text-[11px] font-bold uppercase tracking-[0.3em] text-white bg-white/20 backdrop-blur-sm px-4 py-1.5 rounded-full mb-6">Limited Offer</span>
-            <h2 class="font-display text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4">Flat 15% Off</h2>
-            <p class="text-white/90 text-lg mb-8">Use code <span class="font-bold text-white text-2xl bg-white/20 px-3 py-1 rounded-lg">EXTRA15</span> on orders above ₹999</p>
-            <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 px-8 py-4 bg-white text-espresso-700 font-bold rounded-full hover:bg-cream-100 transition shadow-2xl">
-                Claim Offer →
-            </a>
-        </div>
-    </div>
-
-    <!-- Slide 3 -->
-    <div x-show="current === 2" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 scale-105" x-transition:enter-end="opacity-100 scale-100" x-cloak class="relative min-h-[500px] md:min-h-[600px] lg:min-h-[650px] flex items-center" style="background: linear-gradient(135deg, rgba(44,36,24,0.85), rgba(44,36,24,0.7)), url('https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=1920&q=80') center/cover;">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-20 w-full text-center">
-            <span class="inline-block text-[11px] font-bold uppercase tracking-[0.3em] text-gold-300 bg-gold-400/10 backdrop-blur-sm px-4 py-1.5 rounded-full mb-6 border border-gold-400/20">New Launch</span>
-            <h2 class="font-display text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4">Shilajit Gold Resin</h2>
-            <p class="text-cream-200/90 text-lg mb-8">Pure Himalayan Shilajit for energy & stamina</p>
-            <a href="{{ route('products.show', 'shilajit-gold-resin') }}" class="inline-flex items-center gap-2 px-8 py-4 bg-gold-500 text-white font-bold rounded-full hover:bg-gold-400 transition shadow-2xl">
-                Discover Now →
-            </a>
-        </div>
-    </div>
+    @endforeach
 
     <!-- Slider Dots -->
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2.5">
+    @if($heroBanners->count() > 1)
+    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2.5">
         <template x-for="i in slides" :key="i">
             <button @click="current = i - 1" :class="current === i - 1 ? 'w-10 bg-white' : 'w-3 bg-white/40'" class="h-3 rounded-full transition-all duration-500"></button>
         </template>
     </div>
+    @endif
 </section>
+@else
+{{-- Fallback: show a default banner if no banners in DB --}}
+<section class="relative min-h-[400px] md:min-h-[550px] lg:min-h-[650px] flex items-center" style="background: linear-gradient(135deg, rgba(44,36,24,0.7), rgba(44,36,24,0.4)), url('https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=1920&q=80') center/cover;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-20 w-full">
+        <div class="max-w-2xl">
+            <h1 class="font-display text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">Ancient wisdom.<br><span style="color:#D4B078;">Modern purity.</span></h1>
+            <p class="text-white/80 text-lg mb-8">Formulations rooted in 5,000 years of Ayurvedic tradition.</p>
+            <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 px-8 py-4 bg-white font-bold rounded-full transition shadow-2xl" style="color:#2C2418;">Shop Collection →</a>
+        </div>
+    </div>
+</section>
+@endif
 
 <!-- Scrolling Marquee Trust Strip -->
 <div class="overflow-hidden py-2.5" style="background-color: #342a1b;">
