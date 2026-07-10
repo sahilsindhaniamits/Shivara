@@ -234,7 +234,7 @@
     </div>
 
 
-    <form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" class="space-y-6" onsubmit="var pf=document.getElementById('productForm'); var fields=['name','mrp','selling_price','short_description','description','category_id','sku','return_policy']; fields.forEach(function(f){var el=pf.querySelector('[name='+f+']'); if(el) { var h=this.querySelector('input[name='+f+']')||this.querySelector('select[name='+f+']'); if(h) h.value=el.value; }}.bind(this)); this.querySelector('input[name=stock]').value=pf.querySelector('#stock_input').value||'';">
+    <form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" class="space-y-6" onsubmit="var pf=document.getElementById('productForm'); ['name','mrp','selling_price','short_description','description','category_id','sku','return_policy'].forEach(function(f){var src=pf.querySelector('[name='+f+']'); var dest=this.querySelector('[name='+f+']'); if(src&&dest){dest.value=src.tagName==='TEXTAREA'?src.value:src.value;}}.bind(this)); var si=pf.querySelector('#stock_input'); if(si){this.querySelector('[name=stock]').value=si.value;}">
         @csrf @method('PUT')
         <input type="hidden" name="name" value="{{ $product->name }}">
         <input type="hidden" name="short_description" value="{{ $product->short_description }}">
