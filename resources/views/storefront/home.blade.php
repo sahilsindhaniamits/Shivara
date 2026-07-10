@@ -3,30 +3,25 @@
 @section('content')
 <!-- Hero Banner Slider (Dynamic from Admin) -->
 @php $heroBanners = \App\Models\Banner::active()->orderBy('sort_order')->get(); @endphp
-<style>
-.shivara-banner-slide { aspect-ratio: 3/4; } /* Mobile: portrait-ish */
-@media (min-width: 768px) { .shivara-banner-slide { aspect-ratio: 16/7; } } /* Tablet */
-@media (min-width: 1024px) { .shivara-banner-slide { aspect-ratio: 16/6; } } /* Desktop */
-</style>
 @if($heroBanners->count())
 <section x-data="{ current: 0, slides: {{ $heroBanners->count() }} }" x-init="setInterval(() => current = (current + 1) % slides, 5000); initSwipe($el, () => current = (current+1)%slides, () => current = (current-1+slides)%slides)" class="relative overflow-hidden select-none cursor-grab active:cursor-grabbing">
     @foreach($heroBanners as $i => $banner)
-    <div x-show="current === {{ $i }}" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 scale-105" x-transition:enter-end="opacity-100 scale-100" {{ $i > 0 ? 'x-cloak' : '' }} class="relative w-full shivara-banner-slide">
-        {{-- Single responsive image - covers the container on all screens --}}
-        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full object-cover object-center">
+    <div x-show="current === {{ $i }}" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 scale-105" x-transition:enter-end="opacity-100 scale-100" {{ $i > 0 ? 'x-cloak' : '' }} class="relative w-full">
+        {{-- Single image - scales to full width, no cropping --}}
+        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="w-full h-auto block">
         {{-- Overlay + Content (only if title/subtitle exists) --}}
         @if($banner->title || $banner->subtitle)
-        <div class="absolute inset-0 flex items-center" style="background: linear-gradient(135deg, rgba(44,36,24,0.6), rgba(44,36,24,0.2));">
+        <div class="absolute inset-0 flex items-center" style="background: linear-gradient(135deg, rgba(44,36,24,0.5), rgba(44,36,24,0.1));">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 w-full">
-                <div class="max-w-2xl">
+                <div class="max-w-xl">
                     @if($banner->title)
-                    <h2 class="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">{{ $banner->title }}</h2>
+                    <h2 class="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-3">{{ $banner->title }}</h2>
                     @endif
                     @if($banner->subtitle)
-                    <p class="text-white/90 text-base md:text-lg max-w-lg mb-8">{{ $banner->subtitle }}</p>
+                    <p class="text-white/90 text-sm md:text-base max-w-md mb-6">{{ $banner->subtitle }}</p>
                     @endif
                     @if($banner->link)
-                    <a href="{{ $banner->link }}" class="inline-flex items-center gap-2 px-8 py-4 bg-white font-bold rounded-full hover:bg-cream-100 transition shadow-2xl" style="color:#2C2418;">
+                    <a href="{{ $banner->link }}" class="inline-flex items-center gap-2 px-6 py-3 bg-white text-sm font-bold rounded-full transition shadow-xl" style="color:#2C2418;">
                         Shop Now
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                     </a>
