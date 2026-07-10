@@ -63,12 +63,12 @@
         </nav>
 
         <div class="flex flex-col lg:flex-row gap-8 lg:gap-12">
-            <!-- LEFT: Scrolling Images (stacked vertically, first one sticky on desktop) -->
+            <!-- LEFT: Scrolling Images (stacked vertically — scroll through them naturally) -->
             <div class="lg:w-[58%] space-y-4">
                 @if($product->images->count())
                     @foreach($product->images as $i => $image)
                     @php $imgSrc = str_starts_with($image->url, '/storage/') ? '/public' . $image->url : $image->url; @endphp
-                    <div class="relative rounded-2xl overflow-hidden cursor-pointer {{ $i === 0 ? 'lg:sticky lg:top-[90px] lg:z-10' : '' }}" style="background-color:#f8f5f0;" @click="lbImg = {{ $i }}; lightbox = true">
+                    <div class="relative rounded-2xl overflow-hidden cursor-pointer" style="background-color:#f8f5f0;" @click="lbImg = {{ $i }}; lightbox = true">
                         <img src="{{ $imgSrc }}" alt="{{ $product->name }}" class="w-full aspect-square object-cover hover:scale-105 transition-transform duration-700" loading="{{ $i === 0 ? 'eager' : 'lazy' }}">
                         @if($i === 0 && $product->discount_percent > 0)
                         <span class="absolute top-4 left-4 px-4 py-2 text-white text-xs font-bold rounded-full shadow-xl" style="background-color:#c06d22;">{{ $product->discount_percent }}% OFF</span>
@@ -84,7 +84,8 @@
 
 
             <!-- RIGHT: Sticky Product Info -->
-            <div class="lg:w-[42%] lg:sticky lg:top-[90px] lg:self-start space-y-5">
+            <div class="lg:w-[42%]">
+                <div class="lg:sticky lg:top-[90px] space-y-5 lg:max-h-[calc(100vh-110px)] lg:overflow-y-auto lg:scrollbar-hide">
                 <!-- Category Badge -->
                 @if($product->category)
                 <div><span class="inline-block px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full border" style="color:#B7925C; border-color:#B7925C;">{{ $product->category->name }}</span></div>
@@ -242,6 +243,7 @@
                     </div>
                 </div>
 
+            </div><!-- end sticky inner -->
             </div><!-- end right column -->
         </div><!-- end flex -->
     </div>
