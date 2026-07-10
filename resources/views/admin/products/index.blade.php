@@ -183,10 +183,14 @@ function productsPage() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' },
                 body: JSON.stringify({ ids: this.selected, action: action })
-            }).then(r => r.json()).then(d => {
-                if (d.success) location.reload();
-                else alert(d.message || 'Error');
-            }).catch(() => alert('Error performing bulk action'));
+            }).then(r => {
+                if (r.ok) return r.json();
+                if (r.status === 419) { alert('Session expired. Please refresh the page.'); location.reload(); return; }
+                return r.text().then(t => { throw new Error(t); });
+            }).then(d => {
+                if (d && d.success) location.reload();
+                else if (d) alert(d.message || 'Error');
+            }).catch(e => { console.error('Bulk action error:', e); alert('Error performing bulk action. Please refresh and try again.'); });
         }
     }
 }

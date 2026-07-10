@@ -267,7 +267,11 @@ class ProductController extends Controller
                 break;
         }
 
-        return response()->json(['success' => true, 'message' => ucfirst($request->action) . ' completed for ' . count($ids) . ' products.']);
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'message' => ucfirst($request->action) . ' completed for ' . count($ids) . ' products.']);
+        }
+
+        return redirect()->route('admin.products.index')->with('success', ucfirst($request->action) . ' completed for ' . count($ids) . ' products.');
     }
 
     public function storeAttribute(Request $request, Product $product)
