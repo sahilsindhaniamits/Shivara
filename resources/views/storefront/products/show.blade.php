@@ -21,7 +21,7 @@
 
 <!-- Main Product Section -->
 <section style="background: linear-gradient(180deg, #FFFDF8 0%, #FFF9ED 100%);">
-    <div style="max-width: 1400px; margin: 0 auto;" class="px-4 sm:px-6 lg:px-8 pt-6 pb-16">
+    <div class="w-full px-4 sm:px-6 lg:px-10 xl:px-16 pt-6 pb-16">
         <!-- Breadcrumb -->
         <nav class="flex items-center gap-2 text-xs text-espresso-400 mb-6">
             <a href="{{ route('home') }}" class="hover:text-gold-600 transition">Home</a>
@@ -39,28 +39,60 @@
             <!-- IMAGE AREA -->
             <div class="lg:w-[60%]">
                 @if($product->images->count() > 1)
-                <!-- MOBILE: Horizontal swipe slider -->
-                <div class="lg:hidden" x-data="{ mobileImg: 0 }" x-init="initSwipe($el.querySelector('.swipe-track'), () => mobileImg = Math.min(mobileImg+1, {{ $product->images->count()-1 }}), () => mobileImg = Math.max(mobileImg-1, 0))">
+                <!-- MOBILE: Touch swipe slider with finger-follow drag -->
+                <div class="lg:hidden" x-data="mobileSlider({{ $product->images->count() }})" x-ref="sliderWrap">
                     <div class="relative overflow-hidden rounded-xl">
-                        <div class="swipe-track flex transition-transform duration-300 ease-out" :style="'transform: translateX(-' + (mobileImg * 100) + '%)'">
+                        <div x-ref="track" class="flex" :style="trackStyle"
+                             @touchstart.passive="touchStart($event)"
+                             @touchmove.passive="touchMove($event)"
+                             @touchend="touchEnd($event)">
                             @foreach($product->images as $i => $image)
                             @php $imgSrc = str_starts_with($image->url, '/storage/') ? '/public' . $image->url : $image->url; @endphp
-                            <div class="w-full shrink-0" @click="lbImg = {{ $i }}; lightbox = true">
-                                <img src="{{ $imgSrc }}" alt="{{ $product->name }}" class="w-full object-cover cursor-pointer" style="aspect-ratio: 4/5;" loading="{{ $i === 0 ? 'eager' : 'lazy' }}">
+                            <div class="w-full shrink-0" @click="if(!dragged){lbImg = {{ $i }}; lightbox = true}">
+                                <img src="{{ $imgSrc }}" alt="{{ $product->name }}" class="w-full object-cover cursor-pointer select-none pointer-events-none" style="aspect-ratio: 4/5;" loading="{{ $i === 0 ? 'eager' : 'lazy' }}" draggable="false">
                             </div>
                             @endforeach
                         </div>
                         @if($product->discount_percent > 0)
                         <span class="absolute top-3 left-3 px-3 py-1.5 text-white text-[10px] font-bold rounded-full shadow-lg z-10" style="background-color:#c06d22;">{{ $product->discount_percent }}% OFF</span>
                         @endif
+                        <!-- Arrows -->
+                        <button @click="prev()" x-show="current > 0" class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center z-10" style="background-color: rgba(255,255,255,0.85);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+                        <button @click="next()" x-show="current < total-1" class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center z-10" style="background-color: rgba(255,255,255,0.85);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
                     </div>
                     <!-- Dots -->
                     <div class="flex justify-center gap-1.5 mt-3">
                         @foreach($product->images as $i => $dot)
-                        <button @click="mobileImg = {{ $i }}" :class="mobileImg === {{ $i }} ? 'w-6 bg-espresso-700' : 'w-2 bg-gray-300'" class="h-2 rounded-full transition-all duration-300"></button>
+                        <button @click="goTo({{ $i }})" :class="current === {{ $i }} ? 'w-6 bg-espresso-700' : 'w-2 bg-gray-300'" class="h-2 rounded-full transition-all duration-300"></button>
                         @endforeach
                     </div>
                 </div>
+                <script>
+                function mobileSlider(count) {
+                    return {
+                        current: 0, total: count, startX: 0, moveX: 0, dragging: false, dragged: false,
+                        get trackStyle() {
+                            var offset = -(this.current * 100);
+                            if (this.dragging) {
+                                var w = this.$refs.track ? this.$refs.track.offsetWidth : 300;
+                                offset += (this.moveX / w) * 100;
+                            }
+                            return 'transform: translateX(' + offset + '%); transition: ' + (this.dragging ? 'none' : 'transform 0.3s ease');
+                        },
+                        touchStart(e) { this.startX = e.touches[0].clientX; this.moveX = 0; this.dragging = true; this.dragged = false; },
+                        touchMove(e) { this.moveX = e.touches[0].clientX - this.startX; if(Math.abs(this.moveX) > 5) this.dragged = true; },
+                        touchEnd(e) {
+                            this.dragging = false;
+                            if (this.moveX < -40 && this.current < this.total - 1) this.current++;
+                            else if (this.moveX > 40 && this.current > 0) this.current--;
+                            this.moveX = 0;
+                        },
+                        next() { if(this.current < this.total-1) this.current++; },
+                        prev() { if(this.current > 0) this.current--; },
+                        goTo(i) { this.current = i; }
+                    }
+                }
+                </script>
 
                 <!-- DESKTOP: 2-column — left sticky, right scrolls (bluorng style) -->
                 <div class="hidden lg:flex gap-3 items-start">
