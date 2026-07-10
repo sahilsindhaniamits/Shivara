@@ -199,7 +199,24 @@ function sideCart() {
             // Listen for cart-updated events (from AJAX add-to-cart)
             window.addEventListener('cart-updated', () => this.loadCart());
         },
-        loadCart() { fetch('/cart/data', {headers:{'Accept':'application/json'}}).then(r=>r.json()).then(d=>{if(d.items)this.items=d.items;}).catch(()=>{}); }
+        loadCart() {
+            fetch('/cart/data', {headers:{'Accept':'application/json'}}).then(r=>r.json()).then(d=>{
+                if(d.items) this.items = d.items;
+                // Auto-apply coupon if server sends one and user hasn't manually applied one
+                if(d.auto_coupon && !this.coupon) {
+                    this.coupon = d.auto_coupon;
+                    this.couponCode = d.auto_coupon.code;
+                    this.couponMsg = '✓ ' + (d.auto_coupon.description || d.auto_coupon.code) + ' auto-applied!';
+                    this.couponError = false;
+                }
+                // If cart is empty, clear coupon
+                if(!d.items || d.items.length === 0) {
+                    this.coupon = null;
+                    this.couponCode = '';
+                    this.couponMsg = '';
+                }
+            }).catch(()=>{});
+        }
     }
 }
 </script>
