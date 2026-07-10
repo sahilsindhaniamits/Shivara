@@ -149,9 +149,10 @@
             <label class="block border-2 border-dashed border-gray-200 rounded-xl p-6 text-center cursor-pointer hover:border-orange-300 hover:bg-orange-50/30 transition">
                 <svg class="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/></svg>
                 <p class="text-sm font-medium text-gray-500">Click to upload images</p>
-                <p class="text-xs text-gray-400 mt-1">PNG, JPG, WebP up to 5MB each</p>
-                <input type="file" name="images[]" multiple accept="image/*" class="hidden">
+                <p class="text-xs text-gray-400 mt-1">PNG, JPG, WebP up to 5MB • First image = primary thumbnail</p>
+                <input type="file" name="images[]" multiple accept="image/*" class="hidden" onchange="var g=document.getElementById('imgPreview');g.innerHTML='';g.style.display='grid';for(var i=0;i<this.files.length;i++){(function(f){var r=new FileReader();r.onload=function(e){var d=document.createElement('div');d.className='relative aspect-square';d.innerHTML='<div class=\'w-full h-full rounded-xl overflow-hidden border-2 border-green-300\'><img src=\''+e.target.result+'\' class=\'w-full h-full object-cover\'></div><span class=\'absolute bottom-0 inset-x-0 bg-blue-500/90 text-white text-[8px] text-center font-bold py-0.5 rounded-b-xl\'>New</span>';g.appendChild(d);};r.readAsDataURL(f);})(this.files[i]);}">
             </label>
+            <div id="imgPreview" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3" style="display:none;"></div>
         </div>
 
 
