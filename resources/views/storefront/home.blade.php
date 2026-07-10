@@ -8,11 +8,11 @@
     @foreach($heroBanners as $i => $banner)
     <div x-show="current === {{ $i }}" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 scale-105" x-transition:enter-end="opacity-100 scale-100" {{ $i > 0 ? 'x-cloak' : '' }} class="relative min-h-[400px] md:min-h-[550px] lg:min-h-[650px] flex items-center">
         {{-- Background Image --}}
-        <img src="{{ str_starts_with($banner->image, '/storage/') ? '/public' . $banner->image : $banner->image }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full object-cover">
+        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full object-cover">
         {{-- Mobile Image (if uploaded) --}}
         @if($banner->mobile_image)
-        <img src="{{ str_starts_with($banner->mobile_image, '/storage/') ? '/public' . $banner->mobile_image : $banner->mobile_image }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full object-cover md:hidden">
-        <img src="{{ str_starts_with($banner->image, '/storage/') ? '/public' . $banner->image : $banner->image }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full object-cover hidden md:block">
+        <img src="{{ $banner->mobile_image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full object-cover md:hidden">
+        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full object-cover hidden md:block">
         @endif
         {{-- Overlay + Content (only if title/subtitle exists) --}}
         @if($banner->title || $banner->subtitle)
