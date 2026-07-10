@@ -90,8 +90,8 @@
                     <input type="number" name="selling_price" value="{{ old('selling_price') }}" step="0.01" required placeholder="699" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition" x-model="sp">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Stock *</label>
-                    <input type="number" name="stock" value="{{ old('stock', 50) }}" required placeholder="50" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition">
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Stock <span class="text-gray-400 font-normal normal-case">(blank = unlimited)</span></label>
+                    <input type="number" name="stock" value="{{ old('stock') }}" placeholder="Leave blank for unlimited" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition">
                 </div>
             </div>
             <div x-show="mrp > 0 && sp > 0 && mrp > sp" class="px-4 py-2.5 bg-green-50 rounded-xl border border-green-100 flex items-center gap-2">
