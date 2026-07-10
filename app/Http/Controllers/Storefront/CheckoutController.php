@@ -78,7 +78,7 @@ class CheckoutController extends Controller
         $couponId = null;
         $couponCode = null;
 
-        // Apply coupon if exists
+        // Apply coupon if exists in session (manually applied)
         if (session()->has('coupon')) {
             $couponData = session('coupon');
             $coupon = Coupon::find($couponData['id']);
@@ -87,6 +87,17 @@ class CheckoutController extends Controller
                 $couponId = $coupon->id;
                 $couponCode = $coupon->code;
                 $coupon->increment('usage_count');
+            }
+        }
+
+        // If no manual coupon applied, try auto-apply best coupon
+        if ($discount == 0 && !$couponId) {
+            $autoCoupon = Coupon::getBestAutoApply($subtotal);
+            if ($autoCoupon) {
+                $discount = $autoCoupon->calculateDiscount($subtotal);
+                $couponId = $autoCoupon->id;
+                $couponCode = $autoCoupon->code;
+                $autoCoupon->increment('usage_count');
             }
         }
 

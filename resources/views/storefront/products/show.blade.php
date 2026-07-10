@@ -11,7 +11,7 @@
     if($totalReviews > 0) { $avgRating = $approvedReviews->avg('rating'); $reviewCount = $totalReviews; }
     $ratingCounts = [5=>0,4=>0,3=>0,2=>0,1=>0];
     foreach($approvedReviews as $r) { if(isset($ratingCounts[$r->rating])) $ratingCounts[$r->rating]++; }
-    $activeCoupons = \App\Models\Coupon::where('is_active', true)->where('end_date', '>', now())->take(3)->get();
+    $activeCoupons = \App\Models\Coupon::where('is_active', true)->where(function($q) { $q->whereNull('end_date')->orWhere('end_date', '>', now()); })->take(3)->get();
     $reviewImages = $approvedReviews->pluck('images')->filter()->flatten()->take(12)->values();
 @endphp
 

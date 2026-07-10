@@ -36,7 +36,26 @@ class CartController extends Controller
                 'slug' => $item->product->slug,
             ];
         });
-        return response()->json(['items' => $items]);
+
+        // Calculate subtotal for auto-apply coupon check
+        $subtotal = $items->sum(fn($i) => $i['price'] * $i['quantity']);
+        $response = ['items' => $items];
+
+        // Check for best auto-apply coupon
+        if ($subtotal > 0) {
+            $autoCoupon = Coupon::getBestAutoApply($subtotal);
+            if ($autoCoupon) {
+                $response['auto_coupon'] = [
+                    'code' => $autoCoupon->code,
+                    'type' => $autoCoupon->type,
+                    'value' => (float) $autoCoupon->value,
+                    'max_discount' => $autoCoupon->max_discount ? (float) $autoCoupon->max_discount : null,
+                    'description' => $autoCoupon->description,
+                ];
+            }
+        }
+
+        return response()->json($response);
     }
 
     public function add(Request $request)
