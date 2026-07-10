@@ -119,6 +119,7 @@ Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\AdminMiddleware
     Route::post('products/bulk-action', [AdminProductController::class, 'bulk'])->name('products.bulk');
     Route::resource('products', AdminProductController::class);
     Route::delete('products/{product}/image/{image}', [AdminProductController::class, 'deleteImage'])->name('products.deleteImage');
+    Route::post('products/{product}/image/{image}/primary', [AdminProductController::class, 'setPrimaryImage'])->name('products.setPrimaryImage');
     Route::delete('products/{product}/banner/{index}', [AdminProductController::class, 'deleteBanner'])->name('products.deleteBanner');
     Route::delete('products/{product}/variant/{variant}', [AdminProductController::class, 'deleteVariant'])->name('products.deleteVariant');
     Route::post('products/{product}/attributes', [AdminProductController::class, 'storeAttribute'])->name('products.storeAttribute');

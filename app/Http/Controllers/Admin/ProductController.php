@@ -237,6 +237,17 @@ class ProductController extends Controller
         return back()->with('success', 'Image deleted.');
     }
 
+    public function setPrimaryImage(Product $product, \App\Models\ProductImage $image)
+    {
+        if ($image->product_id === $product->id) {
+            // Unset all as primary
+            $product->images()->update(['is_primary' => false]);
+            // Set this one as primary
+            $image->update(['is_primary' => true, 'sort_order' => 0]);
+        }
+        return response()->json(['success' => true]);
+    }
+
     public function deleteBanner(Product $product, $index)
     {
         $banners = $product->banners ?? [];
