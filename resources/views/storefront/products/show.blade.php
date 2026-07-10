@@ -16,7 +16,7 @@
     $productTestimonials = \App\Models\VideoTestimonial::active()->where('product_id', $product->id)->orderBy('sort_order')->get();
 @endphp
 
-<div x-data="{ qty: 1, selectedPack: -1, lightbox: false, lbImg: 0, activeTab: 'description' }">
+<div x-data="{ qty: 1, selectedPack: -1, lightbox: false, lbImg: 0, activeTab: 'description' }" @open-lightbox.window="lbImg = $event.detail.idx; lightbox = true">
 
 
 <!-- Main Product Section -->
@@ -39,30 +39,35 @@
             <!-- IMAGE AREA -->
             <div class="lg:w-[60%]">
                 @if($product->images->count() > 1)
-                <!-- MOBILE: Swipe slider + auto-slide -->
+                <!-- MOBILE: Swipe slider + auto-slide + arrows + tap to lightbox -->
                 <div class="lg:hidden relative" id="prodSlider">
-                    <div class="overflow-hidden rounded-xl">
+                    <div class="overflow-hidden rounded-xl relative">
                         <div id="prodSliderTrack" class="flex" style="transition:transform 0.3s ease">
                             @foreach($product->images as $i => $image)
                             @php $imgSrc = str_starts_with($image->url, '/storage/') ? '/public' . $image->url : $image->url; @endphp
-                            <div class="w-full shrink-0">
-                                <img src="{{ $imgSrc }}" alt="{{ $product->name }}" class="w-full object-cover select-none" style="aspect-ratio:4/5;-webkit-user-drag:none;" draggable="false" loading="{{ $i === 0 ? 'eager' : 'lazy' }}">
+                            <div class="w-full shrink-0 prod-slide-item" data-idx="{{ $i }}">
+                                <img src="{{ $imgSrc }}" alt="{{ $product->name }}" class="w-full object-cover" style="aspect-ratio:4/5;" loading="{{ $i === 0 ? 'eager' : 'lazy' }}">
                             </div>
                             @endforeach
                         </div>
                         @if($product->discount_percent > 0)
                         <span class="absolute top-3 left-3 px-3 py-1.5 text-white text-[10px] font-bold rounded-full shadow-lg z-10" style="background-color:#c06d22;">{{ $product->discount_percent }}% OFF</span>
                         @endif
+                        <!-- Arrow buttons -->
+                        <button id="prodSliderPrev" class="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center z-10 shadow-md" style="background:rgba(255,255,255,0.9);display:none;"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
+                        <button id="prodSliderNext" class="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center z-10 shadow-md" style="background:rgba(255,255,255,0.9);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></button>
                     </div>
                     <div id="prodSliderDots" class="flex justify-center gap-1.5 mt-3"></div>
                 </div>
                 <script>
-                (function(){
+                document.addEventListener('DOMContentLoaded', function(){
                     var track = document.getElementById('prodSliderTrack');
                     var dotsC = document.getElementById('prodSliderDots');
+                    var prevBtn = document.getElementById('prodSliderPrev');
+                    var nextBtn = document.getElementById('prodSliderNext');
                     if(!track) return;
                     var total = {{ $product->images->count() }};
-                    var cur = 0, startX = 0, curX = 0, dragging = false, autoTimer;
+                    var cur = 0, startX = 0, curX = 0, dragging = false, hasMoved = false, autoTimer;
 
                     // Build dots
                     for(var d=0;d<total;d++){
@@ -78,22 +83,57 @@
                         cur = Math.max(0, Math.min(total-1, i));
                         track.style.transition = 'transform 0.3s ease';
                         track.style.transform = 'translateX(-'+(cur*100)+'%)';
-                        dotsC.querySelectorAll('button').forEach(function(b,idx){
-                            b.className = 'h-2 rounded-full transition-all duration-300 '+(idx===cur?'w-6':'w-2');
-                            b.style.backgroundColor = idx===cur?'#2C2418':'#d1d5db';
-                        });
+                        updateUI();
                         resetAuto();
                     }
+                    function updateUI(){
+                        dotsC.querySelectorAll('button').forEach(function(b,idx){
+                            b.className='h-2 rounded-full transition-all duration-300 '+(idx===cur?'w-6':'w-2');
+                            b.style.backgroundColor=idx===cur?'#2C2418':'#d1d5db';
+                        });
+                        prevBtn.style.display = cur>0?'flex':'none';
+                        nextBtn.style.display = cur<total-1?'flex':'none';
+                    }
 
-                    // Touch
-                    track.addEventListener('touchstart',function(e){startX=e.touches[0].clientX;curX=startX;dragging=true;track.style.transition='none';clearInterval(autoTimer);},{passive:true});
-                    track.addEventListener('touchmove',function(e){if(!dragging)return;curX=e.touches[0].clientX;var pct=-(cur*100)+((curX-startX)/track.offsetWidth)*100;track.style.transform='translateX('+pct+'%)';},{passive:true});
-                    track.addEventListener('touchend',function(){if(!dragging)return;dragging=false;var diff=curX-startX;if(diff<-40)slideTo(cur+1);else if(diff>40)slideTo(cur-1);else slideTo(cur);});
+                    // Arrows
+                    prevBtn.addEventListener('click',function(e){e.stopPropagation();slideTo(cur-1);});
+                    nextBtn.addEventListener('click',function(e){e.stopPropagation();slideTo(cur+1);});
+
+                    // Touch swipe
+                    track.addEventListener('touchstart',function(e){
+                        startX=e.touches[0].clientX; curX=startX; dragging=true; hasMoved=false;
+                        track.style.transition='none'; clearInterval(autoTimer);
+                    },{passive:true});
+                    track.addEventListener('touchmove',function(e){
+                        if(!dragging)return;
+                        curX=e.touches[0].clientX;
+                        if(Math.abs(curX-startX)>5) hasMoved=true;
+                        var pct=-(cur*100)+((curX-startX)/track.offsetWidth)*100;
+                        track.style.transform='translateX('+pct+'%)';
+                    },{passive:true});
+                    track.addEventListener('touchend',function(){
+                        if(!dragging)return; dragging=false;
+                        var diff=curX-startX;
+                        if(diff<-40)slideTo(cur+1); else if(diff>40)slideTo(cur-1); else slideTo(cur);
+                    });
+
+                    // Tap to open lightbox (only if not swiped)
+                    track.addEventListener('click',function(e){
+                        if(hasMoved) return;
+                        var slide=e.target.closest('.prod-slide-item');
+                        if(slide){
+                            var idx=parseInt(slide.dataset.idx);
+                            // Dispatch to Alpine lightbox
+                            var main=document.querySelector('[x-data]');
+                            if(main && main.__x){main.__x.$data.lbImg=idx;main.__x.$data.lightbox=true;}
+                            else{window.dispatchEvent(new CustomEvent('open-lightbox',{detail:{idx:idx}}));}
+                        }
+                    });
 
                     // Auto-slide every 4s
                     function resetAuto(){clearInterval(autoTimer);autoTimer=setInterval(function(){slideTo(cur>=total-1?0:cur+1);},4000);}
-                    resetAuto();
-                })();
+                    resetAuto(); updateUI();
+                });
                 </script>
 
                 <!-- DESKTOP: 2-column — left sticky, right scrolls (bluorng style) -->
