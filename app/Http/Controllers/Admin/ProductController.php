@@ -64,9 +64,19 @@ class ProductController extends Controller
             'category_id' => 'nullable|exists:categories,id',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
+            'return_policy' => 'nullable|string|max:255',
         ]);
 
-        $validated['slug'] = Str::slug($validated['name']);
+        // Generate unique slug (append number if duplicate exists)
+        $slug = Str::slug($validated['name']);
+        $originalSlug = $slug;
+        $counter = 1;
+        while (Product::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+        $validated['slug'] = $slug;
+
         $validated['is_active'] = $request->has('is_active');
         $validated['is_featured'] = $request->has('is_featured');
 
@@ -97,15 +107,18 @@ class ProductController extends Controller
         // Handle variants from create form
         if ($request->has('variants')) {
             foreach ($request->variants as $v) {
-                if (!empty($v['name']) && !empty($v['mrp']) && !empty($v['sp'])) {
+                $vName = trim($v['name'] ?? '');
+                $vMrp = $v['mrp'] ?? '';
+                $vSp = $v['sp'] ?? '';
+                if ($vName !== '' && $vMrp !== '' && $vSp !== '') {
                     $weightDisplay = (!empty($v['weight']) && !empty($v['unit'])) ? $v['weight'] . ' ' . $v['unit'] : null;
                     \App\Models\ProductVariant::create([
                         'product_id' => $product->id,
-                        'name' => $v['name'],
-                        'mrp' => $v['mrp'],
-                        'selling_price' => $v['sp'],
-                        'stock' => $v['stock'] ?? 0,
-                        'weight' => $v['weight'] ?? null,
+                        'name' => $vName,
+                        'mrp' => $vMrp,
+                        'selling_price' => $vSp,
+                        'stock' => !empty($v['stock']) ? (int)$v['stock'] : 0,
+                        'weight' => !empty($v['weight']) ? $v['weight'] : null,
                         'weight_display' => $weightDisplay,
                     ]);
                 }
@@ -147,6 +160,16 @@ class ProductController extends Controller
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
+        // Ensure slug uniqueness (excluding current product)
+        $slug = $validated['slug'];
+        $originalSlug = $slug;
+        $counter = 1;
+        while (Product::where('slug', $slug)->where('id', '!=', $product->id)->exists()) {
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+        $validated['slug'] = $slug;
+
         $validated['is_active'] = $request->has('is_active');
         $validated['is_featured'] = $request->has('is_featured');
 

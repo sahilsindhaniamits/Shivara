@@ -17,6 +17,7 @@ class Coupon extends Model
         'min_order_amount' => 'decimal:2',
         'max_discount' => 'decimal:2',
         'is_active' => 'boolean',
+        'show_as_popup' => 'boolean',
         'start_date' => 'datetime',
         'end_date' => 'datetime',
     ];

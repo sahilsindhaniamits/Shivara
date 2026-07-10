@@ -44,7 +44,7 @@
                 <div class="p-5 border-b border-gray-50 last:border-0 flex items-center gap-4">
                     <div class="w-14 h-14 bg-gray-50 rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
                         @if($item->product && $item->product->primaryImage)
-                        <img src="{{ $item->product->primaryImage->url }}" class="w-full h-full object-cover">
+                        <img src="{{ str_starts_with($item->product->primaryImage->url, '/storage/') ? '/public' . $item->product->primaryImage->url : $item->product->primaryImage->url }}" class="w-full h-full object-cover">
                         @else
                         <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                         @endif
