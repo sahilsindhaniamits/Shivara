@@ -179,18 +179,18 @@ function productsPage() {
             let msg = action === 'delete' ? 'Delete ' + this.selected.length + ' products? This cannot be undone.' : (action === 'activate' ? 'Activate' : 'Deactivate') + ' ' + this.selected.length + ' products?';
             if (!confirm(msg)) return;
 
-            fetch('{{ route("admin.products.bulk") }}', {
+            fetch('/admin/products/bulk-action', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' },
                 body: JSON.stringify({ ids: this.selected, action: action })
             }).then(r => {
                 if (r.ok) return r.json();
-                if (r.status === 419) { alert('Session expired. Please refresh the page.'); location.reload(); return; }
-                return r.text().then(t => { throw new Error(t); });
+                if (r.status === 419) { location.reload(); return; }
+                return r.json().catch(() => r.text()).then(t => { throw new Error(typeof t === 'object' ? t.message : t); });
             }).then(d => {
                 if (d && d.success) location.reload();
                 else if (d) alert(d.message || 'Error');
-            }).catch(e => { console.error('Bulk action error:', e); alert('Error performing bulk action. Please refresh and try again.'); });
+            }).catch(e => { console.error(e); alert(e.message || 'Error. Please refresh and try again.'); });
         }
     }
 }
