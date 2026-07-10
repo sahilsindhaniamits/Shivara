@@ -20,7 +20,7 @@
 
 
 <!-- Main Product Section -->
-<section style="background: linear-gradient(180deg, #FFFDF8 0%, #FFF9ED 100%);">
+<section style="background: linear-gradient(180deg, #FFFDF8 0%, #FFF9ED 100%); min-width: 100vw;">
     <div class="w-full px-4 sm:px-6 lg:px-10 xl:px-16 pt-6 pb-16">
         <!-- Breadcrumb -->
         <nav class="flex items-center gap-2 text-xs text-espresso-400 mb-6">
