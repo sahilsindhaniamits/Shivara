@@ -21,7 +21,7 @@
 
 <!-- Main Product Section -->
 <section style="background: linear-gradient(180deg, #FFFDF8 0%, #FFF9ED 100%);">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-16">
+    <div style="max-width: 1400px; margin: 0 auto;" class="px-4 sm:px-6 lg:px-8 pt-6 pb-16">
         <!-- Breadcrumb -->
         <nav class="flex items-center gap-2 text-xs text-espresso-400 mb-6">
             <a href="{{ route('home') }}" class="hover:text-gold-600 transition">Home</a>
@@ -36,12 +36,36 @@
         </nav>
 
         <div class="flex flex-col lg:flex-row gap-4 lg:gap-6">
-            <!-- IMAGE AREA: 2-column grid — left sticky, right scrolls (bluorng style) -->
+            <!-- IMAGE AREA -->
             <div class="lg:w-[60%]">
                 @if($product->images->count() > 1)
-                <div class="flex gap-2 sm:gap-3 lg:items-start">
+                <!-- MOBILE: Horizontal swipe slider -->
+                <div class="lg:hidden" x-data="{ mobileImg: 0 }" x-init="initSwipe($el.querySelector('.swipe-track'), () => mobileImg = Math.min(mobileImg+1, {{ $product->images->count()-1 }}), () => mobileImg = Math.max(mobileImg-1, 0))">
+                    <div class="relative overflow-hidden rounded-xl">
+                        <div class="swipe-track flex transition-transform duration-300 ease-out" :style="'transform: translateX(-' + (mobileImg * 100) + '%)'">
+                            @foreach($product->images as $i => $image)
+                            @php $imgSrc = str_starts_with($image->url, '/storage/') ? '/public' . $image->url : $image->url; @endphp
+                            <div class="w-full shrink-0" @click="lbImg = {{ $i }}; lightbox = true">
+                                <img src="{{ $imgSrc }}" alt="{{ $product->name }}" class="w-full object-cover cursor-pointer" style="aspect-ratio: 4/5;" loading="{{ $i === 0 ? 'eager' : 'lazy' }}">
+                            </div>
+                            @endforeach
+                        </div>
+                        @if($product->discount_percent > 0)
+                        <span class="absolute top-3 left-3 px-3 py-1.5 text-white text-[10px] font-bold rounded-full shadow-lg z-10" style="background-color:#c06d22;">{{ $product->discount_percent }}% OFF</span>
+                        @endif
+                    </div>
+                    <!-- Dots -->
+                    <div class="flex justify-center gap-1.5 mt-3">
+                        @foreach($product->images as $i => $dot)
+                        <button @click="mobileImg = {{ $i }}" :class="mobileImg === {{ $i }} ? 'w-6 bg-espresso-700' : 'w-2 bg-gray-300'" class="h-2 rounded-full transition-all duration-300"></button>
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- DESKTOP: 2-column — left sticky, right scrolls (bluorng style) -->
+                <div class="hidden lg:flex gap-3 items-start">
                     <!-- Left: First image — STICKY -->
-                    <div class="w-1/2 lg:sticky lg:top-[115px] lg:self-start">
+                    <div class="w-1/2 sticky top-[115px] self-start">
                         @php $firstImg = $product->images->first(); $firstSrc = str_starts_with($firstImg->url, '/storage/') ? '/public' . $firstImg->url : $firstImg->url; @endphp
                         <div class="relative rounded-xl overflow-hidden cursor-pointer" style="background-color:#f8f5f0;" @click="lbImg = 0; lightbox = true">
                             <img src="{{ $firstSrc }}" alt="{{ $product->name }}" class="w-full rounded-xl object-cover" style="aspect-ratio: 3/4;" loading="eager">
@@ -51,7 +75,7 @@
                         </div>
                     </div>
                     <!-- Right: Remaining images — SCROLL naturally -->
-                    <div class="w-1/2 space-y-2 sm:space-y-3">
+                    <div class="w-1/2 space-y-3">
                         @foreach($product->images->slice(1) as $i => $image)
                         @php $imgSrc = str_starts_with($image->url, '/storage/') ? '/public' . $image->url : $image->url; @endphp
                         <div class="relative rounded-xl overflow-hidden cursor-pointer" style="background-color:#f8f5f0;" @click="lbImg = {{ $i + 1 }}; lightbox = true">
