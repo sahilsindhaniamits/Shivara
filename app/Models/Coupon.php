@@ -9,7 +9,7 @@ class Coupon extends Model
     protected $fillable = [
         'code', 'description', 'type', 'value', 'min_order_amount',
         'max_discount', 'usage_limit', 'usage_count', 'per_user_limit',
-        'is_active', 'show_as_popup', 'start_date', 'end_date',
+        'is_active', 'show_as_popup', 'auto_apply', 'start_date', 'end_date',
     ];
 
     protected $casts = [
@@ -18,6 +18,7 @@ class Coupon extends Model
         'max_discount' => 'decimal:2',
         'is_active' => 'boolean',
         'show_as_popup' => 'boolean',
+        'auto_apply' => 'boolean',
         'start_date' => 'datetime',
         'end_date' => 'datetime',
     ];
@@ -29,9 +30,42 @@ class Coupon extends Model
 
     public function isValid(): bool
     {
-        return $this->is_active
-            && now()->between($this->start_date, $this->end_date)
-            && ($this->usage_limit === null || $this->usage_count < $this->usage_limit);
+        if (!$this->is_active) return false;
+        if ($this->start_date && now()->lt($this->start_date)) return false;
+        if ($this->end_date && now()->gt($this->end_date)) return false;
+        if ($this->usage_limit !== null && $this->usage_count >= $this->usage_limit) return false;
+        return true;
+    }
+
+    /**
+     * Get the best auto-apply coupon for a given subtotal
+     */
+    public static function getBestAutoApply(float $subtotal): ?self
+    {
+        return static::where('is_active', true)
+            ->where('auto_apply', true)
+            ->where(function ($q) {
+                $q->whereNull('start_date')->orWhere('start_date', '<=', now());
+            })
+            ->where(function ($q) {
+                $q->whereNull('end_date')->orWhere('end_date', '>=', now());
+            })
+            ->where(function ($q) {
+                $q->whereNull('usage_limit')->orWhereColumn('usage_count', '<', 'usage_limit');
+            })
+            ->get()
+            ->filter(function ($coupon) use ($subtotal) {
+                // Must meet minimum order amount
+                if ($coupon->min_order_amount && $subtotal < $coupon->min_order_amount) {
+                    return false;
+                }
+                return true;
+            })
+            ->sortByDesc(function ($coupon) use ($subtotal) {
+                // Sort by highest discount value
+                return $coupon->calculateDiscount($subtotal);
+            })
+            ->first();
     }
 
     public function calculateDiscount(float $subtotal): float
