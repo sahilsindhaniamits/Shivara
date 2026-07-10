@@ -132,7 +132,7 @@
                     </div>
                     <span class="text-sm font-bold" style="color:#2C2418;">{{ number_format($avgRating, 1) }}</span>
                     <span class="text-xs" style="color:#6b7280;">({{ $reviewCount }} reviews)</span>
-                    <span class="text-xs font-bold uppercase px-2.5 py-1 rounded-full" style="{{ $product->stock > 0 ? 'background-color:#dcfce7; color:#166534;' : 'background-color:#fef2f2; color:#dc2626;' }}">{{ $product->stock > 0 ? '✓ In Stock' : '✗ Sold Out' }}</span>
+                    <span class="text-xs font-bold uppercase px-2.5 py-1 rounded-full" style="{{ $product->in_stock ? 'background-color:#dcfce7; color:#166534;' : 'background-color:#fef2f2; color:#dc2626;' }}">{{ $product->in_stock ? '✓ In Stock' : '✗ Sold Out' }}</span>
                 </div>
 
                 <!-- Short Description -->
@@ -182,7 +182,7 @@
                 @endif
 
                 <!-- Quantity + Add to Cart -->
-                @if($product->stock > 0)
+                @if($product->in_stock)
                 <form method="POST" action="{{ route('cart.add') }}" x-data="{ adding: false }" @submit.prevent="
                     adding = true;
                     let formData = new FormData($el);
@@ -201,7 +201,7 @@
                         <div class="flex items-center rounded-full border" style="border-color:#e5e7eb;">
                             <button type="button" @click="qty = Math.max(1, qty - 1)" class="w-10 h-10 flex items-center justify-center text-lg font-bold hover:bg-gray-50 rounded-l-full transition" style="color:#2C2418;">−</button>
                             <span class="w-10 h-10 flex items-center justify-center text-sm font-bold" style="color:#2C2418;" x-text="qty"></span>
-                            <button type="button" @click="qty = Math.min({{ $product->stock }}, qty + 1)" class="w-10 h-10 flex items-center justify-center text-lg font-bold hover:bg-gray-50 rounded-r-full transition" style="color:#2C2418;">+</button>
+                            <button type="button" @click="qty = Math.min({{ $product->stock ?? 999 }}, qty + 1)" class="w-10 h-10 flex items-center justify-center text-lg font-bold hover:bg-gray-50 rounded-r-full transition" style="color:#2C2418;">+</button>
                         </div>
                     </div>
 
@@ -314,8 +314,9 @@
 <!-- Description & How to Use -->
 <section class="py-16 scroll-reveal" style="background-color:#FFFDF8;">
     <div class="max-w-4xl mx-auto px-4 sm:px-6">
+        @if($product->description && $product->how_to_use)
+        {{-- Both exist: side by side --}}
         <div class="grid md:grid-cols-2 gap-8">
-            @if($product->description)
             <div class="p-8 rounded-3xl" style="background-color:#fff; border: 1px solid rgba(183,146,92,0.15);">
                 <h3 class="text-lg font-bold mb-4 flex items-center gap-2" style="color:#2C2418;">
                     <span class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1);"><svg class="w-4 h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>
@@ -323,8 +324,6 @@
                 </h3>
                 <div class="text-sm leading-relaxed" style="color:#6b5442;">{!! nl2br(e($product->description)) !!}</div>
             </div>
-            @endif
-            @if($product->how_to_use)
             <div class="p-8 rounded-3xl" style="background-color:#fff; border: 1px solid rgba(183,146,92,0.15);">
                 <h3 class="text-lg font-bold mb-4 flex items-center gap-2" style="color:#2C2418;">
                     <span class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1);"><svg class="w-4 h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg></span>
@@ -332,8 +331,26 @@
                 </h3>
                 <div class="text-sm leading-relaxed" style="color:#6b5442;">{!! nl2br(e($product->how_to_use)) !!}</div>
             </div>
-            @endif
         </div>
+        @elseif($product->description)
+        {{-- Only description: full width --}}
+        <div class="p-8 rounded-3xl" style="background-color:#fff; border: 1px solid rgba(183,146,92,0.15);">
+            <h3 class="text-lg font-bold mb-4 flex items-center gap-2" style="color:#2C2418;">
+                <span class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1);"><svg class="w-4 h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>
+                About This Product
+            </h3>
+            <div class="text-sm leading-relaxed" style="color:#6b5442;">{!! nl2br(e($product->description)) !!}</div>
+        </div>
+        @elseif($product->how_to_use)
+        {{-- Only how to use: full width --}}
+        <div class="p-8 rounded-3xl" style="background-color:#fff; border: 1px solid rgba(183,146,92,0.15);">
+            <h3 class="text-lg font-bold mb-4 flex items-center gap-2" style="color:#2C2418;">
+                <span class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color: rgba(183,146,92,0.1);"><svg class="w-4 h-4" style="color:#B7925C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg></span>
+                How to Use
+            </h3>
+            <div class="text-sm leading-relaxed" style="color:#6b5442;">{!! nl2br(e($product->how_to_use)) !!}</div>
+        </div>
+        @endif
     </div>
 </section>
 
