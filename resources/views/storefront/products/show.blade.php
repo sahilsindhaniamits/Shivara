@@ -243,9 +243,12 @@
 </section>
 
 
+<!-- Scroll trigger marker for sticky bottom bar -->
+<div id="stickyBarTrigger"></div>
+
 <!-- SECTION: Offers Strip -->
 @if($activeCoupons->count())
-<section class="py-5 sm:py-8" style="background-color:#2C2418;">
+<section id="offersSection" class="py-5 sm:py-8" style="background-color:#2C2418;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="flex items-center gap-4 sm:gap-6 overflow-x-auto scrollbar-hide pb-1">
             <span class="shrink-0 text-[10px] sm:text-xs font-bold uppercase tracking-wider" style="color:#B7925C;">Offers</span>
@@ -435,16 +438,29 @@
     </div>
 </div>
 
-<!-- Bottom Sticky Add to Cart Bar (like grovya) -->
+<!-- Bottom Sticky Add to Cart Bar (appears when scrolled past product section) -->
 @if($product->in_stock)
-<div class="fixed bottom-0 left-0 right-0 z-50 border-t shadow-2xl lg:hidden" style="background-color:#FFFDF8; border-color: rgba(183,146,92,0.2);">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+<div x-data="{ showBar: false }" x-init="
+    let trigger = document.getElementById('stickyBarTrigger');
+    if(trigger) {
+        let observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { showBar = !entry.isIntersecting && entry.boundingClientRect.top < 0; });
+        }, { threshold: 0 });
+        observer.observe(trigger);
+    }
+" x-show="showBar" x-cloak
+   x-transition:enter="transition ease-out duration-300 transform"
+   x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+   x-transition:leave="transition ease-in duration-200 transform"
+   x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full"
+   class="fixed bottom-0 left-0 right-0 z-50 border-t shadow-2xl" style="background-color:#FFFDF8; border-color: rgba(183,146,92,0.2);">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3 min-w-0">
             @if($product->images->count())
             <img src="{{ str_starts_with($product->images->first()->url, '/storage/') ? '/public' . $product->images->first()->url : $product->images->first()->url }}" class="w-11 h-11 rounded-lg object-cover shrink-0 border" style="border-color:#e5e7eb;" alt="">
             @endif
             <div class="min-w-0">
-                <p class="text-xs font-bold truncate" style="color:#2C2418;">{{ $product->name }}</p>
+                <p class="text-sm font-bold truncate" style="color:#2C2418;">{{ $product->name }}</p>
                 <div class="flex items-center gap-1.5">
                     <span class="text-sm font-bold" style="color:#2C2418;">₹{{ number_format($product->selling_price) }}</span>
                     @if($product->discount_percent > 0)
@@ -456,7 +472,7 @@
         <div class="flex items-center gap-2 shrink-0">
             <div class="flex items-center border rounded-lg" style="border-color:#e5e7eb;">
                 <button type="button" @click="qty = Math.max(1, qty - 1)" class="w-8 h-8 flex items-center justify-center text-sm font-bold">−</button>
-                <span class="w-6 h-8 flex items-center justify-center text-xs font-bold" x-text="qty"></span>
+                <span class="w-7 h-8 flex items-center justify-center text-xs font-bold" x-text="qty"></span>
                 <button type="button" @click="qty = Math.min({{ $product->stock ?? 999 }}, qty + 1)" class="w-8 h-8 flex items-center justify-center text-sm font-bold">+</button>
             </div>
             <form method="POST" action="{{ route('cart.add') }}" @submit.prevent="
