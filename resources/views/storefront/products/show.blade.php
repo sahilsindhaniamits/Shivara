@@ -41,7 +41,7 @@
                 @if($product->images->count() > 1)
                 <div class="flex gap-2 sm:gap-3 lg:items-start">
                     <!-- Left: First image — STICKY -->
-                    <div class="w-1/2 lg:sticky lg:top-[80px] lg:self-start">
+                    <div class="w-1/2 lg:sticky lg:top-[115px] lg:self-start">
                         @php $firstImg = $product->images->first(); $firstSrc = str_starts_with($firstImg->url, '/storage/') ? '/public' . $firstImg->url : $firstImg->url; @endphp
                         <div class="relative rounded-xl overflow-hidden cursor-pointer" style="background-color:#f8f5f0;" @click="lbImg = 0; lightbox = true">
                             <img src="{{ $firstSrc }}" alt="{{ $product->name }}" class="w-full rounded-xl object-cover" style="aspect-ratio: 3/4;" loading="eager">
@@ -78,7 +78,7 @@
 
             <!-- RIGHT: Sticky Product Info (stays fixed while left images scroll) -->
             <div class="lg:w-[40%]">
-                <div class="lg:sticky lg:top-[80px] space-y-5">
+                <div class="lg:sticky lg:top-[115px] space-y-5">
                 <!-- Category Badge -->
                 @if($product->category)
                 <div><span class="inline-block px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full border" style="color:#B7925C; border-color:#B7925C;">{{ $product->category->name }}</span></div>

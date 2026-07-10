@@ -1,13 +1,19 @@
-<!-- Announcement Marquee -->
+<!-- Announcement Marquee + Header — both sticky together -->
 @php
     $marqueeText = \App\Models\Setting::get('marquee_text', 'Free Shipping Pan-India,10% Off — Code: WOW10,100% Natural Ayurvedic,GMP Certified Lab Tested');
     $marqueeItems = array_filter(array_map('trim', explode(',', $marqueeText)));
     $marqueeBg = \App\Models\Setting::get('marquee_bg_color', 'rgb(183, 146, 92)');
 @endphp
+
+<!-- Main Header + Mobile Menu -->
+<div x-data="{ mobileMenu: false, searchOpen: false }"
+     x-effect="document.body.style.overflow = mobileMenu ? 'hidden' : ''">
+
+<div class="sticky top-0 z-50">
 @if(count($marqueeItems))
 <div class="text-white overflow-hidden" style="background-color: {{ $marqueeBg }};">
-    <div class="flex py-2.5">
-        <div class="animate-marquee flex items-center gap-8 whitespace-nowrap text-[11px] tracking-[0.2em] uppercase font-medium">
+    <div class="flex py-2">
+        <div class="animate-marquee flex items-center gap-8 whitespace-nowrap text-[10px] tracking-[0.2em] uppercase font-medium">
             @for($m = 0; $m < 2; $m++)
             @foreach($marqueeItems as $item)
             <span>{{ $item }}</span>
@@ -19,11 +25,7 @@
 </div>
 @endif
 
-<!-- Main Header + Mobile Menu -->
-<div x-data="{ mobileMenu: false, searchOpen: false }"
-     x-effect="document.body.style.overflow = mobileMenu ? 'hidden' : ''">
-
-<header class="sticky top-0 z-50 border-b shadow-sm" style="background: rgba(255,253,248,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
+<header class="border-b shadow-sm" style="background: rgba(255,253,248,0.97); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="grid grid-cols-3 items-center h-[70px]">
 
@@ -95,6 +97,7 @@
         </form>
     </div>
 </header>
+</div>{{-- end sticky wrapper --}}
 
 <!-- Mobile Nav Fullscreen Overlay (OUTSIDE header) -->
 <div x-show="mobileMenu" x-cloak
