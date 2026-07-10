@@ -130,7 +130,6 @@
                             <input type="hidden" name="name" value="{{ $product->name }}">
                             <input type="hidden" name="mrp" value="{{ $product->mrp }}">
                             <input type="hidden" name="selling_price" value="{{ $product->selling_price }}">
-                            <input type="hidden" name="stock" value="{{ $product->stock }}">
                             @if($product->is_active)<input type="hidden" name="is_active" value="1">@endif
                             @if($product->is_featured)<input type="hidden" name="is_featured" value="1">@endif
                             <div>
