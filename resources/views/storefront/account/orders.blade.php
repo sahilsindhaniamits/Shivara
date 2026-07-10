@@ -20,7 +20,7 @@
                                 @foreach($order->items->take(3) as $item)
                                 <div class="w-10 h-10 bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-center overflow-hidden">
                                     @if($item->product && $item->product->primaryImage)
-                                    <img src="{{ $item->product->primaryImage->url }}" class="w-full h-full object-cover">
+                                    <img src="{{ str_starts_with($item->product->primaryImage->url, '/storage/') ? '/public' . $item->product->primaryImage->url : $item->product->primaryImage->url }}" class="w-full h-full object-cover">
                                     @else
                                     <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                                     @endif
