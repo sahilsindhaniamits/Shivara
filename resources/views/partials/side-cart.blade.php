@@ -23,19 +23,25 @@
             <button @click="open = false" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
         </div>
 
-        <!-- Progress Bar -->
+        <!-- Progress Bar (only show if free gift is enabled) -->
+        @if($fgEnabled)
         <div class="px-5 py-3 bg-gray-50 border-b border-gray-100">
             <p class="text-xs font-semibold text-espresso-600 mb-2" x-text="progressMsg"></p>
             <div class="h-2.5 bg-gray-200 rounded-full overflow-hidden relative">
                 <div class="h-full rounded-full transition-all duration-700" :class="barClass" :style="'width:' + barWidth + '%'"></div>
-                @if($fgEnabled)
                 <div class="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2 border-white shadow-sm" :class="subtotal >= {{ $fsThreshold }} ? 'bg-green-500' : 'bg-gray-300'" style="left: {{ ($fsThreshold / $fgThreshold) * 100 }}%"></div>
-                @endif
             </div>
-            @if($fgEnabled)
             <div class="flex justify-between mt-1"><span class="text-[9px]" :class="subtotal >= {{ $fsThreshold }} ? 'text-green-600 font-semibold' : 'text-gray-400'">🚚 ₹{{ $fsThreshold }}</span><span class="text-[9px]" :class="subtotal >= {{ $fgThreshold }} ? 'text-purple-600 font-semibold' : 'text-gray-400'">🎁 ₹{{ number_format($fgThreshold) }}</span></div>
-            @endif
         </div>
+        @else
+        {{-- Simple free shipping progress when no free gift --}}
+        <div class="px-5 py-3 bg-gray-50 border-b border-gray-100" x-show="items.length > 0">
+            <p class="text-xs font-semibold text-espresso-600 mb-2" x-text="subtotal >= {{ $fsThreshold }} ? '🎉 Free shipping unlocked!' : '🚚 Add ₹' + ({{ $fsThreshold }} - subtotal) + ' more for free shipping'"></p>
+            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-green-500 rounded-full transition-all duration-700" :style="'width:' + Math.min(100, (subtotal / {{ $fsThreshold }}) * 100) + '%'"></div>
+            </div>
+        </div>
+        @endif
 
         <!-- Items -->
         <div class="flex-1 overflow-y-auto">
@@ -88,7 +94,7 @@
                     <p class="text-[10px] font-bold text-espresso-600 uppercase tracking-wider mb-2">People also bought</p>
                     @foreach($recs as $rec)
                     <div class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-gray-50">
-                        <div class="w-10 h-10 bg-gray-50 rounded-lg overflow-hidden shrink-0"><img src="{{ $rec->primaryImage?->url ?? 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=80&h=80&fit=crop' }}" class="w-full h-full object-cover"></div>
+                        <div class="w-10 h-10 bg-gray-50 rounded-lg overflow-hidden shrink-0"><img src="{{ $rec->primary_image_url ?? 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=80&h=80&fit=crop' }}" class="w-full h-full object-cover"></div>
                         <div class="flex-1 min-w-0"><p class="text-[10px] font-semibold text-espresso-700 line-clamp-1">{{ $rec->name }}</p><p class="text-[10px] font-bold text-espresso-600">₹{{ number_format($rec->selling_price) }}</p></div>
                         <form method="POST" action="{{ route('cart.add') }}">@csrf<input type="hidden" name="product_id" value="{{ $rec->id }}"><input type="hidden" name="quantity" value="1"><button class="px-2 py-1 bg-gold-500 text-white text-[8px] font-bold rounded uppercase">Add</button></form>
                     </div>
