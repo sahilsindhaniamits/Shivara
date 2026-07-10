@@ -35,32 +35,50 @@
             <span class="font-medium" style="color:#2C2418;">{{ $product->name }}</span>
         </nav>
 
-        <div class="flex flex-col lg:flex-row gap-8 lg:gap-12">
-            <!-- LEFT: Images in 2-column grid (bluorng style) -->
-            <div class="lg:w-[58%]">
-                @if($product->images->count())
-                <div class="grid grid-cols-2 gap-2 sm:gap-3">
-                    @foreach($product->images as $i => $image)
-                    @php $imgSrc = str_starts_with($image->url, '/storage/') ? '/public' . $image->url : $image->url; @endphp
-                    <div class="relative rounded-xl overflow-hidden cursor-pointer {{ $product->images->count() == 1 || ($i === 0 && $product->images->count() % 2 !== 0 && $product->images->count() > 2) ? '' : '' }}" style="background-color:#f8f5f0;" @click="lbImg = {{ $i }}; lightbox = true">
-                        <img src="{{ $imgSrc }}" alt="{{ $product->name }}" class="w-full aspect-[4/5] object-cover hover:scale-105 transition-transform duration-700" loading="{{ $i < 2 ? 'eager' : 'lazy' }}">
-                        @if($i === 0 && $product->discount_percent > 0)
-                        <span class="absolute top-3 left-3 px-3 py-1.5 text-white text-[10px] font-bold rounded-full shadow-lg" style="background-color:#c06d22;">{{ $product->discount_percent }}% OFF</span>
-                        @endif
+        <div class="flex flex-col lg:flex-row gap-4 lg:gap-6">
+            <!-- IMAGE AREA: 2-column grid — left sticky, right scrolls (bluorng style) -->
+            <div class="lg:w-[60%]">
+                @if($product->images->count() > 1)
+                <div class="flex gap-2 sm:gap-3 lg:items-start">
+                    <!-- Left: First image — STICKY -->
+                    <div class="w-1/2 lg:sticky lg:top-[80px] lg:self-start">
+                        @php $firstImg = $product->images->first(); $firstSrc = str_starts_with($firstImg->url, '/storage/') ? '/public' . $firstImg->url : $firstImg->url; @endphp
+                        <div class="relative rounded-xl overflow-hidden cursor-pointer" style="background-color:#f8f5f0;" @click="lbImg = 0; lightbox = true">
+                            <img src="{{ $firstSrc }}" alt="{{ $product->name }}" class="w-full rounded-xl object-cover" style="aspect-ratio: 3/4;" loading="eager">
+                            @if($product->discount_percent > 0)
+                            <span class="absolute top-3 left-3 px-3 py-1.5 text-white text-[10px] font-bold rounded-full shadow-lg" style="background-color:#c06d22;">{{ $product->discount_percent }}% OFF</span>
+                            @endif
+                        </div>
                     </div>
-                    @endforeach
+                    <!-- Right: Remaining images — SCROLL naturally -->
+                    <div class="w-1/2 space-y-2 sm:space-y-3">
+                        @foreach($product->images->slice(1) as $i => $image)
+                        @php $imgSrc = str_starts_with($image->url, '/storage/') ? '/public' . $image->url : $image->url; @endphp
+                        <div class="relative rounded-xl overflow-hidden cursor-pointer" style="background-color:#f8f5f0;" @click="lbImg = {{ $i + 1 }}; lightbox = true">
+                            <img src="{{ $imgSrc }}" alt="{{ $product->name }}" class="w-full rounded-xl object-cover" style="aspect-ratio: 3/4;" loading="lazy">
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @elseif($product->images->count() == 1)
+                @php $onlyImg = $product->images->first(); $onlySrc = str_starts_with($onlyImg->url, '/storage/') ? '/public' . $onlyImg->url : $onlyImg->url; @endphp
+                <div class="relative rounded-xl overflow-hidden cursor-pointer" style="background-color:#f8f5f0;" @click="lbImg = 0; lightbox = true">
+                    <img src="{{ $onlySrc }}" alt="{{ $product->name }}" class="w-full object-cover" style="aspect-ratio: 3/4;" loading="eager">
+                    @if($product->discount_percent > 0)
+                    <span class="absolute top-3 left-3 px-3 py-1.5 text-white text-[10px] font-bold rounded-full shadow-lg" style="background-color:#c06d22;">{{ $product->discount_percent }}% OFF</span>
+                    @endif
                 </div>
                 @else
                 <div class="rounded-xl overflow-hidden" style="background-color:#f8f5f0;">
-                    <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=800&h=1000&fit=crop" alt="{{ $product->name }}" class="w-full aspect-[4/5] object-cover">
+                    <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=800&h=1000&fit=crop" alt="{{ $product->name }}" class="w-full object-cover" style="aspect-ratio: 3/4;">
                 </div>
                 @endif
             </div>
 
 
             <!-- RIGHT: Sticky Product Info (stays fixed while left images scroll) -->
-            <div class="lg:w-[42%]">
-                <div class="lg:sticky lg:top-[90px] space-y-5">
+            <div class="lg:w-[40%]">
+                <div class="lg:sticky lg:top-[80px] space-y-5">
                 <!-- Category Badge -->
                 @if($product->category)
                 <div><span class="inline-block px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full border" style="color:#B7925C; border-color:#B7925C;">{{ $product->category->name }}</span></div>
