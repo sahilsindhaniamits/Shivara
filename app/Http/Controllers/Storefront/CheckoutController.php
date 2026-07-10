@@ -129,7 +129,31 @@ class CheckoutController extends Controller
             if ($item->variant) {
                 $item->variant->decrement('stock', $item->quantity);
             } else {
-                $item->product->decrement('stock', $item->quantity);
+                if (!is_null($item->product->stock)) {
+                    $item->product->decrement('stock', $item->quantity);
+                }
+            }
+        }
+
+        // Add free gift as order item if threshold is met
+        $fgEnabled = \App\Models\Setting::get('free_gift_enabled', 'false') === 'true';
+        $fgThreshold = (float) \App\Models\Setting::get('free_gift_threshold', config('shivara.free_gift_threshold', 1499));
+        $fgProductId = \App\Models\Setting::get('free_gift_product_id');
+        if ($fgEnabled && $fgProductId && $subtotal >= $fgThreshold) {
+            $fgProduct = \App\Models\Product::find($fgProductId);
+            if ($fgProduct) {
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $fgProduct->id,
+                    'variant_id' => null,
+                    'product_name' => $fgProduct->name . ' (Free Gift)',
+                    'variant_name' => null,
+                    'quantity' => 1,
+                    'price' => 0,
+                    'total_price' => 0,
+                    'gst_rate' => 0,
+                    'gst_amount' => 0,
+                ]);
             }
         }
 

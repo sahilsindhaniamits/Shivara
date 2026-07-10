@@ -83,7 +83,7 @@
                 <template x-if="subtotal >= {{ $fgThreshold }}">
                     <div class="flex gap-3 p-2.5 bg-purple-50 rounded-xl border border-purple-200 relative">
                         <span class="absolute -top-1 -right-1 bg-purple-500 text-white text-[7px] font-bold px-1.5 py-0.5 rounded uppercase">Free</span>
-                        <div class="w-14 h-14 bg-white rounded-lg overflow-hidden shrink-0"><img src="{{ $fgProduct->primaryImage?->url ?? 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=100&h=100&fit=crop' }}" class="w-full h-full object-cover"></div>
+                        <div class="w-14 h-14 bg-white rounded-lg overflow-hidden shrink-0"><img src="{{ $fgProduct->primary_image_url ?? 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=100&h=100&fit=crop' }}" class="w-full h-full object-cover"></div>
                         <div><p class="text-[11px] font-semibold text-purple-700">🎁 {{ $fgProduct->name }}</p><p class="text-[10px] text-green-600 font-bold mt-1">FREE <span class="text-gray-400 line-through">₹{{ number_format($fgProduct->selling_price) }}</span></p></div>
                     </div>
                 </template>

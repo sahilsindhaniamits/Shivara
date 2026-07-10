@@ -49,7 +49,7 @@
         @if($giftProduct)
         <div class="bg-purple-50 border border-purple-200 rounded-xl p-4 flex items-center gap-4">
             <div class="w-16 h-16 bg-white rounded-lg overflow-hidden border border-purple-100 shrink-0">
-                <img src="{{ $giftProduct->primaryImage?->url ?? 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=100&h=100&fit=crop' }}" class="w-full h-full object-cover">
+                <img src="{{ $giftProduct->primary_image_url ?? 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=100&h=100&fit=crop' }}" class="w-full h-full object-cover">
             </div>
             <div>
                 <p class="text-xs font-bold text-purple-500 uppercase tracking-wider">Current Gift Product</p>

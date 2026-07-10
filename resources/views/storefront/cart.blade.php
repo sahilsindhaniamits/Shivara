@@ -41,7 +41,7 @@
                 <!-- Image -->
                 <a href="{{ route('products.show', $item->product->slug) }}" class="w-20 h-20 md:w-24 md:h-24 bg-gray-50 rounded-xl overflow-hidden shrink-0">
                     @if($item->product->primaryImage)
-                    <img src="{{ $item->product->primaryImage->url }}" alt="{{ $item->product->name }}" class="w-full h-full object-cover">
+                    <img src="{{ str_starts_with($item->product->primaryImage->url, '/storage/') ? '/public' . $item->product->primaryImage->url : $item->product->primaryImage->url }}" alt="{{ $item->product->name }}" class="w-full h-full object-cover">
                     @else
                     <div class="w-full h-full flex items-center justify-center">
                         <svg class="w-8 h-8 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
