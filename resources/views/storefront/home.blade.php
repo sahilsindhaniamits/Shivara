@@ -89,9 +89,9 @@
         <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
             @foreach($categories as $cat)
             <a href="{{ route('products.index', ['category' => $cat->slug]) }}" class="group text-center">
-                <div class="relative mx-auto w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 mb-2 sm:mb-3 rounded-full overflow-hidden border-2 border-gold-100 group-hover:border-gold-400 shadow-sm group-hover:shadow-lg transition-all duration-300 group-hover:scale-105">
+                <div class="relative mx-auto w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 mb-2 sm:mb-3 rounded-full overflow-hidden border-2 border-gold-100 group-hover:border-gold-400 shadow-sm group-hover:shadow-lg transition-all duration-300 group-hover:scale-105" style="background-color:#f5efe6;">
                     @if($cat->image)
-                    <img src="{{ str_starts_with($cat->image, '/storage/') ? '/public' . $cat->image : $cat->image }}" alt="{{ $cat->name }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <img src="{{ str_starts_with($cat->image, '/storage/') ? '/public' . $cat->image : $cat->image }}" alt="{{ $cat->name }}" class="w-full h-full object-contain p-2 sm:p-3 transition-transform duration-500 group-hover:scale-110">
                     @else
                     <div class="w-full h-full bg-gradient-to-br from-gold-50 to-gold-100 flex items-center justify-center">
                         <svg class="w-7 h-7 sm:w-8 sm:h-8 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
