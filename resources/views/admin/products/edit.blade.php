@@ -136,17 +136,38 @@
                 <h2 class="text-base font-bold text-gray-900">Product Images</h2>
             </div>
             @if($product->images->count())
-            <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3 mb-4">
-                @foreach($product->images as $img)
-                <div class="relative group aspect-square">
-                    <div class="w-full h-full rounded-xl overflow-hidden border-2 border-gray-100 group-hover:border-red-200 transition">
+            <div id="sortableImages" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3 mb-4">
+                @foreach($product->images->sortBy('sort_order') as $img)
+                <div class="relative group aspect-square cursor-grab active:cursor-grabbing" data-id="{{ $img->id }}">
+                    <div class="w-full h-full rounded-xl overflow-hidden border-2 border-gray-100 group-hover:border-blue-200 transition">
                         <img src="{{ str_starts_with($img->url, '/storage/') ? '/public' . $img->url : $img->url }}" class="w-full h-full object-cover">
                     </div>
-                    <button type="button" onclick="if(confirm('Delete this image?')){fetch('{{ route('admin.products.deleteImage', [$product, $img]) }}',{method:'POST',headers:{'X-CSRF-TOKEN':document.querySelector('meta[name=csrf-token]').content,'Content-Type':'application/json'},body:JSON.stringify({_method:'DELETE'})}).then(()=>this.closest('.relative').remove())}" class="absolute -top-1.5 -right-1.5 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md cursor-pointer hover:bg-red-600 z-10">&times;</button>
+                    <button type="button" onclick="if(confirm('Delete this image?')){fetch('{{ route('admin.products.deleteImage', [$product, $img]) }}',{method:'POST',headers:{'X-CSRF-TOKEN':document.querySelector('meta[name=csrf-token]').content,'Content-Type':'application/json'},body:JSON.stringify({_method:'DELETE'})}).then(()=>this.closest('[data-id]').remove())}" class="absolute -top-1.5 -right-1.5 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md cursor-pointer hover:bg-red-600 z-10">&times;</button>
                     @if($img->is_primary)<span class="absolute bottom-0 inset-x-0 bg-green-500/90 text-white text-[8px] text-center font-bold py-0.5 rounded-b-xl">Primary</span>@else<button type="button" onclick="fetch('/admin/products/{{ $product->id }}/image/{{ $img->id }}/primary',{method:'POST',headers:{'X-CSRF-TOKEN':document.querySelector('meta[name=csrf-token]').content,'Content-Type':'application/json'}}).then(()=>location.reload())" class="absolute bottom-0 inset-x-0 bg-gray-700/80 text-white text-[8px] text-center font-bold py-0.5 rounded-b-xl cursor-pointer hover:bg-blue-600/90 opacity-0 group-hover:opacity-100 transition">Set Primary</button>@endif
                 </div>
                 @endforeach
             </div>
+            <p class="text-[10px] text-gray-400 mb-2">↕ Drag to reorder • First image = primary thumbnail on frontend</p>
+            <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+            <script>
+            document.addEventListener('DOMContentLoaded', function(){
+                var el = document.getElementById('sortableImages');
+                if(el) {
+                    new Sortable(el, {
+                        animation: 150,
+                        ghostClass: 'opacity-40',
+                        onEnd: function() {
+                            var ids = Array.from(el.querySelectorAll('[data-id]')).map(function(el){return el.dataset.id;});
+                            fetch('/admin/products/{{ $product->id }}/images/reorder', {
+                                method: 'POST',
+                                headers: {'Content-Type':'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content},
+                                body: JSON.stringify({order: ids})
+                            }).then(function(){location.reload();});
+                        }
+                    });
+                }
+            });
+            </script>
             @endif
             <label class="block border-2 border-dashed border-gray-200 rounded-xl p-6 text-center cursor-pointer hover:border-orange-300 hover:bg-orange-50/30 transition">
                 <svg class="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/></svg>
