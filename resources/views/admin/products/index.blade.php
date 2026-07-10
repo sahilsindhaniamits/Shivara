@@ -179,7 +179,7 @@ function productsPage() {
             let msg = action === 'delete' ? 'Delete ' + this.selected.length + ' products? This cannot be undone.' : (action === 'activate' ? 'Activate' : 'Deactivate') + ' ' + this.selected.length + ' products?';
             if (!confirm(msg)) return;
 
-            fetch('{{ route("admin.products.index") }}/bulk', {
+            fetch('{{ route("admin.products.bulk") }}', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' },
                 body: JSON.stringify({ ids: this.selected, action: action })

@@ -116,8 +116,8 @@ Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\AdminMiddleware
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Products
+    Route::post('products/bulk-action', [AdminProductController::class, 'bulk'])->name('products.bulk');
     Route::resource('products', AdminProductController::class);
-    Route::post('products/bulk', [AdminProductController::class, 'bulk'])->name('products.bulk');
     Route::delete('products/{product}/image/{image}', [AdminProductController::class, 'deleteImage'])->name('products.deleteImage');
     Route::delete('products/{product}/banner/{index}', [AdminProductController::class, 'deleteBanner'])->name('products.deleteBanner');
     Route::delete('products/{product}/variant/{variant}', [AdminProductController::class, 'deleteVariant'])->name('products.deleteVariant');
