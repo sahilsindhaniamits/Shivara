@@ -6,31 +6,32 @@
 @if($heroBanners->count())
 <section x-data="{ current: 0, slides: {{ $heroBanners->count() }} }" x-init="setInterval(() => current = (current + 1) % slides, 5000); initSwipe($el, () => current = (current+1)%slides, () => current = (current-1+slides)%slides)" class="relative overflow-hidden select-none cursor-grab active:cursor-grabbing">
     @foreach($heroBanners as $i => $banner)
-    <div x-show="current === {{ $i }}" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 scale-105" x-transition:enter-end="opacity-100 scale-100" {{ $i > 0 ? 'x-cloak' : '' }} class="relative min-h-[400px] md:min-h-[550px] lg:min-h-[650px] flex items-center">
-        {{-- Background Image --}}
-        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full object-cover">
-        {{-- Mobile Image (if uploaded) --}}
+    <div x-show="current === {{ $i }}" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 scale-105" x-transition:enter-end="opacity-100 scale-100" {{ $i > 0 ? 'x-cloak' : '' }} class="relative w-full">
+        {{-- Banner Image (shows full image, no cropping) --}}
         @if($banner->mobile_image)
-        <img src="{{ $banner->mobile_image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full object-cover md:hidden">
-        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full object-cover hidden md:block">
+        <img src="{{ $banner->mobile_image_url }}" alt="{{ $banner->title }}" class="w-full h-auto block md:hidden">
+        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="w-full h-auto hidden md:block">
+        @else
+        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="w-full h-auto block">
         @endif
         {{-- Overlay + Content (only if title/subtitle exists) --}}
         @if($banner->title || $banner->subtitle)
-        <div class="absolute inset-0" style="background: linear-gradient(135deg, rgba(44,36,24,0.6), rgba(44,36,24,0.2));"></div>
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 w-full">
-            <div class="max-w-2xl">
-                @if($banner->title)
-                <h2 class="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">{{ $banner->title }}</h2>
-                @endif
-                @if($banner->subtitle)
-                <p class="text-white/90 text-base md:text-lg max-w-lg mb-8">{{ $banner->subtitle }}</p>
-                @endif
-                @if($banner->link)
-                <a href="{{ $banner->link }}" class="inline-flex items-center gap-2 px-8 py-4 bg-white font-bold rounded-full hover:bg-cream-100 transition shadow-2xl" style="color:#2C2418;">
-                    Shop Now
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-                </a>
-                @endif
+        <div class="absolute inset-0 flex items-center" style="background: linear-gradient(135deg, rgba(44,36,24,0.6), rgba(44,36,24,0.2));">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 w-full">
+                <div class="max-w-2xl">
+                    @if($banner->title)
+                    <h2 class="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">{{ $banner->title }}</h2>
+                    @endif
+                    @if($banner->subtitle)
+                    <p class="text-white/90 text-base md:text-lg max-w-lg mb-8">{{ $banner->subtitle }}</p>
+                    @endif
+                    @if($banner->link)
+                    <a href="{{ $banner->link }}" class="inline-flex items-center gap-2 px-8 py-4 bg-white font-bold rounded-full hover:bg-cream-100 transition shadow-2xl" style="color:#2C2418;">
+                        Shop Now
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                    </a>
+                    @endif
+                </div>
             </div>
         </div>
         @endif
