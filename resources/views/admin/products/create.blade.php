@@ -204,106 +204,6 @@
             <!-- Hidden file input that actually submits with the form -->
             <input type="file" name="images[]" id="createImgHidden" multiple class="hidden">
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-        <script>
-        (function() {
-            var imageFiles = []; // Array of { id, file, dataUrl }
-            var nextId = 0;
-            var sortableInst = null;
-            var grid = document.getElementById('createImgGrid');
-            var hint = document.getElementById('createImgHint');
-            var hiddenInput = document.getElementById('createImgHidden');
-            var fileInput = document.getElementById('createImgInput');
-
-            fileInput.addEventListener('change', function(e) {
-                var files = Array.from(e.target.files);
-                files.forEach(function(file) {
-                    var reader = new FileReader();
-                    reader.onload = function(ev) {
-                        imageFiles.push({ id: nextId++, file: file, dataUrl: ev.target.result });
-                        renderGrid();
-                        syncHiddenInput();
-                    };
-                    reader.readAsDataURL(file);
-                });
-                e.target.value = '';
-            });
-
-            function renderGrid() {
-                grid.innerHTML = '';
-                if (imageFiles.length === 0) {
-                    grid.style.display = 'none';
-                    hint.style.display = 'none';
-                    return;
-                }
-                grid.style.display = 'grid';
-                hint.style.display = imageFiles.length > 1 ? 'block' : 'none';
-
-                imageFiles.forEach(function(img, i) {
-                    var div = document.createElement('div');
-                    div.className = 'relative group aspect-square cursor-grab active:cursor-grabbing';
-                    div.setAttribute('data-id', img.id);
-                    div.innerHTML = '<div class="w-full h-full rounded-xl overflow-hidden border-2 border-gray-100 group-hover:border-blue-200 transition"><img src="' + img.dataUrl + '" class="w-full h-full object-cover"></div>'
-                        + '<button type="button" class="cimg-del absolute -top-1.5 -right-1.5 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md cursor-pointer hover:bg-red-600 z-10">&times;</button>'
-                        + (i === 0
-                            ? '<span class="absolute bottom-0 inset-x-0 bg-green-500/90 text-white text-[8px] text-center font-bold py-0.5 rounded-b-xl">Primary</span>'
-                            : '<button type="button" class="cimg-pri absolute bottom-0 inset-x-0 bg-gray-700/80 text-white text-[8px] text-center font-bold py-0.5 rounded-b-xl cursor-pointer hover:bg-blue-600/90 opacity-0 group-hover:opacity-100 transition">Set Primary</button>');
-                    grid.appendChild(div);
-                });
-
-                // Attach delete & set-primary handlers
-                grid.querySelectorAll('.cimg-del').forEach(function(btn) {
-                    btn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        var id = parseInt(btn.closest('[data-id]').getAttribute('data-id'));
-                        imageFiles = imageFiles.filter(function(img) { return img.id !== id; });
-                        renderGrid();
-                        syncHiddenInput();
-                    });
-                });
-                grid.querySelectorAll('.cimg-pri').forEach(function(btn) {
-                    btn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        var id = parseInt(btn.closest('[data-id]').getAttribute('data-id'));
-                        var idx = imageFiles.findIndex(function(img) { return img.id === id; });
-                        if (idx > 0) {
-                            var item = imageFiles.splice(idx, 1)[0];
-                            imageFiles.unshift(item);
-                            renderGrid();
-                            syncHiddenInput();
-                        }
-                    });
-                });
-
-                initSortable();
-            }
-
-            function initSortable() {
-                if (sortableInst) { sortableInst.destroy(); sortableInst = null; }
-                if (imageFiles.length < 2) return;
-                sortableInst = new Sortable(grid, {
-                    animation: 150,
-                    ghostClass: 'opacity-40',
-                    onEnd: function() {
-                        // Read new order from DOM
-                        var ids = Array.from(grid.querySelectorAll('[data-id]')).map(function(el) { return parseInt(el.getAttribute('data-id')); });
-                        var reordered = ids.map(function(id) { return imageFiles.find(function(img) { return img.id === id; }); }).filter(Boolean);
-                        imageFiles = reordered;
-                        renderGrid();
-                        syncHiddenInput();
-                    }
-                });
-            }
-
-            function syncHiddenInput() {
-                var dt = new DataTransfer();
-                imageFiles.forEach(function(img) { dt.items.add(img.file); });
-                hiddenInput.files = dt.files;
-            }
-        })();
-        </script>
 
         <!-- Product Page Banners -->
         <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
@@ -354,4 +254,136 @@
         </div>
     </form>
 </div>
+
+<!-- SortableJS + Image Manager Script (MUST be outside form and after DOM ready) -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var imageFiles = [];
+    var nextId = 0;
+    var sortableInst = null;
+    var grid = document.getElementById('createImgGrid');
+    var hint = document.getElementById('createImgHint');
+    var hiddenInput = document.getElementById('createImgHidden');
+    var fileInput = document.getElementById('createImgInput');
+
+    if (!fileInput || !grid || !hiddenInput) return;
+
+    fileInput.addEventListener('change', function(e) {
+        var files = Array.from(e.target.files);
+        var loaded = 0;
+        files.forEach(function(file) {
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                imageFiles.push({ id: nextId++, file: file, dataUrl: ev.target.result });
+                loaded++;
+                if (loaded === files.length) {
+                    renderGrid();
+                    syncHiddenInput();
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+        e.target.value = '';
+    });
+
+    function renderGrid() {
+        grid.innerHTML = '';
+        if (imageFiles.length === 0) {
+            grid.style.display = 'none';
+            hint.style.display = 'none';
+            return;
+        }
+        grid.style.display = 'grid';
+        hint.style.display = imageFiles.length > 1 ? 'block' : 'none';
+
+        imageFiles.forEach(function(img, i) {
+            var div = document.createElement('div');
+            div.className = 'relative group aspect-square cursor-grab active:cursor-grabbing';
+            div.setAttribute('data-id', img.id);
+
+            var inner = document.createElement('div');
+            inner.className = 'w-full h-full rounded-xl overflow-hidden border-2 border-gray-100 group-hover:border-blue-200 transition';
+            var imgEl = document.createElement('img');
+            imgEl.src = img.dataUrl;
+            imgEl.className = 'w-full h-full object-cover';
+            inner.appendChild(imgEl);
+            div.appendChild(inner);
+
+            // Delete button
+            var delBtn = document.createElement('button');
+            delBtn.type = 'button';
+            delBtn.className = 'absolute -top-1.5 -right-1.5 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md cursor-pointer hover:bg-red-600 z-10';
+            delBtn.innerHTML = '&times;';
+            delBtn.setAttribute('data-action', 'delete');
+            delBtn.setAttribute('data-img-id', img.id);
+            div.appendChild(delBtn);
+
+            if (i === 0) {
+                var badge = document.createElement('span');
+                badge.className = 'absolute bottom-0 inset-x-0 bg-green-500/90 text-white text-[8px] text-center font-bold py-0.5 rounded-b-xl';
+                badge.textContent = 'Primary';
+                div.appendChild(badge);
+            } else {
+                var priBtn = document.createElement('button');
+                priBtn.type = 'button';
+                priBtn.className = 'absolute bottom-0 inset-x-0 bg-gray-700/80 text-white text-[8px] text-center font-bold py-0.5 rounded-b-xl cursor-pointer hover:bg-blue-600/90 opacity-0 group-hover:opacity-100 transition';
+                priBtn.textContent = 'Set Primary';
+                priBtn.setAttribute('data-action', 'primary');
+                priBtn.setAttribute('data-img-id', img.id);
+                div.appendChild(priBtn);
+            }
+
+            grid.appendChild(div);
+        });
+
+        // Event delegation for buttons
+        grid.onclick = function(e) {
+            var btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            e.preventDefault();
+            e.stopPropagation();
+            var imgId = parseInt(btn.getAttribute('data-img-id'));
+            if (btn.getAttribute('data-action') === 'delete') {
+                imageFiles = imageFiles.filter(function(img) { return img.id !== imgId; });
+                renderGrid();
+                syncHiddenInput();
+            } else if (btn.getAttribute('data-action') === 'primary') {
+                var idx = imageFiles.findIndex(function(img) { return img.id === imgId; });
+                if (idx > 0) {
+                    var item = imageFiles.splice(idx, 1)[0];
+                    imageFiles.unshift(item);
+                    renderGrid();
+                    syncHiddenInput();
+                }
+            }
+        };
+
+        initSortable();
+    }
+
+    function initSortable() {
+        if (sortableInst) { sortableInst.destroy(); sortableInst = null; }
+        if (imageFiles.length < 2) return;
+        sortableInst = new Sortable(grid, {
+            animation: 150,
+            ghostClass: 'opacity-40',
+            filter: '[data-action]',
+            onEnd: function() {
+                var ids = Array.from(grid.querySelectorAll('[data-id]')).map(function(el) { return parseInt(el.getAttribute('data-id')); });
+                var reordered = ids.map(function(id) { return imageFiles.find(function(img) { return img.id === id; }); }).filter(Boolean);
+                imageFiles = reordered;
+                renderGrid();
+                syncHiddenInput();
+            }
+        });
+    }
+
+    function syncHiddenInput() {
+        var dt = new DataTransfer();
+        imageFiles.forEach(function(img) { dt.items.add(img.file); });
+        hiddenInput.files = dt.files;
+    }
+});
+</script>
 @endsection
