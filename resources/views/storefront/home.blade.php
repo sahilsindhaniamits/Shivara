@@ -62,19 +62,19 @@
 @endif
 
 <!-- Scrolling Marquee Trust Strip -->
-<div class="overflow-hidden py-2.5" style="background-color: #342a1b;">
-    <div class="flex items-center gap-8 whitespace-nowrap" style="animation: marquee 45s linear infinite;">
+<div class="overflow-hidden py-1.5 sm:py-2" style="background-color: #342a1b;">
+    <div class="flex items-center gap-6 sm:gap-8 whitespace-nowrap" style="animation: marquee 30s linear infinite;">
         @for($m = 0; $m < 2; $m++)
-        <span class="flex items-center gap-2 text-xs font-semibold text-white/90"><svg class="w-4 h-4 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg> Secure Payments — UPI, Cards & COD</span>
-        <span class="text-gold-500">✦</span>
-        <span class="flex items-center gap-2 text-xs font-semibold text-white/90"><svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Pure Herbs — No Extract, No Chemicals</span>
-        <span class="text-gold-500">✦</span>
-        <span class="flex items-center gap-2 text-xs font-semibold text-white/90"><svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Free Delivery — On orders above ₹{{ config('shivara.free_shipping_threshold', 399) }}</span>
-        <span class="text-gold-500">✦</span>
-        <span class="flex items-center gap-2 text-xs font-semibold text-white/90"><svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg> Lab Tested — GMP Certified Products</span>
-        <span class="text-gold-500">✦</span>
-        <span class="flex items-center gap-2 text-xs font-semibold text-white/90"><svg class="w-4 h-4 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg> 5000+ Happy Customers Across India</span>
-        <span class="text-gold-500 mr-8">✦</span>
+        <span class="flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-white/90"><svg class="w-3 h-3 sm:w-4 sm:h-4 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg> Secure Payments — UPI, Cards & COD</span>
+        <span class="text-gold-500 text-[10px]">✦</span>
+        <span class="flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-white/90"><svg class="w-3 h-3 sm:w-4 sm:h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Pure Herbs — No Extract, No Chemicals</span>
+        <span class="text-gold-500 text-[10px]">✦</span>
+        <span class="flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-white/90"><svg class="w-3 h-3 sm:w-4 sm:h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Free Delivery — On orders above ₹{{ config('shivara.free_shipping_threshold', 399) }}</span>
+        <span class="text-gold-500 text-[10px]">✦</span>
+        <span class="flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-white/90"><svg class="w-3 h-3 sm:w-4 sm:h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg> Lab Tested — GMP Certified</span>
+        <span class="text-gold-500 text-[10px]">✦</span>
+        <span class="flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-white/90"><svg class="w-3 h-3 sm:w-4 sm:h-4 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg> 5000+ Happy Customers</span>
+        <span class="text-gold-500 text-[10px] mr-6 sm:mr-8">✦</span>
         @endfor
     </div>
 </div>
