@@ -444,7 +444,11 @@
     let trigger = document.getElementById('stickyBarTrigger');
     if(trigger) {
         let observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => { showBar = !entry.isIntersecting && entry.boundingClientRect.top < 0; });
+            entries.forEach(entry => {
+                showBar = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+                var wa = document.getElementById('whatsappFloat');
+                if(wa) wa.style.bottom = showBar ? '80px' : '24px';
+            });
         }, { threshold: 0 });
         observer.observe(trigger);
     }
