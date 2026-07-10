@@ -63,7 +63,7 @@
 
 <!-- Scrolling Marquee Trust Strip -->
 <div class="overflow-hidden py-1.5 sm:py-2" style="background-color: #342a1b;">
-    <div class="flex items-center gap-6 sm:gap-8 whitespace-nowrap" style="animation: marquee 30s linear infinite;">
+    <div class="flex items-center gap-6 sm:gap-8 whitespace-nowrap" style="animation: marquee 15s linear infinite;">
         @for($m = 0; $m < 2; $m++)
         <span class="flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-white/90"><svg class="w-3 h-3 sm:w-4 sm:h-4 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg> Secure Payments — UPI, Cards & COD</span>
         <span class="text-gold-500 text-[10px]">✦</span>
