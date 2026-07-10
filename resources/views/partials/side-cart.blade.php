@@ -3,6 +3,8 @@
     $fgThreshold = (float) \App\Models\Setting::get('free_gift_threshold', config('shivara.free_gift_threshold', 1499));
     $fgProductId = \App\Models\Setting::get('free_gift_product_id');
     $fgProduct = $fgProductId ? \App\Models\Product::with('primaryImage')->find($fgProductId) : null;
+    // Only truly enabled if both setting is true AND a gift product exists
+    $fgEnabled = $fgEnabled && $fgProduct;
     $fsThreshold = config('shivara.free_shipping_threshold', 299);
     $shipRate = config('shivara.standard_rate', 79);
     $recs = \App\Models\Product::active()->featured()->with('primaryImage')->take(3)->get();
