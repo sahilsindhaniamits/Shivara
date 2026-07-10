@@ -72,21 +72,33 @@
                             <span class="text-sm text-gray-600">{{ $coupon->min_order_amount ? '₹'.number_format($coupon->min_order_amount) : 'None' }}</span>
                         </td>
                         <td class="px-5 py-4">
+                            @if($coupon->end_date)
                             <p class="text-xs font-medium text-gray-700">{{ $coupon->end_date->format('d M Y') }}</p>
                             @if($coupon->end_date->isPast())
                             <p class="text-[10px] text-red-500 font-semibold">Expired</p>
                             @elseif($coupon->end_date->diffInDays(now()) <= 7)
                             <p class="text-[10px] text-amber-600 font-semibold">{{ $coupon->end_date->diffForHumans() }}</p>
                             @endif
+                            @else
+                            <p class="text-xs text-gray-400">No expiry</p>
+                            @endif
                         </td>
                         <td class="px-5 py-4">
+                            <div class="flex flex-wrap gap-1">
                             @if($coupon->isValid())
                             <span class="inline-flex items-center px-2 py-1 text-[10px] font-bold uppercase rounded-md bg-green-50 text-green-700">Active</span>
-                            @elseif($coupon->end_date->isPast())
+                            @elseif($coupon->end_date && $coupon->end_date->isPast())
                             <span class="inline-flex items-center px-2 py-1 text-[10px] font-bold uppercase rounded-md bg-red-50 text-red-700">Expired</span>
                             @else
                             <span class="inline-flex items-center px-2 py-1 text-[10px] font-bold uppercase rounded-md bg-gray-100 text-gray-500">Inactive</span>
                             @endif
+                            @if($coupon->auto_apply)
+                            <span class="inline-flex items-center px-2 py-1 text-[10px] font-bold uppercase rounded-md bg-blue-50 text-blue-700">Auto</span>
+                            @endif
+                            @if($coupon->show_as_popup)
+                            <span class="inline-flex items-center px-2 py-1 text-[10px] font-bold uppercase rounded-md bg-purple-50 text-purple-700">Popup</span>
+                            @endif
+                            </div>
                         </td>
                         <td class="px-5 py-4">
                             <div class="flex items-center gap-1">

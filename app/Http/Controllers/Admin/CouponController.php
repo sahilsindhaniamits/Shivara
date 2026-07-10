@@ -31,13 +31,14 @@ class CouponController extends Controller
             'usage_limit' => 'nullable|integer|min:1',
             'per_user_limit' => 'integer|min:1',
             'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
+            'end_date' => 'nullable|date|after:start_date',
             'is_active' => 'boolean',
         ]);
 
         $validated['code'] = strtoupper($validated['code']);
         $validated['is_active'] = $request->has('is_active');
         $validated['show_as_popup'] = $request->has('show_as_popup');
+        $validated['auto_apply'] = $request->has('auto_apply');
 
         Coupon::create($validated);
 
@@ -62,13 +63,14 @@ class CouponController extends Controller
             'usage_limit' => 'nullable|integer|min:1',
             'per_user_limit' => 'integer|min:1',
             'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
+            'end_date' => 'nullable|date|after:start_date',
             'is_active' => 'boolean',
         ]);
 
         $validated['code'] = strtoupper($validated['code']);
         $validated['is_active'] = $request->has('is_active');
         $validated['show_as_popup'] = $request->has('show_as_popup');
+        $validated['auto_apply'] = $request->has('auto_apply');
 
         $coupon->update($validated);
 
