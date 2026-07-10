@@ -214,9 +214,19 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        \DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        $product->images()->delete();
+        $product->variants()->delete();
+        $product->reviews()->delete();
+        $product->attributes()->each(function ($attr) { $attr->values()->delete(); $attr->delete(); });
+        \App\Models\CartItem::where('product_id', $product->id)->delete();
+        \App\Models\WishlistItem::where('product_id', $product->id)->delete();
+        \App\Models\VideoTestimonial::where('product_id', $product->id)->update(['product_id' => null]);
+        \DB::table('order_items')->where('product_id', $product->id)->update(['product_id' => null]);
         $product->delete();
-        return redirect()->route('admin.products.index')
-            ->with('success', 'Product deleted.');
+        \DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        
+        return redirect()->route('admin.products.index')->with('success', 'Product deleted.');
     }
 
     public function deleteImage(Product $product, \App\Models\ProductImage $image)
@@ -264,20 +274,25 @@ class ProductController extends Controller
                     Product::whereIn('id', $ids)->update(['is_active' => false]);
                     break;
                 case 'delete':
-                    // Nullify order_items product_id (keep order history but unlink product)
-                    \App\Models\OrderItem::whereIn('product_id', $ids)->update(['product_id' => null]);
-                    // Delete related records
+                    // Disable FK checks temporarily for clean delete
+                    \DB::statement('SET FOREIGN_KEY_CHECKS=0');
+                    
                     \App\Models\ProductImage::whereIn('product_id', $ids)->delete();
                     \App\Models\ProductVariant::whereIn('product_id', $ids)->delete();
-                    \App\Models\ProductAttribute::whereIn('product_id', $ids)->each(function ($attr) {
-                        $attr->values()->delete();
-                        $attr->delete();
-                    });
                     \App\Models\Review::whereIn('product_id', $ids)->delete();
                     \App\Models\CartItem::whereIn('product_id', $ids)->delete();
                     \App\Models\WishlistItem::whereIn('product_id', $ids)->delete();
                     \App\Models\VideoTestimonial::whereIn('product_id', $ids)->update(['product_id' => null]);
+                    \App\Models\ProductAttribute::whereIn('product_id', $ids)->each(function ($attr) {
+                        $attr->values()->delete();
+                        $attr->delete();
+                    });
+                    // Nullify in order_items (keep order history)
+                    \DB::table('order_items')->whereIn('product_id', $ids)->update(['product_id' => null]);
+                    
                     Product::whereIn('id', $ids)->delete();
+                    
+                    \DB::statement('SET FOREIGN_KEY_CHECKS=1');
                     break;
             }
 
