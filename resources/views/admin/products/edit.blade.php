@@ -86,8 +86,8 @@
                     <input type="number" name="selling_price" value="{{ old('selling_price', $product->selling_price) }}" step="0.01" required class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Stock *</label>
-                    <input type="number" name="stock" value="{{ old('stock', $product->stock) }}" required class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition">
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Stock <span class="text-gray-400 font-normal normal-case">(blank = unlimited)</span></label>
+                    <input type="number" name="stock" value="{{ old('stock', $product->stock) }}" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition" placeholder="Leave blank for unlimited">
                 </div>
             </div>
             @if($product->discount_percent > 0)
@@ -284,7 +284,7 @@
                     <div class="w-full h-full rounded-xl overflow-hidden border-2 border-gray-100 group-hover:border-red-200 transition">
                         <img src="{{ str_starts_with($img->url, '/storage/') ? '/public' . $img->url : $img->url }}" class="w-full h-full object-cover">
                     </div>
-                    <button type="button" onclick="if(confirm('Delete this image?')){fetch('{{ route('admin.products.deleteImage', [$product, $img]) }}',{method:'POST',headers:{'X-CSRF-TOKEN':document.querySelector('meta[name=csrf-token]').content,'Content-Type':'application/json'},body:JSON.stringify({_method:'DELETE'})}).then(()=>this.closest('.relative').remove())}" class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] shadow-md opacity-0 group-hover:opacity-100 transition cursor-pointer">&times;</button>
+                    <button type="button" onclick="if(confirm('Delete this image?')){fetch('{{ route('admin.products.deleteImage', [$product, $img]) }}',{method:'POST',headers:{'X-CSRF-TOKEN':document.querySelector('meta[name=csrf-token]').content,'Content-Type':'application/json'},body:JSON.stringify({_method:'DELETE'})}).then(()=>this.closest('.relative').remove())}" class="absolute -top-1.5 -right-1.5 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md cursor-pointer hover:bg-red-600 z-10">&times;</button>
                     @if($img->is_primary)<span class="absolute bottom-0 inset-x-0 bg-green-500/90 text-white text-[8px] text-center font-bold py-0.5 rounded-b-xl">Primary</span>@endif
                 </div>
                 @endforeach
