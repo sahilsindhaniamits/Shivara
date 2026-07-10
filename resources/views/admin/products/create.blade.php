@@ -188,23 +188,101 @@
                 </div>
                 <h2 class="text-base font-bold text-gray-900">Product Images</h2>
             </div>
-            <div x-data="{ previews: [] }">
-                <label class="block border-2 border-dashed border-gray-200 rounded-xl p-6 text-center cursor-pointer hover:border-orange-300 hover:bg-orange-50/30 transition group">
-                    <svg class="w-8 h-8 text-gray-300 mx-auto mb-2 group-hover:text-orange-400 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    <p class="text-sm font-medium text-gray-500">Click to upload images</p>
-                    <p class="text-xs text-gray-400 mt-1">PNG, JPG, WebP up to 5MB &bull; First image = primary thumbnail</p>
-                    <input type="file" name="images[]" multiple accept="image/*" class="hidden" @change="previews=[]; for(let f of $event.target.files){let r=new FileReader(); r.onload=e=>{previews=[...previews,e.target.result]}; r.readAsDataURL(f)}">
-                </label>
-                <div x-show="previews.length > 0" class="grid grid-cols-4 sm:grid-cols-6 gap-3 mt-4">
-                    <template x-for="(src, i) in previews" :key="i">
-                        <div class="aspect-square rounded-xl overflow-hidden border-2 border-gray-100 relative">
-                            <img :src="src" class="w-full h-full object-cover">
-                            <span x-show="i === 0" class="absolute bottom-0 inset-x-0 bg-green-500/90 text-white text-[8px] text-center font-bold py-0.5">Primary</span>
+            <div x-data="createImageManager()">
+                <!-- Sortable image previews -->
+                <div x-show="images.length > 0" id="createSortableImages" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3 mb-4">
+                    <template x-for="(img, i) in images" :key="img.id">
+                        <div class="relative group aspect-square cursor-grab active:cursor-grabbing" :data-id="img.id">
+                            <div class="w-full h-full rounded-xl overflow-hidden border-2 border-gray-100 group-hover:border-blue-200 transition">
+                                <img :src="img.preview" class="w-full h-full object-cover">
+                            </div>
+                            <button type="button" @click="removeImage(img.id)" class="absolute -top-1.5 -right-1.5 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md cursor-pointer hover:bg-red-600 z-10">&times;</button>
+                            <span x-show="i === 0" class="absolute bottom-0 inset-x-0 bg-green-500/90 text-white text-[8px] text-center font-bold py-0.5 rounded-b-xl">Primary</span>
+                            <button type="button" x-show="i !== 0" @click="setPrimary(img.id)" class="absolute bottom-0 inset-x-0 bg-gray-700/80 text-white text-[8px] text-center font-bold py-0.5 rounded-b-xl cursor-pointer hover:bg-blue-600/90 opacity-0 group-hover:opacity-100 transition">Set Primary</button>
                         </div>
                     </template>
                 </div>
+                <p x-show="images.length > 1" class="text-[10px] text-gray-400 mb-2">↕ Drag to reorder &bull; First image = primary thumbnail on frontend</p>
+
+                <!-- Upload button -->
+                <label class="block border-2 border-dashed border-gray-200 rounded-xl p-6 text-center cursor-pointer hover:border-orange-300 hover:bg-orange-50/30 transition group">
+                    <svg class="w-8 h-8 text-gray-300 mx-auto mb-2 group-hover:text-orange-400 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/></svg>
+                    <p class="text-sm font-medium text-gray-500">Click to upload images</p>
+                    <p class="text-xs text-gray-400 mt-1">PNG, JPG, WebP up to 5MB &bull; First image = primary thumbnail</p>
+                    <input type="file" multiple accept="image/*" class="hidden" @change="addFiles($event)">
+                </label>
+
+                <!-- Hidden file input that actually submits with the form -->
+                <input type="file" name="images[]" multiple x-ref="hiddenFileInput" class="hidden">
             </div>
         </div>
+        <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+        <script>
+        function createImageManager() {
+            return {
+                images: [],
+                nextId: 0,
+                sortableInstance: null,
+
+                addFiles(event) {
+                    const files = Array.from(event.target.files);
+                    files.forEach(file => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            this.images.push({ id: this.nextId++, file: file, preview: e.target.result });
+                            this.$nextTick(() => {
+                                this.initSortable();
+                                this.syncFileInput();
+                            });
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                    // Reset the clicked input so same files can be re-selected
+                    event.target.value = '';
+                },
+
+                removeImage(id) {
+                    this.images = this.images.filter(img => img.id !== id);
+                    this.$nextTick(() => this.syncFileInput());
+                },
+
+                setPrimary(id) {
+                    const idx = this.images.findIndex(img => img.id === id);
+                    if (idx > 0) {
+                        const [item] = this.images.splice(idx, 1);
+                        this.images.unshift(item);
+                        this.$nextTick(() => this.syncFileInput());
+                    }
+                },
+
+                initSortable() {
+                    if (this.sortableInstance) return;
+                    const el = document.getElementById('createSortableImages');
+                    if (!el) return;
+                    this.sortableInstance = new Sortable(el, {
+                        animation: 150,
+                        ghostClass: 'opacity-40',
+                        onEnd: (evt) => {
+                            // Reorder the images array to match DOM order
+                            const ids = Array.from(el.querySelectorAll('[data-id]')).map(el => parseInt(el.dataset.id));
+                            const reordered = ids.map(id => this.images.find(img => img.id === id)).filter(Boolean);
+                            this.images = reordered;
+                            this.$nextTick(() => this.syncFileInput());
+                        }
+                    });
+                },
+
+                syncFileInput() {
+                    // Rebuild the hidden file input with files in correct order
+                    const dt = new DataTransfer();
+                    this.images.forEach(img => {
+                        dt.items.add(img.file);
+                    });
+                    this.$refs.hiddenFileInput.files = dt.files;
+                }
+            }
+        }
+        </script>
 
         <!-- Product Page Banners -->
         <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
