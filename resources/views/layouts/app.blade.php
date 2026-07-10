@@ -82,7 +82,7 @@
     </style>
     @stack('styles')
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen">
 
     @include('partials.header')
 
