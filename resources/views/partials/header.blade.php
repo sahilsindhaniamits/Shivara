@@ -5,7 +5,7 @@
 @endphp
 
 <!-- Sticky Marquee + Header (no wrapper div - sticky directly on body's child flow) -->
-<div class="sticky top-0 z-50" style="min-width:100vw;" x-data="{ mobileMenu: false, searchOpen: false }" x-effect="document.body.style.overflow = mobileMenu ? 'hidden' : ''">
+<div class="sticky top-0 z-50" x-data="{ mobileMenu: false, searchOpen: false }" x-effect="document.body.style.overflow = mobileMenu ? 'hidden' : ''">
     @if(count($marqueeItems))
     <div class="text-white overflow-hidden" style="background-color: {{ $marqueeBg }};">
         <div class="flex py-2">

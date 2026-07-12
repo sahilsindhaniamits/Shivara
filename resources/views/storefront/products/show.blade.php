@@ -21,7 +21,7 @@
 
 <!-- Main Product Section -->
 <section style="background: linear-gradient(180deg, #FFFDF8 0%, #FFF9ED 100%);">
-    <div class="w-full px-4 sm:px-6 lg:px-10 xl:px-16 pt-6 pb-16" style="min-width: min(100vw, 1200px);">
+    <div class="w-full px-4 sm:px-6 lg:px-10 xl:px-16 pt-6 pb-16">
         <!-- Breadcrumb -->
         <nav class="flex items-center gap-2 text-xs text-espresso-400 mb-6">
             <a href="{{ route('home') }}" class="hover:text-gold-600 transition">Home</a>
