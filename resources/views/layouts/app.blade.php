@@ -82,7 +82,7 @@
     </style>
     @stack('styles')
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen" style="overflow-x:hidden;">
 
     @include('partials.header')
 
