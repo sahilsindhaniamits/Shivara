@@ -87,15 +87,14 @@
 </div>
 
 <!-- Shop by Category — Premium Layout -->
-<section class="py-16 md:py-24 scroll-reveal" style="background: linear-gradient(180deg, #2C2418 0%, #3d3224 100%);">
+<section class="py-16 md:py-24 scroll-reveal" style="background: linear-gradient(180deg, #f5efe6 0%, #ede4d6 100%);">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="text-center mb-10 md:mb-14">
-            <span class="inline-block text-[11px] font-bold uppercase tracking-[0.35em] px-4 py-1.5 rounded-full mb-4" style="color:#D4B078; background-color: rgba(212,176,120,0.1); border: 1px solid rgba(212,176,120,0.25);">Shop by Concern</span>
-            <h2 class="font-display text-3xl md:text-5xl font-bold mt-2" style="color:#FFFDF8;">Find your balance.</h2>
-            <p class="text-sm md:text-base mt-3 max-w-xl mx-auto" style="color: rgba(255,253,248,0.6);">Targeted Ayurvedic solutions for every wellness goal. Pure herbs, proven results.</p>
+            <span class="inline-block text-[11px] font-bold uppercase tracking-[0.35em] px-4 py-1.5 rounded-full mb-4" style="color:#B7925C; background-color:#fff; border: 1px solid rgba(183,146,92,0.2);">Shop by Concern</span>
+            <h2 class="font-display text-3xl md:text-5xl font-bold mt-2" style="color:#2C2418;">Find your balance.</h2>
+            <p class="text-sm md:text-base mt-3 max-w-xl mx-auto" style="color:#8c7560;">Targeted Ayurvedic solutions for every wellness goal. Pure herbs, proven results.</p>
         </div>
         @php
-            // Premium fallback images for categories (used if no admin image uploaded)
             $categoryImages = [
                 'sexual wellness' => 'https://images.unsplash.com/photo-1611241893603-3c228ee0ae6f?w=400&h=400&fit=crop&q=80',
                 'liver support' => 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=400&h=400&fit=crop&q=80',
@@ -111,7 +110,7 @@
         @endphp
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-5">
             @foreach($categories as $catIdx => $cat)
-            <a href="{{ route('products.index', ['category' => $cat->slug]) }}" class="group relative rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_20px_60px_rgba(212,176,120,0.2)] cat-card-animate" style="background-color: rgba(255,253,248,0.05); border: 1px solid rgba(212,176,120,0.15); animation-delay: {{ $catIdx * 100 }}ms;">
+            <a href="{{ route('products.index', ['category' => $cat->slug]) }}" class="group relative rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_20px_50px_rgba(44,36,24,0.15)] cat-card-animate" style="background-color:#fff; border: 1px solid rgba(183,146,92,0.1); animation-delay: {{ $catIdx * 100 }}ms;">
                 <!-- Category Image -->
                 <div class="relative w-full overflow-hidden" style="aspect-ratio: 1/1;">
                     @php
@@ -123,19 +122,17 @@
                         }
                     @endphp
                     <img src="{{ $catImage }}" alt="{{ $cat->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
-                    <!-- Dark gradient overlay for text readability -->
-                    <div class="absolute inset-0" style="background: linear-gradient(0deg, rgba(44,36,24,0.7) 0%, rgba(44,36,24,0) 50%);"></div>
-                    <!-- Category name overlaid on image -->
-                    <div class="absolute bottom-0 left-0 right-0 p-3 text-center">
-                        <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-white drop-shadow-lg">{{ $cat->name }}</h3>
-                        @if($cat->products_count > 0)
-                        <p class="text-[10px] mt-0.5 text-white/70">{{ $cat->products_count }} {{ $cat->products_count === 1 ? 'product' : 'products' }}</p>
-                        @endif
-                    </div>
                     <!-- Hover overlay -->
-                    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center" style="background: rgba(183,146,92,0.25); backdrop-filter: blur(2px);">
-                        <span class="text-white text-[11px] font-bold uppercase tracking-widest px-4 py-2 rounded-full" style="border: 1.5px solid rgba(255,255,255,0.8); background: rgba(44,36,24,0.4);">Explore →</span>
+                    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-400 flex items-center justify-center" style="background: rgba(44,36,24,0.4);">
+                        <span class="text-white text-[11px] font-bold uppercase tracking-widest px-4 py-2 rounded-full" style="border: 1.5px solid rgba(255,255,255,0.7);">Explore →</span>
                     </div>
+                </div>
+                <!-- Category Name -->
+                <div class="px-3 py-3.5 text-center" style="background-color:#fff;">
+                    <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wide transition-colors duration-300 group-hover:text-gold-600" style="color:#2C2418;">{{ $cat->name }}</h3>
+                    @if($cat->products_count > 0)
+                    <p class="text-[10px] mt-0.5" style="color:#8c7560;">{{ $cat->products_count }} {{ $cat->products_count === 1 ? 'product' : 'products' }}</p>
+                    @endif
                 </div>
                 <!-- Bottom accent line on hover -->
                 <div class="absolute bottom-0 left-0 right-0 h-[3px] scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" style="background: linear-gradient(90deg, #B7925C, #D4B078);"></div>
