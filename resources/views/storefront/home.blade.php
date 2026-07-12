@@ -4,14 +4,16 @@
 <!-- Hero Banner Slider (Dynamic from Admin) -->
 @php $heroBanners = \App\Models\Banner::active()->orderBy('sort_order')->get(); @endphp
 <style>
-.shivara-banner { aspect-ratio: 16/7; }
-@media (max-width: 767px) { .shivara-banner { aspect-ratio: 16/9; } }
+.shivara-banner img { max-height: 220px; }
+@media (min-width: 768px) { .shivara-banner img { max-height: 400px; } }
+@media (min-width: 1024px) { .shivara-banner img { max-height: 600px; } }
+@media (min-width: 1280px) { .shivara-banner img { max-height: none; } }
 </style>
 @if($heroBanners->count())
 <section x-data="{ current: 0, slides: {{ $heroBanners->count() }} }" x-init="setInterval(() => current = (current + 1) % slides, 3000); initSwipe($el, () => current = (current+1)%slides, () => current = (current-1+slides)%slides)" class="relative overflow-hidden select-none cursor-grab active:cursor-grabbing shivara-banner">
     @foreach($heroBanners as $i => $banner)
-    <div x-show="current === {{ $i }}" x-transition:enter="transition ease-in-out duration-700" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" {{ $i > 0 ? 'x-cloak' : '' }} class="absolute inset-0 w-full h-full overflow-hidden">
-        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="w-full h-full object-cover object-center">
+    <div x-show="current === {{ $i }}" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" {{ $i > 0 ? 'x-cloak' : '' }} class="{{ $i === 0 ? 'relative' : 'absolute inset-0' }} w-full overflow-hidden" {{ $i === 0 ? ':class="current !== 0 && \'invisible\'"' : '' }}>
+        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="w-full object-cover object-center">
         @if($banner->title || $banner->subtitle)
         <div class="absolute inset-0 flex items-center" style="background: linear-gradient(135deg, rgba(44,36,24,0.5), rgba(44,36,24,0.1));">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 w-full">
