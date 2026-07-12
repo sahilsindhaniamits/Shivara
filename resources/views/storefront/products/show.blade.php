@@ -364,7 +364,7 @@
 @if($product->banners && count($product->banners))
 <section class="py-8" x-data="{ pb: 0 }" x-init="setInterval(() => pb = (pb + 1) % {{ count($product->banners) }}, 5000)">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="relative rounded-3xl overflow-hidden aspect-[3/1]">
+        <div class="relative rounded-3xl overflow-hidden" style="aspect-ratio: 2/1;">
             @foreach($product->banners as $i => $bannerUrl)
             <div x-show="pb === {{ $i }}" x-transition.opacity class="absolute inset-0"><img src="{{ str_starts_with($bannerUrl, '/storage/') ? '/public' . $bannerUrl : $bannerUrl }}" alt="Banner" class="w-full h-full object-cover"></div>
             @endforeach
