@@ -89,14 +89,9 @@
 <!-- Shop by Category — Horizontal Scroll Cards -->
 <section class="py-14 md:py-20 scroll-reveal" style="background-color:#FFFDF8;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="flex items-end justify-between mb-8">
-            <div>
-                <span class="text-[11px] font-bold uppercase tracking-[0.3em]" style="color:#B7925C;">Shop by Concern</span>
-                <h2 class="font-display text-2xl md:text-4xl font-bold mt-1" style="color:#2C2418;">Find your balance.</h2>
-            </div>
-            <a href="{{ route('products.index') }}" class="hidden sm:flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider hover:gap-3 transition-all" style="color:#B7925C;">
-                View All <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-            </a>
+        <div class="text-center mb-8 md:mb-10">
+            <span class="text-[11px] font-bold uppercase tracking-[0.3em]" style="color:#B7925C;">Shop by Concern</span>
+            <h2 class="font-display text-2xl md:text-4xl font-bold mt-1" style="color:#2C2418;">Find your balance.</h2>
         </div>
     </div>
     @php
@@ -113,7 +108,7 @@
             'digestion' => 'https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=400&h=400&fit=crop&q=80',
         ];
     @endphp
-    <div class="flex gap-4 overflow-x-auto pb-4 px-4 sm:px-6 scrollbar-hide snap-x snap-mandatory" style="scroll-padding: 16px;">
+    <div class="flex gap-5 overflow-x-auto pb-6 px-4 sm:px-6 scrollbar-hide snap-x snap-mandatory justify-center flex-wrap lg:flex-nowrap lg:justify-start lg:max-w-7xl lg:mx-auto">
         @foreach($categories as $catIdx => $cat)
         @php
             $catImage = null;
@@ -124,19 +119,17 @@
             }
         @endphp
         <a href="{{ route('products.index', ['category' => $cat->slug]) }}" class="group shrink-0 snap-start cat-card-animate" style="animation-delay: {{ $catIdx * 80 }}ms;">
-            <div class="relative w-[140px] sm:w-[160px] md:w-[180px] rounded-2xl overflow-hidden transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-[0_12px_40px_rgba(44,36,24,0.15)]" style="border: 1px solid rgba(183,146,92,0.1);">
+            <div class="relative w-[150px] sm:w-[165px] md:w-[180px] overflow-hidden rounded-2xl transition-transform duration-300 group-hover:-translate-y-1" style="background-color:#f8f5f0;">
                 <!-- Square Image -->
                 <div class="relative w-full overflow-hidden" style="aspect-ratio:1/1;">
-                    <img src="{{ $catImage }}" alt="{{ $cat->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
-                    <!-- Bottom gradient for text -->
-                    <div class="absolute inset-x-0 bottom-0 h-1/2" style="background: linear-gradient(0deg, rgba(44,36,24,0.75) 0%, transparent 100%);"></div>
-                    <!-- Category name on image -->
-                    <div class="absolute bottom-0 inset-x-0 p-3 text-center">
-                        <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-white drop-shadow-md">{{ $cat->name }}</h3>
-                        @if($cat->products_count > 0)
-                        <p class="text-[9px] text-white/70 mt-0.5">{{ $cat->products_count }} {{ $cat->products_count === 1 ? 'product' : 'products' }}</p>
-                        @endif
-                    </div>
+                    <img src="{{ $catImage }}" alt="{{ $cat->name }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
+                </div>
+                <!-- Category name below image -->
+                <div class="py-3 text-center" style="background-color:#fff;">
+                    <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider" style="color:#2C2418;">{{ $cat->name }}</h3>
+                    @if($cat->products_count > 0)
+                    <p class="text-[9px] mt-0.5" style="color:#a89070;">{{ $cat->products_count }} {{ $cat->products_count === 1 ? 'product' : 'products' }}</p>
+                    @endif
                 </div>
             </div>
         </a>
