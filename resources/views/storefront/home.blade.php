@@ -4,10 +4,8 @@
 <!-- Hero Banner Slider (Dynamic from Admin) -->
 @php $heroBanners = \App\Models\Banner::active()->orderBy('sort_order')->get(); @endphp
 <style>
-.shivara-banner { height: 220px; }
-@media (min-width: 768px) { .shivara-banner { height: 400px; } }
-@media (min-width: 1024px) { .shivara-banner { height: 550px; } }
-@media (min-width: 1280px) { .shivara-banner { height: 650px; } }
+.shivara-banner { aspect-ratio: 16/7; }
+@media (max-width: 767px) { .shivara-banner { aspect-ratio: 16/9; } }
 </style>
 @if($heroBanners->count())
 <section x-data="{ current: 0, slides: {{ $heroBanners->count() }} }" x-init="setInterval(() => current = (current + 1) % slides, 3000); initSwipe($el, () => current = (current+1)%slides, () => current = (current-1+slides)%slides)" class="relative overflow-hidden select-none cursor-grab active:cursor-grabbing shivara-banner">
@@ -36,8 +34,6 @@
         @endif
     </div>
     @endforeach
-    <!-- Invisible spacer image to maintain container height -->
-    <img src="{{ $heroBanners->first()->image_url }}" alt="" class="w-full invisible shivara-banner object-cover" aria-hidden="true">
 
     <!-- Slider Dots -->
     @if($heroBanners->count() > 1)
