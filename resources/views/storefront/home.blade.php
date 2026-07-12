@@ -4,18 +4,16 @@
 <!-- Hero Banner Slider (Dynamic from Admin) -->
 @php $heroBanners = \App\Models\Banner::active()->orderBy('sort_order')->get(); @endphp
 <style>
-.shivara-banner { max-height: 220px; }
-@media (min-width: 768px) { .shivara-banner { max-height: 400px; } }
-@media (min-width: 1024px) { .shivara-banner { max-height: 600px; } }
-@media (min-width: 1280px) { .shivara-banner { max-height: none; } }
+.shivara-banner { height: 220px; }
+@media (min-width: 768px) { .shivara-banner { height: 400px; } }
+@media (min-width: 1024px) { .shivara-banner { height: 550px; } }
+@media (min-width: 1280px) { .shivara-banner { height: 650px; } }
 </style>
 @if($heroBanners->count())
-<section x-data="{ current: 0, slides: {{ $heroBanners->count() }} }" x-init="setInterval(() => current = (current + 1) % slides, 3000); initSwipe($el, () => current = (current+1)%slides, () => current = (current-1+slides)%slides)" class="relative overflow-hidden select-none cursor-grab active:cursor-grabbing">
+<section x-data="{ current: 0, slides: {{ $heroBanners->count() }} }" x-init="setInterval(() => current = (current + 1) % slides, 3000); initSwipe($el, () => current = (current+1)%slides, () => current = (current-1+slides)%slides)" class="relative overflow-hidden select-none cursor-grab active:cursor-grabbing shivara-banner">
     @foreach($heroBanners as $i => $banner)
-    <div x-show="current === {{ $i }}" x-transition:enter="transition ease-in-out duration-700" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" {{ $i > 0 ? 'x-cloak' : '' }} class="{{ $i === 0 ? 'relative' : 'absolute inset-0' }} w-full shivara-banner overflow-hidden">
-        {{-- Single image - full width, height limited on mobile --}}
+    <div x-show="current === {{ $i }}" x-transition:enter="transition ease-in-out duration-700" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" {{ $i > 0 ? 'x-cloak' : '' }} class="absolute inset-0 w-full h-full overflow-hidden">
         <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="w-full h-full object-cover object-center">
-        {{-- Overlay + Content (only if title/subtitle exists) --}}
         @if($banner->title || $banner->subtitle)
         <div class="absolute inset-0 flex items-center" style="background: linear-gradient(135deg, rgba(44,36,24,0.5), rgba(44,36,24,0.1));">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 w-full">
@@ -38,6 +36,8 @@
         @endif
     </div>
     @endforeach
+    <!-- Invisible spacer image to maintain container height -->
+    <img src="{{ $heroBanners->first()->image_url }}" alt="" class="w-full invisible shivara-banner object-cover" aria-hidden="true">
 
     <!-- Slider Dots -->
     @if($heroBanners->count() > 1)
