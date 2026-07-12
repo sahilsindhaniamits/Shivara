@@ -12,7 +12,7 @@
 @if($heroBanners->count())
 <section x-data="{ current: 0, slides: {{ $heroBanners->count() }} }" x-init="setInterval(() => current = (current + 1) % slides, 3000); initSwipe($el, () => current = (current+1)%slides, () => current = (current-1+slides)%slides)" class="relative overflow-hidden select-none cursor-grab active:cursor-grabbing">
     @foreach($heroBanners as $i => $banner)
-    <div x-show="current === {{ $i }}" x-transition:enter="transition ease-in-out duration-1000" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in-out duration-1000" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" {{ $i > 0 ? 'x-cloak' : '' }} class="relative w-full shivara-banner overflow-hidden">
+    <div x-show="current === {{ $i }}" x-transition:enter="transition ease-in-out duration-700" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" {{ $i > 0 ? 'x-cloak' : '' }} class="{{ $i === 0 ? 'relative' : 'absolute inset-0' }} w-full shivara-banner overflow-hidden">
         {{-- Single image - full width, height limited on mobile --}}
         <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="w-full h-full object-cover object-center">
         {{-- Overlay + Content (only if title/subtitle exists) --}}
