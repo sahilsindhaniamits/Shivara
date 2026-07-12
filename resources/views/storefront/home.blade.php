@@ -108,7 +108,7 @@
             'digestion' => 'https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=400&h=400&fit=crop&q=80',
         ];
     @endphp
-    <div class="flex gap-5 overflow-x-auto pb-2 px-4 sm:px-6 scrollbar-hide snap-x snap-mandatory justify-center flex-wrap lg:flex-nowrap lg:justify-center lg:max-w-7xl lg:mx-auto">
+    <div class="flex gap-5 overflow-x-auto pb-4 px-4 sm:px-6 scrollbar-hide snap-x snap-mandatory justify-center flex-wrap lg:flex-nowrap lg:justify-center lg:max-w-7xl lg:mx-auto">
         @foreach($categories as $catIdx => $cat)
         @php
             $catImage = null;
@@ -119,22 +119,20 @@
             }
         @endphp
         <a href="{{ route('products.index', ['category' => $cat->slug]) }}" class="group shrink-0 snap-start cat-card-animate" style="animation-delay: {{ $catIdx * 80 }}ms;">
-            <div class="relative w-[150px] sm:w-[165px] md:w-[180px] overflow-hidden rounded-2xl transition-all duration-400 group-hover:-translate-y-2 group-hover:shadow-lg" style="background-color:#fff; border: 1px solid rgba(183,146,92,0.08);">
+            <div class="relative w-[150px] sm:w-[165px] md:w-[180px] overflow-hidden rounded-2xl" style="background-color:#f5efe6;">
                 <!-- Square Image -->
-                <div class="relative w-full overflow-hidden" style="aspect-ratio:1/1;">
-                    <img src="{{ $catImage }}" alt="{{ $cat->name }}" class="w-full h-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:brightness-[1.05]" loading="lazy">
-                    <!-- Gold shimmer overlay on hover -->
-                    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style="background: linear-gradient(135deg, rgba(183,146,92,0.1) 0%, transparent 50%, rgba(183,146,92,0.08) 100%);"></div>
+                <div class="relative w-full overflow-hidden rounded-2xl" style="aspect-ratio:1/1;">
+                    <img src="{{ $catImage }}" alt="{{ $cat->name }}" class="w-full h-full object-cover rounded-2xl" loading="lazy">
+                    <!-- Glass slide effect on hover -->
+                    <div class="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" style="background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);"></div>
                 </div>
-                <!-- Category name below image -->
-                <div class="py-3 text-center" style="background-color:#fff;">
+                <!-- Category name below -->
+                <div class="pt-2.5 pb-1 text-center">
                     <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-colors duration-300 group-hover:text-gold-600" style="color:#2C2418;">{{ $cat->name }}</h3>
                     @if($cat->products_count > 0)
                     <p class="text-[9px] mt-0.5" style="color:#a89070;">{{ $cat->products_count }} {{ $cat->products_count === 1 ? 'product' : 'products' }}</p>
                     @endif
                 </div>
-                <!-- Gold bottom line on hover -->
-                <div class="absolute bottom-0 left-0 right-0 h-[2px] scale-x-0 group-hover:scale-x-100 transition-transform duration-400 origin-center" style="background-color:#B7925C;"></div>
             </div>
         </a>
         @endforeach
