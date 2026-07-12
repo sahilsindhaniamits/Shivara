@@ -29,8 +29,8 @@
     </div>
 
     {{-- Other slides: absolute on top, use x-show --}}
-    @foreach($heroBanners->slice(1) as $i => $banner)
-    <div x-show="current === {{ $i + 1 }}" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-cloak class="absolute inset-0 w-full h-full overflow-hidden">
+    @foreach($heroBanners->slice(1)->values() as $idx => $banner)
+    <div x-show="current === {{ $idx + 1 }}" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-cloak class="absolute inset-0 w-full h-full overflow-hidden">
         <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="w-full h-full object-cover object-center">
         @if($banner->title || $banner->subtitle)
         <div class="absolute inset-0 flex items-center" style="background: linear-gradient(135deg, rgba(44,36,24,0.5), rgba(44,36,24,0.1));">
