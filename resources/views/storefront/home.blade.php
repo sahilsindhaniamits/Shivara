@@ -86,54 +86,61 @@
     </div>
 </div>
 
-<!-- Shop by Category — Premium Layout -->
-<section class="py-16 md:py-20 scroll-reveal" style="background-color:#fff;">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6">
-        <div class="text-center mb-10 md:mb-12">
-            <span class="inline-block text-[11px] font-bold uppercase tracking-[0.35em] mb-3" style="color:#B7925C;">Shop by Concern</span>
-            <h2 class="font-display text-3xl md:text-4xl font-bold" style="color:#2C2418;">Find your balance.</h2>
-        </div>
-        @php
-            $categoryImages = [
-                'sexual wellness' => 'https://images.unsplash.com/photo-1611241893603-3c228ee0ae6f?w=400&h=400&fit=crop&q=80',
-                'liver support' => 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=400&h=400&fit=crop&q=80',
-                'sugar' => 'https://images.unsplash.com/photo-1550831107-1553da8c8464?w=400&h=400&fit=crop&q=80',
-                'b.p' => 'https://images.unsplash.com/photo-1559757175-5700dde675bc?w=400&h=400&fit=crop&q=80',
-                'hair care' => 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&h=400&fit=crop&q=80',
-                'joint care' => 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop&q=80',
-                'skin care' => 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop&q=80',
-                'weight loss' => 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&h=400&fit=crop&q=80',
-                'immunity' => 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=400&fit=crop&q=80',
-                'digestion' => 'https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=400&h=400&fit=crop&q=80',
-            ];
-        @endphp
-        <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-6 md:gap-8">
-            @foreach($categories as $catIdx => $cat)
-            @php
-                $catImage = null;
-                if($cat->image) {
-                    $catImage = str_starts_with($cat->image, '/storage/') ? '/public' . $cat->image : $cat->image;
-                } else {
-                    $catImage = $categoryImages[strtolower($cat->name)] ?? 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop&q=80';
-                }
-            @endphp
-            <a href="{{ route('products.index', ['category' => $cat->slug]) }}" class="group text-center cat-card-animate" style="animation-delay: {{ $catIdx * 80 }}ms;">
-                <!-- Circular image with border -->
-                <div class="relative mx-auto w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full overflow-hidden transition-all duration-500 group-hover:scale-110 group-hover:shadow-[0_8px_30px_rgba(183,146,92,0.3)]" style="border: 3px solid #e8dcc8; background-color:#f8f3ec;">
-                    <img src="{{ $catImage }}" alt="{{ $cat->name }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy">
-                    <!-- Subtle inner ring glow on hover -->
-                    <div class="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" style="box-shadow: inset 0 0 0 3px rgba(183,146,92,0.4);"></div>
-                </div>
-                <!-- Name -->
-                <h3 class="mt-3 text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-colors duration-300 group-hover:text-gold-600" style="color:#2C2418;">{{ $cat->name }}</h3>
-                @if($cat->products_count > 0)
-                <p class="text-[9px] sm:text-[10px] mt-0.5" style="color:#a89070;">{{ $cat->products_count }} {{ $cat->products_count === 1 ? 'product' : 'products' }}</p>
-                @endif
-                <!-- Underline animation on hover -->
-                <div class="mx-auto mt-2 h-[2px] w-0 group-hover:w-8 transition-all duration-400 rounded-full" style="background-color:#B7925C;"></div>
+<!-- Shop by Category — Horizontal Scroll Cards -->
+<section class="py-14 md:py-20 scroll-reveal" style="background-color:#FFFDF8;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="flex items-end justify-between mb-8">
+            <div>
+                <span class="text-[11px] font-bold uppercase tracking-[0.3em]" style="color:#B7925C;">Shop by Concern</span>
+                <h2 class="font-display text-2xl md:text-4xl font-bold mt-1" style="color:#2C2418;">Find your balance.</h2>
+            </div>
+            <a href="{{ route('products.index') }}" class="hidden sm:flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider hover:gap-3 transition-all" style="color:#B7925C;">
+                View All <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
             </a>
-            @endforeach
         </div>
+    </div>
+    @php
+        $categoryImages = [
+            'sexual wellness' => 'https://images.unsplash.com/photo-1611241893603-3c228ee0ae6f?w=400&h=400&fit=crop&q=80',
+            'liver support' => 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=400&h=400&fit=crop&q=80',
+            'sugar' => 'https://images.unsplash.com/photo-1550831107-1553da8c8464?w=400&h=400&fit=crop&q=80',
+            'b.p' => 'https://images.unsplash.com/photo-1559757175-5700dde675bc?w=400&h=400&fit=crop&q=80',
+            'hair care' => 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&h=400&fit=crop&q=80',
+            'joint care' => 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop&q=80',
+            'skin care' => 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop&q=80',
+            'weight loss' => 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&h=400&fit=crop&q=80',
+            'immunity' => 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=400&fit=crop&q=80',
+            'digestion' => 'https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=400&h=400&fit=crop&q=80',
+        ];
+    @endphp
+    <div class="flex gap-4 overflow-x-auto pb-4 px-4 sm:px-6 scrollbar-hide snap-x snap-mandatory" style="scroll-padding: 16px;">
+        @foreach($categories as $catIdx => $cat)
+        @php
+            $catImage = null;
+            if($cat->image) {
+                $catImage = str_starts_with($cat->image, '/storage/') ? '/public' . $cat->image : $cat->image;
+            } else {
+                $catImage = $categoryImages[strtolower($cat->name)] ?? 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop&q=80';
+            }
+        @endphp
+        <a href="{{ route('products.index', ['category' => $cat->slug]) }}" class="group shrink-0 snap-start cat-card-animate" style="animation-delay: {{ $catIdx * 80 }}ms;">
+            <div class="relative w-[140px] sm:w-[160px] md:w-[180px] rounded-2xl overflow-hidden transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-[0_12px_40px_rgba(44,36,24,0.15)]" style="border: 1px solid rgba(183,146,92,0.1);">
+                <!-- Square Image -->
+                <div class="relative w-full overflow-hidden" style="aspect-ratio:1/1;">
+                    <img src="{{ $catImage }}" alt="{{ $cat->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
+                    <!-- Bottom gradient for text -->
+                    <div class="absolute inset-x-0 bottom-0 h-1/2" style="background: linear-gradient(0deg, rgba(44,36,24,0.75) 0%, transparent 100%);"></div>
+                    <!-- Category name on image -->
+                    <div class="absolute bottom-0 inset-x-0 p-3 text-center">
+                        <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-white drop-shadow-md">{{ $cat->name }}</h3>
+                        @if($cat->products_count > 0)
+                        <p class="text-[9px] text-white/70 mt-0.5">{{ $cat->products_count }} {{ $cat->products_count === 1 ? 'product' : 'products' }}</p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </a>
+        @endforeach
     </div>
 </section>
 <style>
