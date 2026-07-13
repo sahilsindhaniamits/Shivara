@@ -4,13 +4,13 @@
 <!-- Hero Banner Slider (Dynamic from Admin) -->
 @php $heroBanners = \App\Models\Banner::active()->orderBy('sort_order')->get(); @endphp
 <style>
-.shivara-banner img { max-height: 220px; }
-@media (min-width: 768px) { .shivara-banner img { max-height: 400px; } }
-@media (min-width: 1024px) { .shivara-banner img { max-height: 600px; } }
+.shivara-banner img { max-height: 320px; }
+@media (min-width: 768px) { .shivara-banner img { max-height: 500px; } }
+@media (min-width: 1024px) { .shivara-banner img { max-height: 700px; } }
 @media (min-width: 1280px) { .shivara-banner img { max-height: none; } }
 </style>
 @if($heroBanners->count())
-<section x-data="{ current: 0, slides: {{ $heroBanners->count() }} }" x-init="setInterval(() => current = (current + 1) % slides, 3000); initSwipe($el, () => current = (current+1)%slides, () => current = (current-1+slides)%slides)" class="relative overflow-hidden select-none cursor-grab active:cursor-grabbing shivara-banner">
+<section x-data="{ current: 0, slides: {{ $heroBanners->count() }} }" x-init="setInterval(() => current = (current + 1) % slides, 3000); initSwipe($el, () => current = (current+1)%slides, () => current = (current-1+slides)%slides)" class="relative overflow-hidden select-none cursor-grab active:cursor-grabbing shivara-banner" style="margin-top:-96px; padding-top:0;">
     {{-- First slide: ALWAYS in DOM (relative, sets height), visibility controlled by opacity --}}
     @php $firstBanner = $heroBanners->first(); @endphp
     <div class="relative w-full overflow-hidden transition-opacity duration-700" :class="current === 0 ? 'opacity-100' : 'opacity-0'">
