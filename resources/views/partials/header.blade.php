@@ -5,10 +5,10 @@
     $isHome = request()->routeIs('home');
 @endphp
 
-<div :class="scrolled ? 'sticky top-0' : '{{ $isHome ? "fixed top-0 left-0 right-0" : "sticky top-0" }}'" class="z-50 transition-all duration-300" x-data="{ mobileMenu: false, searchOpen: false, scrolled: false }" x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 80 })" x-effect="document.body.style.overflow = mobileMenu ? 'hidden' : ''">
+<div class="sticky top-0 z-50 transition-all duration-300" x-data="{ mobileMenu: false, searchOpen: false, scrolled: false }" x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 80 })" x-effect="document.body.style.overflow = mobileMenu ? 'hidden' : ''">
     <!-- Marquee -->
     @if(count($marqueeItems))
-    <div class="text-white overflow-hidden transition-all duration-300" :style="scrolled || !{{ $isHome ? 'true' : 'false' }} ? 'background-color:{{ $marqueeBg }}' : 'background-color:rgba(44,36,24,0.6)'">
+    <div class="text-white overflow-hidden" style="background-color: {{ $marqueeBg }};">
         <div class="flex py-2">
             <div class="animate-marquee flex items-center gap-8 whitespace-nowrap text-[10px] tracking-[0.2em] uppercase font-medium">
                 @for($m = 0; $m < 2; $m++)
@@ -23,7 +23,7 @@
     @endif
 
     <!-- Header -->
-    <header class="transition-all duration-300" :class="scrolled ? 'shadow-sm border-b' : ''" :style="scrolled ? 'background:rgba(255,253,248,0.97);backdrop-filter:blur(20px);border-color:rgba(0,0,0,0.05)' : '{{ $isHome ? "background:transparent" : "background:rgba(255,253,248,0.97);backdrop-filter:blur(20px)" }}'">
+    <header class="transition-all duration-300 border-b" :class="scrolled ? 'shadow-sm' : ''" style="background:rgba(255,253,248,0.97);backdrop-filter:blur(20px);border-color:rgba(0,0,0,0.05);">
         <div class="max-w-7xl mx-auto px-4 sm:px-6">
             <div class="grid grid-cols-3 items-center h-[65px]">
                 <!-- Left: Shop + Blog (desktop) -->
