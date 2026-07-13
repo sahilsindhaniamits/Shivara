@@ -23,11 +23,16 @@
     @endif
 
     <!-- Header -->
-    <header class="transition-all duration-300 border-b" :class="scrolled ? 'shadow-sm' : ''" style="background:rgba(255,253,248,0.97);backdrop-filter:blur(20px);border-color:rgba(0,0,0,0.05);">
+    <header class="transition-all duration-300" :class="scrolled ? 'shadow-sm border-b' : 'border-b border-transparent'" :style="scrolled ? 'background:rgba(255,253,248,0.97);backdrop-filter:blur(20px);border-color:rgba(0,0,0,0.05)' : 'background:transparent'">
         <div class="max-w-7xl mx-auto px-4 sm:px-6">
-            <div class="grid grid-cols-3 items-center h-[65px]">
-                <!-- Left: Shop + Blog (desktop) -->
-                <div class="flex items-center gap-5">
+            <div class="grid grid-cols-3 items-center h-[60px] sm:h-[65px]">
+                <!-- Left: Hamburger (mobile/tablet) + Shop/Blog (desktop) -->
+                <div class="flex items-center gap-4" style="color:#2C2418;">
+                    <!-- Mobile: hamburger on left -->
+                    <button @click="mobileMenu = !mobileMenu" class="lg:hidden p-1.5 rounded-full transition hover:bg-black/5">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    </button>
+                    <!-- Desktop: Shop + Blog -->
                     <a href="{{ route('products.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition hover:opacity-70" style="color:#2C2418;">Shop</a>
                     <a href="{{ route('blog.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition hover:opacity-70" style="color:#2C2418;">Blog</a>
                 </div>
@@ -35,12 +40,12 @@
                 <!-- Center: Logo -->
                 <div class="flex justify-center">
                     <a href="{{ route('home') }}">
-                        <img src="/public/shivaralogo.png" alt="Shivara" class="h-10 md:h-11 w-auto" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-                        <span style="display:none" class="text-[22px] font-display font-bold tracking-wide" style="color:#2C2418;">SHIVARA</span>
+                        <img src="/public/shivaralogo.png" alt="Shivara" class="h-9 sm:h-10 md:h-11 w-auto" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+                        <span style="display:none" class="text-[20px] sm:text-[22px] font-display font-bold tracking-wide" style="color:#2C2418;">SHIVARA</span>
                     </a>
                 </div>
 
-                <!-- Right: Search + Account + Cart + Hamburger -->
+                <!-- Right: Icons -->
                 <div class="flex items-center justify-end gap-1 sm:gap-2" style="color:#2C2418;">
                     <button @click="searchOpen = !searchOpen" class="p-2 rounded-full transition hover:bg-black/5"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></button>
                     @auth
@@ -55,8 +60,8 @@
                         <span class="absolute -top-0.5 -right-0.5 bg-gold-500 text-white text-[8px] font-bold min-w-[16px] h-[16px] rounded-full flex items-center justify-center px-1">{{ $cartCount }}</span>
                         @endif
                     </button>
-                    <!-- Hamburger Menu Button -->
-                    <button @click="mobileMenu = !mobileMenu" class="p-2 rounded-full transition hover:bg-black/5">
+                    <!-- Desktop: Hamburger on right -->
+                    <button @click="mobileMenu = !mobileMenu" class="hidden lg:flex p-2 rounded-full transition hover:bg-black/5">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
                     </button>
                 </div>
