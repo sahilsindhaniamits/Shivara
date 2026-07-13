@@ -23,7 +23,7 @@
     @endif
 
     <!-- Header -->
-    <header class="transition-all duration-300" :class="scrolled ? 'shadow-sm border-b' : ''" :style="scrolled ? 'background:rgba(255,253,248,0.97);backdrop-filter:blur(20px);border-color:rgba(0,0,0,0.05)' : '{{ $isHome ? "background:rgba(255,253,248,0.85);backdrop-filter:blur(8px)" : "background:rgba(255,253,248,0.97);backdrop-filter:blur(20px)" }}'">
+    <header class="transition-all duration-300" :class="scrolled ? 'shadow-sm border-b' : ''" :style="scrolled ? 'background:rgba(255,253,248,0.97);backdrop-filter:blur(20px);border-color:rgba(0,0,0,0.05)' : '{{ $isHome ? "background:transparent" : "background:rgba(255,253,248,0.97);backdrop-filter:blur(20px)" }}'">
         <div class="max-w-7xl mx-auto px-4 sm:px-6">
             <div class="grid grid-cols-3 items-center h-[65px]">
                 <!-- Left: Shop + Blog (desktop) -->
