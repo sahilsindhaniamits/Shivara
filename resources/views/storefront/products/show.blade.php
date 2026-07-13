@@ -304,9 +304,7 @@
                             <div class="text-[15px] leading-relaxed" style="color:#6b5442;" :class="!expanded ? 'line-clamp-4' : ''">
                                 {!! nl2br(e($tab['content'])) !!}
                             </div>
-                            @if(strlen($tab['content']) > 200)
                             <button type="button" @click="expanded = !expanded" class="mt-2 text-xs font-bold transition" style="color:#B7925C;" x-text="expanded ? '← Show Less' : 'Read More →'"></button>
-                            @endif
                         </div>
                         @endforeach
                     </div>
@@ -362,17 +360,15 @@
 
 <!-- SECTION: Product Banners -->
 @if($product->banners && count($product->banners))
-<section class="py-8" x-data="{ pb: 0 }" x-init="setInterval(() => pb = (pb + 1) % {{ count($product->banners) }}, 5000)">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="relative rounded-3xl overflow-hidden" style="aspect-ratio: 2/1;">
-            @foreach($product->banners as $i => $bannerUrl)
-            <div x-show="pb === {{ $i }}" x-transition.opacity class="absolute inset-0"><img src="{{ str_starts_with($bannerUrl, '/storage/') ? '/public' . $bannerUrl : $bannerUrl }}" alt="Banner" class="w-full h-full object-cover"></div>
-            @endforeach
-        </div>
-        @if(count($product->banners) > 1)
-        <div class="flex justify-center gap-2 mt-4">@foreach($product->banners as $i => $b)<button @click="pb={{ $i }}" :class="pb==={{ $i }}?'w-8':'w-3'" class="h-2.5 rounded-full transition-all" :style="pb==={{ $i }}?'background-color:#B7925C':'background-color:#ddd'"></button>@endforeach</div>
-        @endif
+<section x-data="{ pb: 0 }" x-init="setInterval(() => pb = (pb + 1) % {{ count($product->banners) }}, 5000)">
+    <div class="relative overflow-hidden" style="aspect-ratio: 2/1;">
+        @foreach($product->banners as $i => $bannerUrl)
+        <div x-show="pb === {{ $i }}" x-transition.opacity class="absolute inset-0"><img src="{{ str_starts_with($bannerUrl, '/storage/') ? '/public' . $bannerUrl : $bannerUrl }}" alt="Banner" class="w-full h-full object-cover"></div>
+        @endforeach
     </div>
+    @if(count($product->banners) > 1)
+    <div class="flex justify-center gap-2 mt-4">@foreach($product->banners as $i => $b)<button @click="pb={{ $i }}" :class="pb==={{ $i }}?'w-8':'w-3'" class="h-2.5 rounded-full transition-all" :style="pb==={{ $i }}?'background-color:#B7925C':'background-color:#ddd'"></button>@endforeach</div>
+    @endif
 </section>
 @endif
 
