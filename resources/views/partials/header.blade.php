@@ -28,8 +28,8 @@
             <div class="grid grid-cols-3 items-center h-[65px]">
                 <!-- Left: Shop + Blog (desktop) -->
                 <div class="flex items-center gap-5">
-                    <a href="{{ route('products.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition hover:opacity-70" :style="scrolled || !{{ $isHome ? 'true' : 'false' }} ? 'color:#2C2418' : 'color:#fff'">Shop</a>
-                    <a href="{{ route('blog.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition hover:opacity-70" :style="scrolled || !{{ $isHome ? 'true' : 'false' }} ? 'color:#2C2418' : 'color:#fff'">Blog</a>
+                    <a href="{{ route('products.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition hover:opacity-70" style="color:#2C2418;">Shop</a>
+                    <a href="{{ route('blog.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition hover:opacity-70" style="color:#2C2418;">Blog</a>
                 </div>
 
                 <!-- Center: Logo -->
@@ -41,7 +41,7 @@
                 </div>
 
                 <!-- Right: Search + Account + Cart + Hamburger -->
-                <div class="flex items-center justify-end gap-1 sm:gap-2" :style="scrolled || !{{ $isHome ? 'true' : 'false' }} ? 'color:#2C2418' : 'color:#fff'">
+                <div class="flex items-center justify-end gap-1 sm:gap-2" style="color:#2C2418;">
                     <button @click="searchOpen = !searchOpen" class="p-2 rounded-full transition hover:bg-black/5"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></button>
                     @auth
                     <a href="{{ route('account.dashboard') }}" class="hidden sm:flex p-2 rounded-full transition hover:bg-black/5"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></a>
