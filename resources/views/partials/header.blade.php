@@ -5,10 +5,10 @@
     $isHome = request()->routeIs('home');
 @endphp
 
-<div class="sticky top-0 z-50" x-data="{ mobileMenu: false, searchOpen: false, scrolled: false }" x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 50 })" x-effect="document.body.style.overflow = mobileMenu ? 'hidden' : ''">
+<div :class="scrolled ? 'sticky top-0' : '{{ $isHome ? "absolute top-0 left-0 right-0" : "sticky top-0" }}'" class="z-50 transition-all duration-300" x-data="{ mobileMenu: false, searchOpen: false, scrolled: false }" x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 50 })" x-effect="document.body.style.overflow = mobileMenu ? 'hidden' : ''">
     <!-- Marquee -->
     @if(count($marqueeItems))
-    <div class="text-white overflow-hidden" style="background-color: {{ $marqueeBg }};">
+    <div class="text-white overflow-hidden" :style="!scrolled && {{ $isHome ? 'true' : 'false' }} ? 'background-color:rgba(0,0,0,0.3)' : 'background-color:{{ $marqueeBg }}'">
         <div class="flex py-2">
             <div class="animate-marquee flex items-center gap-8 whitespace-nowrap text-[10px] tracking-[0.2em] uppercase font-medium">
                 @for($m = 0; $m < 2; $m++)
@@ -23,13 +23,13 @@
     @endif
 
     <!-- Header -->
-    <header class="border-b transition-all duration-300" :class="scrolled ? 'shadow-sm' : ''" :style="scrolled ? 'background:rgba(255,253,248,0.97);backdrop-filter:blur(20px);border-color:rgba(0,0,0,0.05)' : '{{ $isHome ? "background:transparent;border-color:transparent" : "background:rgba(255,253,248,0.97);backdrop-filter:blur(20px);border-color:rgba(0,0,0,0.05)" }}'">
+    <header class="transition-all duration-300" :class="scrolled ? 'shadow-sm border-b' : ''" :style="scrolled ? 'background:rgba(255,253,248,0.97);backdrop-filter:blur(20px);border-color:rgba(0,0,0,0.05)' : '{{ $isHome ? "background:transparent" : "background:rgba(255,253,248,0.97);backdrop-filter:blur(20px)" }}'">
         <div class="max-w-7xl mx-auto px-4 sm:px-6">
             <div class="grid grid-cols-3 items-center h-[65px]">
                 <!-- Left: Shop + Blog (desktop) -->
                 <div class="flex items-center gap-5">
-                    <a href="{{ route('products.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition" :style="scrolled || !{{ $isHome ? 'true' : 'false' }} ? 'color:#2C2418' : 'color:#2C2418'" style="color:#2C2418;">Shop</a>
-                    <a href="{{ route('blog.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition" style="color:#2C2418;">Blog</a>
+                    <a href="{{ route('products.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition" :style="scrolled || !{{ $isHome ? 'true' : 'false' }} ? 'color:#2C2418' : 'color:#fff'">Shop</a>
+                    <a href="{{ route('blog.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition" :style="scrolled || !{{ $isHome ? 'true' : 'false' }} ? 'color:#2C2418' : 'color:#fff'">Blog</a>
                 </div>
 
                 <!-- Center: Logo -->
@@ -41,14 +41,14 @@
                 </div>
 
                 <!-- Right: Search + Account + Cart + Hamburger -->
-                <div class="flex items-center justify-end gap-1 sm:gap-2">
-                    <button @click="searchOpen = !searchOpen" class="p-2 rounded-full transition hover:bg-black/5" style="color:#2C2418;"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></button>
+                <div class="flex items-center justify-end gap-1 sm:gap-2" :style="scrolled || !{{ $isHome ? 'true' : 'false' }} ? 'color:#2C2418' : 'color:#fff'">
+                    <button @click="searchOpen = !searchOpen" class="p-2 rounded-full transition hover:bg-black/5"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></button>
                     @auth
-                    <a href="{{ route('account.dashboard') }}" class="hidden sm:flex p-2 rounded-full transition hover:bg-black/5" style="color:#2C2418;"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></a>
+                    <a href="{{ route('account.dashboard') }}" class="hidden sm:flex p-2 rounded-full transition hover:bg-black/5"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></a>
                     @else
-                    <a href="{{ route('login') }}" class="hidden sm:flex p-2 rounded-full transition hover:bg-black/5" style="color:#2C2418;"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></a>
+                    <a href="{{ route('login') }}" class="hidden sm:flex p-2 rounded-full transition hover:bg-black/5"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></a>
                     @endauth
-                    <button @click="$dispatch('open-cart')" class="relative p-2 rounded-full transition hover:bg-black/5" style="color:#2C2418;">
+                    <button @click="$dispatch('open-cart')" class="relative p-2 rounded-full transition hover:bg-black/5">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                         @php $cartCount = auth()->check() ? \App\Models\CartItem::where('user_id', auth()->id())->sum('quantity') : collect(session('cart', []))->sum('quantity'); @endphp
                         @if($cartCount > 0)
@@ -56,7 +56,7 @@
                         @endif
                     </button>
                     <!-- Hamburger Menu Button -->
-                    <button @click="mobileMenu = !mobileMenu" class="p-2 rounded-full transition hover:bg-black/5" style="color:#2C2418;">
+                    <button @click="mobileMenu = !mobileMenu" class="p-2 rounded-full transition hover:bg-black/5">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
                     </button>
                 </div>
