@@ -11,9 +11,11 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $featuredProducts = Product::active()->featured()
+        $featuredProducts = Product::active()
             ->with(['primaryImage', 'images', 'category', 'variants'])
-            ->take(8)
+            ->orderBy('is_featured', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->take(16)
             ->get();
 
         $categories = Category::active()
