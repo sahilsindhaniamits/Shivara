@@ -4,9 +4,7 @@
 <!-- Hero Banner Slider (Dynamic from Admin) -->
 @php $heroBanners = \App\Models\Banner::active()->orderBy('sort_order')->get(); @endphp
 <style>
-.shivara-banner { margin-top: -80px; }
-.shivara-banner img { max-height: none; }
-@media (min-width: 768px) { .shivara-banner { margin-top: -90px; } }
+.shivara-banner { margin-top: 0; }
 @media (min-width: 1024px) { .shivara-banner { margin-top: -96px; } }
 </style>
 @if($heroBanners->count())
