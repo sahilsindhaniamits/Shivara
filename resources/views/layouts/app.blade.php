@@ -85,7 +85,7 @@
 <body class="min-h-screen" style="overflow-x:hidden; max-width:100vw;">
 
     @include('partials.header')
-    <!-- Spacer for fixed desktop header (only on non-homepage, only desktop) -->
+    <!-- Spacer for fixed desktop header (non-homepage only) -->
     @unless(request()->routeIs('home'))
     <div class="hidden lg:block" style="height: 92px;"></div>
     @endunless
