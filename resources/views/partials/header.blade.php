@@ -6,10 +6,8 @@
 @endphp
 
 <style>
-/* Mobile: sticky header above banner */
-.shivara-header-wrap { position: sticky; top: 0; z-index: 50; }
-/* Desktop: fixed header overlays banner */
-@media (min-width: 1024px) { .shivara-header-wrap { position: fixed; top: 0; left: 0; right: 0; } }
+/* Header always fixed (overlays banner on all devices) */
+.shivara-header-wrap { position: fixed; top: 0; left: 0; right: 0; z-index: 50; }
 </style>
 
 <div class="shivara-header-wrap overflow-x-hidden" x-data="{ mobileMenu: false, searchOpen: false, scrolled: false }" x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 60 })" x-effect="document.body.style.overflow = mobileMenu ? 'hidden' : ''">
