@@ -15,7 +15,7 @@ class HomeController extends Controller
             ->with(['primaryImage', 'images', 'category', 'variants'])
             ->orderBy('is_featured', 'desc')
             ->orderBy('created_at', 'desc')
-            ->take(16)
+            ->take(6)
             ->get();
 
         $categories = Category::active()
