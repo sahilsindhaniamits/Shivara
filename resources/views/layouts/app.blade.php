@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="overflow-x:hidden;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -82,7 +82,7 @@
     </style>
     @stack('styles')
 </head>
-<body class="min-h-screen" style="overflow-x:hidden;">
+<body class="min-h-screen" style="overflow-x:hidden; max-width:100vw;">
 
     @include('partials.header')
 
