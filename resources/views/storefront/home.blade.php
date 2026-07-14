@@ -158,7 +158,7 @@
         </div>
 
         <!-- Products Grid (6 products max) -->
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
             @foreach($featuredProducts as $product)
             <div x-show="activeTab === 'all' || activeTab === '{{ $product->category->slug ?? '' }}'" x-transition>
                 @include('partials.product-card', ['product' => $product])
