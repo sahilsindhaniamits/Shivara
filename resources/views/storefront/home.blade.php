@@ -4,13 +4,13 @@
 <!-- Hero Banner Slider (Dynamic from Admin) -->
 @php $heroBanners = \App\Models\Banner::active()->orderBy('sort_order')->get(); @endphp
 <style>
-.shivara-banner img { max-height: 320px; }
-@media (min-width: 768px) { .shivara-banner img { max-height: 500px; } }
-@media (min-width: 1024px) { .shivara-banner img { max-height: 700px; } }
-@media (min-width: 1280px) { .shivara-banner img { max-height: none; } }
+.shivara-banner { margin-top: -80px; }
+.shivara-banner img { max-height: none; }
+@media (min-width: 768px) { .shivara-banner { margin-top: -90px; } }
+@media (min-width: 1024px) { .shivara-banner { margin-top: -96px; } }
 </style>
 @if($heroBanners->count())
-<section x-data="{ current: 0, slides: {{ $heroBanners->count() }} }" x-init="setInterval(() => current = (current + 1) % slides, 3000); initSwipe($el, () => current = (current+1)%slides, () => current = (current-1+slides)%slides)" class="relative overflow-hidden select-none cursor-grab active:cursor-grabbing shivara-banner" style="margin-top:-96px; padding-top:0;">
+<section x-data="{ current: 0, slides: {{ $heroBanners->count() }} }" x-init="setInterval(() => current = (current + 1) % slides, 3000); initSwipe($el, () => current = (current+1)%slides, () => current = (current-1+slides)%slides)" class="relative overflow-hidden select-none cursor-grab active:cursor-grabbing shivara-banner">
     {{-- First slide: ALWAYS in DOM (relative, sets height), visibility controlled by opacity --}}
     @php $firstBanner = $heroBanners->first(); @endphp
     <div class="relative w-full overflow-hidden transition-opacity duration-700" :class="current === 0 ? 'opacity-100' : 'opacity-0'">
