@@ -58,7 +58,7 @@
         <!-- Header -->
         <div class="header">
             <div class="logo">
-                <img src="/public/shivaralogo.png" alt="Shivara" style="height: 50px; width: auto;" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+                <img src="/public/shivaralogo1.png" alt="Shivara" style="height: 50px; width: auto;" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
                 <h1 style="display:none">SHIVARA</h1>
                 <p>Premium Ayurvedic Products</p>
             </div>

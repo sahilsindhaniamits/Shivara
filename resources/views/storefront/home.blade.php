@@ -351,37 +351,21 @@
     </div>
 </section>
 
-<!-- Trust Badges -->
-<section class="border-y border-gold-200/50 py-8" style="background-color: #FBF7F0;">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div class="flex items-center gap-3 justify-center">
-                <div class="w-10 h-10 bg-gold-100 rounded-xl flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
-                </div>
-                <div><p class="text-xs font-bold text-espresso-700 uppercase tracking-wider">100% Natural</p><p class="text-[10px] text-espresso-400">Pure Ayurvedic</p></div>
-            </div>
-            <div class="flex items-center gap-3 justify-center">
-                <div class="w-10 h-10 bg-olive-100 rounded-xl flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-olive-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                </div>
-                <div><p class="text-xs font-bold text-espresso-700 uppercase tracking-wider">GMP Certified</p><p class="text-[10px] text-espresso-400">Lab Tested</p></div>
-            </div>
-            <div class="flex items-center gap-3 justify-center">
-                <div class="w-10 h-10 bg-gold-100 rounded-xl flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                </div>
-                <div><p class="text-xs font-bold text-espresso-700 uppercase tracking-wider">Free Shipping</p><p class="text-[10px] text-espresso-400">Pan India</p></div>
-            </div>
-            <div class="flex items-center gap-3 justify-center">
-                <div class="w-10 h-10 bg-olive-100 rounded-xl flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-olive-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                </div>
-                <div><p class="text-xs font-bold text-espresso-700 uppercase tracking-wider">Easy Returns</p><p class="text-[10px] text-espresso-400">7-Day Policy</p></div>
-            </div>
-        </div>
+<!-- Certification Logos — Infinite Scroll -->
+<section class="py-6 overflow-hidden" style="background-color: #FBF7F0;">
+    <div class="flex items-center" style="animation: certScroll 20s linear infinite;">
+        @for($loop = 0; $loop < 3; $loop++)
+        <img src="/public/our_manufacture_logo1.webp" alt="FSSAI" class="h-14 sm:h-16 md:h-20 mx-6 sm:mx-8 object-contain shrink-0">
+        <img src="/public/our_manufacture_logo2.avif" alt="OHSAS" class="h-14 sm:h-16 md:h-20 mx-6 sm:mx-8 object-contain shrink-0">
+        <img src="/public/our_manufacture_logo3.webp" alt="ISO" class="h-14 sm:h-16 md:h-20 mx-6 sm:mx-8 object-contain shrink-0">
+        <img src="/public/our_manufacture_logo4.webp" alt="GMP" class="h-14 sm:h-16 md:h-20 mx-6 sm:mx-8 object-contain shrink-0">
+        <img src="/public/ayushlogo.webp" alt="AYUSH" class="h-14 sm:h-16 md:h-20 mx-6 sm:mx-8 object-contain shrink-0">
+        @endfor
     </div>
 </section>
+<style>
+@keyframes certScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-33.33%); } }
+</style>
 @endif
 
 <!-- About Us Banner -->

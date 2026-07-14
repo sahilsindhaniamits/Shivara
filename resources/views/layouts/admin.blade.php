@@ -23,7 +23,7 @@
     <aside :class="sidebar ? 'w-64' : 'w-[72px]'" class="fixed inset-y-0 left-0 z-50 transition-all duration-300 hidden lg:block overflow-hidden" style="background-color:#2C2418">
         <div class="p-5 flex items-center gap-3 border-b border-white/10">
             <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 overflow-hidden bg-white">
-                <img src="/public/shivaralogo.png" alt="S" class="w-7 h-7 object-contain" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\'text-white font-extrabold text-sm\'>S</span>';this.parentElement.style.backgroundColor='#B7925C'">
+                <img src="/public/shivaralogo1.png" alt="S" class="w-7 h-7 object-contain" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\'text-white font-extrabold text-sm\'>S</span>';this.parentElement.style.backgroundColor='#B7925C'">
             </div>
             <span x-show="sidebar" class="text-white font-bold text-sm tracking-wide">Shivara Admin</span>
         </div>
