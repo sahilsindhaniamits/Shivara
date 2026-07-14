@@ -4,7 +4,32 @@
     $marqueeBg = \App\Models\Setting::get('marquee_bg_color', 'rgb(183, 146, 92)');
 @endphp
 
-<div class="fixed top-0 left-0 right-0 z-50 overflow-x-hidden" x-data="{ mobileMenu: false, searchOpen: false, scrolled: false }" x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 60 })" x-effect="document.body.style.overflow = mobileMenu ? 'hidden' : ''">
+<!-- MOBILE HEADER (sticky, logo above banner) -->
+<div class="sticky top-0 z-50 overflow-x-hidden lg:hidden" x-data="{ mobileMenu: false, searchOpen: false, scrolled: false }" x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 60 })" x-effect="document.body.style.overflow = mobileMenu ? 'hidden' : ''">
+    @if(count($marqueeItems))
+    <div class="text-white overflow-hidden" style="background-color: {{ $marqueeBg }};"><div class="flex py-1.5"><div class="animate-marquee flex items-center gap-8 whitespace-nowrap text-[9px] tracking-[0.2em] uppercase font-medium">@for($m = 0; $m < 2; $m++)@foreach($marqueeItems as $item)<span>{{ $item }}</span><span class="opacity-60">✦</span>@endforeach @endfor</div></div></div>
+    @endif
+    <header class="transition-all duration-300 border-b" :style="scrolled ? 'background:rgba(0,0,0,0.5);backdrop-filter:blur(12px);border-color:rgba(255,255,255,0.1)' : 'background:rgba(255,253,248,0.97);border-color:rgba(0,0,0,0.05)'">
+        <div class="px-3 sm:px-5"><div class="flex items-center justify-between h-[50px] sm:h-[55px]">
+            <a href="{{ route('home') }}"><img src="/public/shivaralogo1.png" alt="Shivara" class="h-7 sm:h-8 w-auto" :class="scrolled ? 'brightness-0 invert' : ''"></a>
+            <div class="flex items-center gap-1" :style="scrolled ? 'color:#fff' : 'color:#2C2418'">
+                <button @click="searchOpen = !searchOpen" class="p-2"><svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></button>
+                <button @click="$dispatch('open-cart')" class="relative p-2"><svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>@php $cartCount = auth()->check() ? \App\Models\CartItem::where('user_id', auth()->id())->sum('quantity') : collect(session('cart', []))->sum('quantity'); @endphp @if($cartCount > 0)<span class="absolute -top-0.5 -right-0.5 bg-gold-500 text-white text-[7px] font-bold min-w-[14px] h-[14px] rounded-full flex items-center justify-center">{{ $cartCount }}</span>@endif</button>
+                <button @click="mobileMenu = !mobileMenu" class="p-2"><svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+            </div>
+        </div></div>
+        <div x-show="searchOpen" x-transition x-cloak class="absolute top-full left-0 right-0 bg-cream-50 border-b shadow-xl p-3" style="z-index:60;"><form action="{{ route('products.index') }}" method="GET" class="relative"><input type="text" name="search" placeholder="Search..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-gold-200 rounded-xl text-sm focus:outline-none" autofocus><svg class="w-4 h-4 text-gold-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></form></div>
+    </header>
+    <div x-show="mobileMenu" x-cloak class="fixed inset-0" style="z-index:99999;">
+        <div x-show="mobileMenu" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="mobileMenu=false" class="absolute inset-0 bg-black/40"></div>
+        <div x-show="mobileMenu" x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full" class="absolute right-0 top-0 bottom-0 w-[80%] max-w-[300px] overflow-y-auto shadow-2xl" style="background-color:#FFFDF8;">
+            <div class="flex items-center justify-between px-5 h-[50px] border-b" style="border-color:rgba(183,146,92,0.12);"><a href="{{ route('home') }}"><img src="/public/shivaralogo1.png" alt="Shivara" class="h-7 w-auto"></a><button @click="mobileMenu=false" style="color:#2C2418;"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+            <nav class="p-4"><a href="{{ route('home') }}" class="block px-4 py-3 text-[13px] font-bold uppercase tracking-[0.1em] border-b" style="color:#2C2418;border-color:rgba(183,146,92,0.08);">Home</a><a href="{{ route('products.index') }}" class="block px-4 py-3 text-[13px] font-bold uppercase tracking-[0.1em] border-b" style="color:#2C2418;border-color:rgba(183,146,92,0.08);">Shop</a><a href="{{ route('about') }}" class="block px-4 py-3 text-[13px] font-bold uppercase tracking-[0.1em] border-b" style="color:#2C2418;border-color:rgba(183,146,92,0.08);">About</a><a href="{{ route('blog.index') }}" class="block px-4 py-3 text-[13px] font-bold uppercase tracking-[0.1em] border-b" style="color:#2C2418;border-color:rgba(183,146,92,0.08);">Blog</a><a href="{{ route('contact') }}" class="block px-4 py-3 text-[13px] font-bold uppercase tracking-[0.1em] border-b" style="color:#2C2418;border-color:rgba(183,146,92,0.08);">Contact</a><a href="{{ route('track.order') }}" class="block px-4 py-3 text-[13px] font-bold uppercase tracking-[0.1em] border-b" style="color:#2C2418;border-color:rgba(183,146,92,0.08);">Track Order</a>@guest<a href="{{ route('login') }}" class="block px-4 py-3 text-[13px] font-bold uppercase tracking-[0.1em]" style="color:#B7925C;">Login / Register</a>@else<a href="{{ route('account.dashboard') }}" class="block px-4 py-3 text-[13px] font-bold uppercase tracking-[0.1em] border-b" style="color:#2C2418;border-color:rgba(183,146,92,0.08);">My Account</a><form method="POST" action="{{ route('logout') }}">@csrf<button class="block w-full text-left px-4 py-3 text-[13px] font-bold uppercase tracking-[0.1em]" style="color:#dc2626;">Logout</button></form>@endguest</nav>
+        </div>
+    </div>
+</div>
+
+<!-- DESKTOP HEADER (fixed, overlays banner) -->
     <!-- Marquee -->
     @if(count($marqueeItems))
     <div class="text-white overflow-hidden" style="background-color: {{ $marqueeBg }};">
@@ -27,26 +52,26 @@
             <div class="flex items-center justify-between h-[50px] sm:h-[55px] lg:h-[60px]">
 
                 <!-- Left -->
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3" :style="scrolled ? 'color:#fff' : 'color:#2C2418'">
                     <!-- Mobile: Logo with frosted bg behind it -->
                     <a href="{{ route('home') }}" class="lg:hidden relative">
                         <span class="absolute -inset-x-2 -inset-y-1 rounded-lg" :style="scrolled ? '' : 'background:rgba(255,255,255,0.6);backdrop-filter:blur(4px)'"></span>
                         <img src="/public/shivaralogo1.png" alt="Shivara" class="h-7 sm:h-8 w-auto relative z-10" onerror="this.outerHTML='<span class=\'text-base font-display font-bold relative z-10\' style=\'color:#2C2418\'>SHIVARA</span>'">
                     </a>
                     <!-- Desktop: Shop + Blog -->
-                    <a href="{{ route('products.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition hover:opacity-70" style="color:#2C2418;">Shop</a>
-                    <a href="{{ route('blog.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition hover:opacity-70" style="color:#2C2418;">Blog</a>
+                    <a href="{{ route('products.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition hover:opacity-70" :style="scrolled ? 'color:#fff' : 'color:#2C2418'">Shop</a>
+                    <a href="{{ route('blog.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition hover:opacity-70" :style="scrolled ? 'color:#fff' : 'color:#2C2418'">Blog</a>
                 </div>
 
                 <!-- Center: Logo (desktop only, no frosted bg) -->
                 <div class="hidden lg:block absolute left-1/2 -translate-x-1/2">
                     <a href="{{ route('home') }}">
-                        <img src="/public/shivaralogo1.png" alt="Shivara" class="h-9 md:h-10 w-auto" onerror="this.outerHTML='<span class=\'text-xl font-display font-bold\' style=\'color:#2C2418\'>SHIVARA</span>'">
+                        <img src="/public/shivaralogo1.png" alt="Shivara" class="h-9 md:h-10 w-auto" :class="scrolled ? 'brightness-0 invert' : ''" onerror="this.outerHTML='<span class=\'text-xl font-display font-bold\' style=\'color:#2C2418\'>SHIVARA</span>'">
                     </a>
                 </div>
 
-                <!-- Right: Icons (always black) -->
-                <div class="flex items-center gap-0.5 sm:gap-1" style="color:#2C2418;">
+                <!-- Right: Icons -->
+                <div class="flex items-center gap-0.5 sm:gap-1" :style="scrolled ? 'color:#fff' : 'color:#2C2418'">
                     <button @click="searchOpen = !searchOpen" class="p-2 rounded-full transition hover:bg-black/5"><svg class="w-[18px] h-[18px] sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></button>
                     @auth
                     <a href="{{ route('account.dashboard') }}" class="hidden sm:flex p-2 rounded-full transition hover:bg-black/5"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></a>
