@@ -85,6 +85,10 @@
 <body class="min-h-screen" style="overflow-x:hidden; max-width:100vw;">
 
     @include('partials.header')
+    <!-- Spacer for fixed header (only on non-homepage) -->
+    @unless(request()->routeIs('home'))
+    <div style="height: 82px;" class="sm:h-[87px] lg:h-[92px]"></div>
+    @endunless
 
     <!-- Flash Messages -->
     @if(session('success'))
