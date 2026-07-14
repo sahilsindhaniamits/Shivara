@@ -157,10 +157,10 @@
             @endforeach
         </div>
 
-        <!-- Products Grid (6 products max) -->
+        <!-- Products Grid (8 on All tab, filtered per category) -->
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
-            @foreach($featuredProducts as $product)
-            <div x-show="activeTab === 'all' || activeTab === '{{ $product->category->slug ?? '' }}'" x-transition>
+            @foreach($featuredProducts as $fpIdx => $product)
+            <div x-show="(activeTab === 'all' && {{ $fpIdx }} < 8) || activeTab === '{{ $product->category->slug ?? '' }}'" x-transition>
                 @include('partials.product-card', ['product' => $product])
             </div>
             @endforeach
