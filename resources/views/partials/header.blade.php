@@ -6,8 +6,10 @@
 @endphp
 
 <style>
-/* Header always fixed (overlays banner on all devices) */
-.shivara-header-wrap { position: fixed; top: 0; left: 0; right: 0; z-index: 50; }
+/* Mobile: sticky header above banner with semi-transparent bg */
+.shivara-header-wrap { position: sticky; top: 0; z-index: 50; }
+/* Desktop: fixed header overlays banner */
+@media (min-width: 1024px) { .shivara-header-wrap { position: fixed; top: 0; left: 0; right: 0; } }
 </style>
 
 <div class="shivara-header-wrap overflow-x-hidden" x-data="{ mobileMenu: false, searchOpen: false, scrolled: false }" x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 60 })" x-effect="document.body.style.overflow = mobileMenu ? 'hidden' : ''">
@@ -28,7 +30,7 @@
     @endif
 
     <!-- Header -->
-    <header class="transition-all duration-300" :style="scrolled ? 'background:rgba(255,253,248,0.85);backdrop-filter:blur(12px);box-shadow:0 1px 3px rgba(0,0,0,0.06)' : 'background:transparent'">
+    <header class="transition-all duration-300" :style="scrolled ? 'background:rgba(255,253,248,0.85);backdrop-filter:blur(12px);box-shadow:0 1px 3px rgba(0,0,0,0.06)' : 'background:rgba(255,253,248,0.6);backdrop-filter:blur(4px)'">
         <div class="max-w-7xl mx-auto px-3 sm:px-6">
             <div class="flex items-center justify-between h-[50px] sm:h-[55px] lg:h-[60px]">
                 <!-- Left: Logo (mobile) + Shop/Blog (desktop) -->
