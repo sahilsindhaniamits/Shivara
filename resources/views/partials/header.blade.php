@@ -5,7 +5,7 @@
     $isHome = request()->routeIs('home');
 @endphp
 
-<div class="sticky top-0 z-50 transition-all duration-300" x-data="{ mobileMenu: false, searchOpen: false, scrolled: false }" x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 80 })" x-effect="document.body.style.overflow = mobileMenu ? 'hidden' : ''">
+<div class="sticky top-0 z-50 transition-all duration-300 overflow-x-hidden" x-data="{ mobileMenu: false, searchOpen: false, scrolled: false }" x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 80 })" x-effect="document.body.style.overflow = mobileMenu ? 'hidden' : ''">
     <!-- Marquee -->
     @if(count($marqueeItems))
     <div class="text-white overflow-hidden" style="background-color: {{ $marqueeBg }};">
