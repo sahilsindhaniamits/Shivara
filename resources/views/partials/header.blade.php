@@ -22,7 +22,7 @@
     @endif
 
     <!-- Header Nav -->
-    <header class="transition-all duration-300" :style="scrolled ? 'background:rgba(255,253,248,0.97);backdrop-filter:blur(20px);box-shadow:0 1px 3px rgba(0,0,0,0.08)' : 'background:transparent'">
+    <header class="transition-all duration-300" :style="scrolled ? 'background:rgba(0,0,0,0.5);backdrop-filter:blur(12px)' : 'background:transparent'">
         <div class="max-w-7xl mx-auto px-3 sm:px-6">
             <div class="flex items-center justify-between h-[50px] sm:h-[55px] lg:h-[60px]">
 
@@ -30,7 +30,7 @@
                 <div class="flex items-center gap-3">
                     <!-- Mobile: Logo with frosted bg behind it -->
                     <a href="{{ route('home') }}" class="lg:hidden relative">
-                        <span class="absolute inset-0 -inset-x-2 -inset-y-1 rounded-lg" :style="scrolled ? '' : 'background:rgba(255,255,255,0.7);backdrop-filter:blur(6px)'"></span>
+                        <span class="absolute -inset-x-2 -inset-y-1 rounded-lg" :style="scrolled ? '' : 'background:rgba(255,255,255,0.6);backdrop-filter:blur(4px)'"></span>
                         <img src="/public/shivaralogo1.png" alt="Shivara" class="h-7 sm:h-8 w-auto relative z-10" onerror="this.outerHTML='<span class=\'text-base font-display font-bold relative z-10\' style=\'color:#2C2418\'>SHIVARA</span>'">
                     </a>
                     <!-- Desktop: Shop + Blog -->
@@ -38,15 +38,14 @@
                     <a href="{{ route('blog.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition hover:opacity-70" style="color:#2C2418;">Blog</a>
                 </div>
 
-                <!-- Center: Logo (desktop) -->
+                <!-- Center: Logo (desktop only, no frosted bg) -->
                 <div class="hidden lg:block absolute left-1/2 -translate-x-1/2">
-                    <a href="{{ route('home') }}" class="relative">
-                        <span class="absolute inset-0 -inset-x-3 -inset-y-1 rounded-lg" :style="scrolled ? '' : 'background:rgba(255,255,255,0.7);backdrop-filter:blur(6px)'"></span>
-                        <img src="/public/shivaralogo1.png" alt="Shivara" class="h-9 md:h-10 w-auto relative z-10" onerror="this.outerHTML='<span class=\'text-xl font-display font-bold relative z-10\' style=\'color:#2C2418\'>SHIVARA</span>'">
+                    <a href="{{ route('home') }}">
+                        <img src="/public/shivaralogo1.png" alt="Shivara" class="h-9 md:h-10 w-auto" onerror="this.outerHTML='<span class=\'text-xl font-display font-bold\' style=\'color:#2C2418\'>SHIVARA</span>'">
                     </a>
                 </div>
 
-                <!-- Right: Icons -->
+                <!-- Right: Icons (always black) -->
                 <div class="flex items-center gap-0.5 sm:gap-1" style="color:#2C2418;">
                     <button @click="searchOpen = !searchOpen" class="p-2 rounded-full transition hover:bg-black/5"><svg class="w-[18px] h-[18px] sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></button>
                     @auth

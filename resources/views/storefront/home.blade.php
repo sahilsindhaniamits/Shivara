@@ -352,7 +352,7 @@
 
 <!-- Certification Logos — Infinite Scroll -->
 <section class="py-6 overflow-hidden" style="background-color: #FBF7F0;">
-    <div class="flex items-center" style="animation: certScroll 20s linear infinite;">
+    <div class="flex items-center" style="animation: certScroll 10s linear infinite;">
         @for($loop = 0; $loop < 3; $loop++)
         <img src="/public/our_manufacture_logo1.webp" alt="FSSAI" class="h-14 sm:h-16 md:h-20 mx-6 sm:mx-8 object-contain shrink-0">
         <img src="/public/our_manufacture_logo2.avif" alt="OHSAS" class="h-14 sm:h-16 md:h-20 mx-6 sm:mx-8 object-contain shrink-0">
