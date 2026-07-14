@@ -152,7 +152,7 @@
         <!-- Category Tabs -->
         <div class="flex flex-wrap justify-center gap-2 mb-10">
             <button @click="activeTab = 'all'" :class="activeTab === 'all' ? 'text-white' : 'bg-white text-espresso-600 border border-gold-200 hover:border-gold-400'" :style="activeTab === 'all' ? 'background-color:#2C2418' : ''" class="px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-full transition">All</button>
-            @foreach($categories->take(5) as $tabCat)
+            @foreach($categories as $tabCat)
             <button @click="activeTab = '{{ $tabCat->slug }}'" :class="activeTab === '{{ $tabCat->slug }}' ? 'text-white' : 'bg-white text-espresso-600 border border-gold-200 hover:border-gold-400'" :style="activeTab === '{{ $tabCat->slug }}' ? 'background-color:#2C2418' : ''" class="px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-full transition">{{ $tabCat->name }}</button>
             @endforeach
         </div>
