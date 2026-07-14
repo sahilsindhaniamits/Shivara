@@ -30,21 +30,21 @@
     @endif
 
     <!-- Header -->
-    <header class="transition-all duration-300" :style="scrolled ? 'background:rgba(0,0,0,0.55);backdrop-filter:blur(12px)' : 'background:rgba(255,253,248,0.97)'">
+    <header class="transition-all duration-300" :style="scrolled ? 'background:rgba(255,253,248,0.97);backdrop-filter:blur(12px);box-shadow:0 1px 3px rgba(0,0,0,0.06)' : 'background:transparent'">
         <div class="max-w-7xl mx-auto px-3 sm:px-6">
             <div class="flex items-center justify-between h-[50px] sm:h-[55px] lg:h-[60px]">
                 <!-- Left: Logo (mobile) + Shop/Blog (desktop) -->
                 <div class="flex items-center gap-3 lg:gap-5">
-                    <a href="{{ route('home') }}" class="lg:hidden"><img src="/public/shivaralogo1.png" alt="Shivara" class="h-7 sm:h-8 w-auto" :class="scrolled ? 'brightness-0 invert' : ''"></a>
-                    <a href="{{ route('products.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition" :style="scrolled ? 'color:#fff' : 'color:#2C2418'">Shop</a>
-                    <a href="{{ route('blog.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition" :style="scrolled ? 'color:#fff' : 'color:#2C2418'">Blog</a>
+                    <a href="{{ route('home') }}" class="lg:hidden"><img src="/public/shivaralogo1.png" alt="Shivara" class="h-7 sm:h-8 w-auto"></a>
+                    <a href="{{ route('products.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition" style="color:#2C2418;">Shop</a>
+                    <a href="{{ route('blog.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition" style="color:#2C2418;">Blog</a>
                 </div>
                 <!-- Center: Logo (desktop only) -->
                 <div class="hidden lg:block absolute left-1/2 -translate-x-1/2">
-                    <a href="{{ route('home') }}"><img src="/public/shivaralogo1.png" alt="Shivara" class="h-9 md:h-10 w-auto" :class="scrolled ? 'brightness-0 invert' : ''"></a>
+                    <a href="{{ route('home') }}"><img src="/public/shivaralogo1.png" alt="Shivara" class="h-9 md:h-10 w-auto"></a>
                 </div>
                 <!-- Right: Icons -->
-                <div class="flex items-center gap-0.5 sm:gap-1.5" :style="scrolled ? 'color:#fff' : 'color:#2C2418'">
+                <div class="flex items-center gap-0.5 sm:gap-1.5" style="color:#2C2418;">
                     <button @click="searchOpen = !searchOpen" class="p-2 rounded-full transition hover:bg-black/5"><svg class="w-[18px] h-[18px] sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></button>
                     @auth
                     <a href="{{ route('account.dashboard') }}" class="hidden sm:flex p-2 rounded-full transition hover:bg-black/5"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></a>
