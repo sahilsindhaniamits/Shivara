@@ -202,6 +202,9 @@
             });
         }
     </script>
+    <!-- Razorpay Checkout JS -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
     @stack('scripts')
 </body>
 </html>
