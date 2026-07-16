@@ -11,7 +11,10 @@
     {{-- First slide: ALWAYS in DOM (relative, sets height), visibility controlled by opacity --}}
     @php $firstBanner = $heroBanners->first(); @endphp
     <div class="relative w-full overflow-hidden transition-opacity duration-700" :class="current === 0 ? 'opacity-100' : 'opacity-0'">
-        <img src="{{ $firstBanner->image_url }}" alt="{{ $firstBanner->title }}" class="w-full object-cover object-center">
+        <picture>
+            @if($firstBanner->mobile_image_url)<source media="(max-width: 767px)" srcset="{{ $firstBanner->mobile_image_url }}">@endif
+            <img src="{{ $firstBanner->image_url }}" alt="{{ $firstBanner->title }}" class="w-full object-cover object-center" loading="eager" fetchpriority="high">
+        </picture>
         @if($firstBanner->title || $firstBanner->subtitle)
         <div class="absolute inset-0 flex items-center" style="background: linear-gradient(135deg, rgba(44,36,24,0.5), rgba(44,36,24,0.1));">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 w-full">
@@ -28,7 +31,10 @@
     {{-- Other slides: absolute on top, use x-show --}}
     @foreach($heroBanners->slice(1)->values() as $idx => $banner)
     <div x-show="current === {{ $idx + 1 }}" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-cloak class="absolute inset-0 w-full h-full overflow-hidden">
-        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="w-full h-full object-cover object-center">
+        <picture>
+            @if($banner->mobile_image_url)<source media="(max-width: 767px)" srcset="{{ $banner->mobile_image_url }}">@endif
+            <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="w-full h-full object-cover object-center" loading="lazy">
+        </picture>
         @if($banner->title || $banner->subtitle)
         <div class="absolute inset-0 flex items-center" style="background: linear-gradient(135deg, rgba(44,36,24,0.5), rgba(44,36,24,0.1));">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 w-full">
