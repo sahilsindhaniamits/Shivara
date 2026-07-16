@@ -19,7 +19,5 @@ use App\Http\Controllers\Api\RazorpayWebhookController;
 Route::get('/promotions', [CouponApiController::class, 'getPromotions']);
 Route::post('/promotions/apply', [CouponApiController::class, 'applyPromotion']);
 
-// Razorpay Webhook
-// Set this URL in Razorpay Dashboard > Webhooks:
-// https://theshivara.com/api/razorpay/webhook
-Route::post('/razorpay/webhook', [RazorpayWebhookController::class, 'handle']);
+// Razorpay Webhook (accepts both GET for validation and POST for events)
+Route::match(['get', 'post'], '/razorpay/webhook', [RazorpayWebhookController::class, 'handle']);
