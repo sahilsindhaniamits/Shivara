@@ -14,6 +14,11 @@ class RazorpayWebhookController extends Controller
 {
     public function handle(Request $request)
     {
+        // GET request = URL validation by Razorpay
+        if ($request->isMethod('get')) {
+            return response()->json(['status' => 'ok', 'message' => 'Webhook endpoint active']);
+        }
+
         $payload = $request->all();
         $event = $payload['event'] ?? '';
 
