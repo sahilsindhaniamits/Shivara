@@ -48,9 +48,9 @@ document.getElementById('pay-btn').addEventListener('click', function() {
             form.submit();
         },
         prefill: {
-            name: '{{ $order->address->full_name ?? auth()->user()->name }}',
-            email: '{{ auth()->user()->email }}',
-            contact: '{{ $order->address->phone ?? auth()->user()->phone }}'
+            name: '{{ $order->address->full_name ?? "" }}',
+            email: '{{ $order->address->email ?? (auth()->user()->email ?? "") }}',
+            contact: '{{ $order->address->phone ?? "" }}'
         },
         notes: {
             order_number: '{{ $order->order_number }}',
