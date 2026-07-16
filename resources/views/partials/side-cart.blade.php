@@ -127,7 +127,8 @@
                 <div class="flex justify-between text-base font-bold text-espresso-700 pt-2 border-t border-gray-100"><span>Total</span><span>₹<span x-text="total.toLocaleString()"></span></span></div>
             </div>
 
-            <a href="{{ route('checkout.index') }}" class="block w-full py-3.5 bg-gradient-to-r from-gold-500 to-gold-600 text-white font-bold text-xs uppercase tracking-widest rounded-xl text-center shadow-lg hover:from-gold-600 hover:to-gold-700 transition">Checkout • ₹<span x-text="total.toLocaleString()"></span></a>
+            <button @click="openRazorpay()" :disabled="items.length === 0" class="block w-full py-3.5 bg-gradient-to-r from-gold-500 to-gold-600 text-white font-bold text-xs uppercase tracking-widest rounded-xl text-center shadow-lg hover:from-gold-600 hover:to-gold-700 transition disabled:opacity-50 disabled:cursor-not-allowed">Pay Now • ₹<span x-text="total.toLocaleString()"></span></button>
+            <a href="{{ route('checkout.index') }}" class="block w-full text-center text-[11px] text-gray-400 hover:text-espresso-600 transition mt-1">Or checkout with COD →</a>
             <button @click="open = false" class="block w-full text-center text-[11px] text-gray-400 hover:text-espresso-600 transition">← Continue Shopping</button>
         </div>
     </div>
@@ -216,6 +217,44 @@ function sideCart() {
                     this.couponMsg = '';
                 }
             }).catch(()=>{});
+        },
+        openRazorpay() {
+            if (this.items.length === 0) return;
+            fetch('/checkout/razorpay', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
+                body: JSON.stringify({})
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) { alert(data.error || 'Error creating order'); return; }
+                var options = {
+                    key: data.razorpay_key,
+                    amount: data.amount,
+                    currency: data.currency,
+                    name: data.name,
+                    description: data.description,
+                    order_id: data.razorpay_order_id,
+                    image: '/public/shivaralogo1.png',
+                    handler: function(response) {
+                        // Payment success - verify on server
+                        var form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '/payment/verify';
+                        var fields = { _token: document.querySelector('meta[name="csrf-token"]').content, razorpay_order_id: response.razorpay_order_id, razorpay_payment_id: response.razorpay_payment_id, razorpay_signature: response.razorpay_signature };
+                        for (var key in fields) { var input = document.createElement('input'); input.type='hidden'; input.name=key; input.value=fields[key]; form.appendChild(input); }
+                        document.body.appendChild(form);
+                        form.submit();
+                    },
+                    prefill: data.prefill || {},
+                    theme: { color: '#2C2418' },
+                    modal: { ondismiss: function() {} }
+                };
+                var rzp = new Razorpay(options);
+                rzp.on('payment.failed', function(resp) { alert('Payment failed. Please try again.'); });
+                rzp.open();
+            })
+            .catch(err => { alert('Something went wrong. Please try again.'); console.error(err); });
         }
     }
 }

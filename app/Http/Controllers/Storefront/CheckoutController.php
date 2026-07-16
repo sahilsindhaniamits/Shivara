@@ -227,7 +227,18 @@ class CheckoutController extends Controller
         try {
             $api->utility->verifyPaymentSignature($attributes);
 
-            $order = Order::where('razorpay_order_id', $request->razorpay_order_id)->firstOrFail();
+            // Check if order already exists (standard checkout flow)
+            $order = Order::where('razorpay_order_id', $request->razorpay_order_id)->first();
+
+            // If no order exists, create one from cart (direct Razorpay flow)
+            if (!$order) {
+                $order = $this->createOrderFromCart($request->razorpay_order_id, $request->razorpay_payment_id);
+            }
+
+            if (!$order) {
+                return redirect()->route('home')->with('error', 'Order could not be created. Please contact support.');
+            }
+
             $order->update([
                 'razorpay_payment_id' => $request->razorpay_payment_id,
                 'razorpay_signature' => $request->razorpay_signature,
@@ -235,6 +246,12 @@ class CheckoutController extends Controller
                 'status' => 'confirmed',
                 'paid_at' => now(),
             ]);
+
+            // Send confirmation email
+            $customerEmail = $order->address?->email ?? ($order->user?->email ?? null);
+            if ($customerEmail) {
+                try { \Illuminate\Support\Facades\Mail::to($customerEmail)->send(new \App\Mail\OrderStatusMail($order->fresh(['items', 'address']))); } catch (\Exception $e) {}
+            }
 
             return redirect()->route('order.success', $order->order_number)
                 ->with('success', 'Payment successful! Order confirmed.');
@@ -254,8 +271,158 @@ class CheckoutController extends Controller
         return view('storefront.order-success', compact('order'));
     }
 
+    /**
+     * Create Razorpay order directly from cart (skips checkout page)
+     * Called via AJAX from side cart
+     */
+    public function createRazorpayOrder(Request $request)
+    {
+        $cartItems = $this->getCartItems();
+        if ($cartItems->isEmpty()) {
+            return response()->json(['error' => 'Cart is empty'], 400);
+        }
+
+        $subtotal = $cartItems->sum(function ($item) {
+            $price = $item->variant ? $item->variant->selling_price : $item->product->selling_price;
+            return $price * $item->quantity;
+        });
+
+        // Apply auto-coupon if available
+        $discount = 0;
+        $couponCode = null;
+        $autoCoupon = \App\Models\Coupon::getBestAutoApply($subtotal);
+        if ($autoCoupon) {
+            $discount = $autoCoupon->calculateDiscount($subtotal);
+            $couponCode = $autoCoupon->code;
+        }
+
+        // Session coupon overrides auto
+        if (session()->has('coupon')) {
+            $sessionCoupon = \App\Models\Coupon::find(session('coupon.id'));
+            if ($sessionCoupon && $sessionCoupon->isValid()) {
+                $discount = $sessionCoupon->calculateDiscount($subtotal);
+                $couponCode = $sessionCoupon->code;
+            }
+        }
+
+        $shipping = $subtotal >= config('shivara.free_shipping_threshold', 299) ? 0 : config('shivara.standard_rate', 79);
+        $totalAmount = $subtotal - $discount + $shipping;
+
+        // Create Razorpay order
+        $api = new \Razorpay\Api\Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+        $razorpayOrder = $api->order->create([
+            'receipt' => 'cart_' . time(),
+            'amount' => (int)($totalAmount * 100),
+            'currency' => 'INR',
+        ]);
+
+        // Store in session for later verification
+        session()->put('razorpay_checkout', [
+            'order_id' => $razorpayOrder['id'],
+            'amount' => $totalAmount,
+            'subtotal' => $subtotal,
+            'discount' => $discount,
+            'shipping' => $shipping,
+            'coupon_code' => $couponCode,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'razorpay_order_id' => $razorpayOrder['id'],
+            'razorpay_key' => config('services.razorpay.key'),
+            'amount' => (int)($totalAmount * 100),
+            'currency' => 'INR',
+            'name' => 'Shivara',
+            'description' => 'Order from Shivara',
+            'prefill' => [
+                'name' => auth()->user()->name ?? '',
+                'email' => auth()->user()->email ?? '',
+                'contact' => auth()->user()->phone ?? '',
+            ],
+        ]);
+    }
+
+    /**
+     * Create order from cart after successful direct Razorpay payment
+     */
+    private function createOrderFromCart(string $razorpayOrderId, string $razorpayPaymentId): ?Order
+    {
+        $cartItems = $this->getCartItems();
+        if ($cartItems->isEmpty()) return null;
+
+        $checkoutData = session('razorpay_checkout', []);
+
+        // Get payment details from Razorpay to extract address (Magic Checkout)
+        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+        $payment = $api->payment->fetch($razorpayPaymentId);
+
+        $customerName = $payment->notes['customer_name'] ?? ($payment->email ? explode('@', $payment->email)[0] : 'Customer');
+        $customerEmail = $payment->email ?? '';
+        $customerPhone = $payment->contact ?? '';
+
+        // Create address from Razorpay payment info
+        $address = Address::create([
+            'user_id' => auth()->id(),
+            'full_name' => $customerName,
+            'phone' => $customerPhone,
+            'email' => $customerEmail,
+            'address_line1' => 'Collected via Razorpay',
+            'city' => 'N/A',
+            'state' => 'N/A',
+            'pincode' => '000000',
+        ]);
+
+        $subtotal = $checkoutData['subtotal'] ?? $cartItems->sum(fn($i) => ($i->variant ? $i->variant->selling_price : $i->product->selling_price) * $i->quantity);
+        $discount = $checkoutData['discount'] ?? 0;
+        $shipping = $checkoutData['shipping'] ?? 0;
+        $totalAmount = $checkoutData['amount'] ?? ($subtotal - $discount + $shipping);
+
+        $order = Order::create([
+            'order_number' => Order::generateOrderNumber(),
+            'user_id' => auth()->id(),
+            'address_id' => $address->id,
+            'status' => 'pending',
+            'payment_status' => 'pending',
+            'payment_method' => 'razorpay',
+            'subtotal' => $subtotal,
+            'discount' => $discount,
+            'shipping_charge' => $shipping,
+            'total_amount' => $totalAmount,
+            'coupon_code' => $checkoutData['coupon_code'] ?? null,
+            'razorpay_order_id' => $razorpayOrderId,
+            'shipping_method' => 'standard',
+        ]);
+
+        foreach ($cartItems as $item) {
+            $price = $item->variant ? $item->variant->selling_price : $item->product->selling_price;
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $item->product->id,
+                'variant_id' => $item->variant?->id,
+                'product_name' => $item->product->name,
+                'variant_name' => $item->variant?->name,
+                'quantity' => $item->quantity,
+                'price' => $price,
+                'total_price' => $price * $item->quantity,
+                'gst_rate' => $item->product->gst_rate ?? 0,
+                'gst_amount' => 0,
+            ]);
+            if ($item->variant) { $item->variant->decrement('stock', $item->quantity); }
+            elseif (!is_null($item->product->stock)) { $item->product->decrement('stock', $item->quantity); }
+        }
+
+        // Clear cart
+        if (auth()->check()) { CartItem::where('user_id', auth()->id())->delete(); }
+        session()->forget('cart');
+        session()->forget('coupon');
+        session()->forget('razorpay_checkout');
+
+        return $order;
+    }
+
     private function getCartItems()
     {
+
         if (auth()->check()) {
             return CartItem::where('user_id', auth()->id())
                 ->with(['product.primaryImage', 'variant'])
