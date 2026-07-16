@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Address extends Model
 {
     protected $fillable = [
-        'user_id', 'full_name', 'phone', 'address_line1', 'address_line2',
+        'user_id', 'full_name', 'phone', 'email', 'address_line1', 'address_line2',
         'city', 'state', 'pincode', 'landmark', 'is_default',
     ];
 
