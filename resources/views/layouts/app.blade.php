@@ -8,10 +8,16 @@
     <meta name="description" content="@yield('meta_description', config('shivara.description'))">
     <meta name="theme-color" content="#2C2418">
 
+    <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+
+    <!-- Fonts - swap for faster render -->
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+    <!-- Tailwind (loaded async for perf) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
