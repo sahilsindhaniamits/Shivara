@@ -75,6 +75,12 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
+// Checkout & Payment (Guest + Authenticated users)
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::post('/payment/verify', [CheckoutController::class, 'verifyPayment'])->name('payment.verify');
+Route::get('/order/success/{orderNumber}', [CheckoutController::class, 'success'])->name('order.success');
+
 /*
 |--------------------------------------------------------------------------
 | Authenticated Customer Routes
@@ -82,12 +88,6 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->midd
 */
 
 Route::middleware('auth')->group(function () {
-    // Checkout & Payment
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-    Route::post('/payment/verify', [CheckoutController::class, 'verifyPayment'])->name('payment.verify');
-    Route::get('/order/success/{orderNumber}', [CheckoutController::class, 'success'])->name('order.success');
-
     // My Account
     Route::prefix('account')->name('account.')->group(function () {
         Route::get('/', [AccountController::class, 'dashboard'])->name('dashboard');
