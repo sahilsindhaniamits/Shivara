@@ -77,6 +77,9 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->midd
 
 // Razorpay Direct Checkout (creates order from cart, returns Razorpay order ID)
 Route::post('/checkout/razorpay', [\App\Http\Controllers\Storefront\CheckoutController::class, 'createRazorpayOrder'])->name('checkout.razorpay');
+
+// Checkout & Payment (Guest + Authenticated users)
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 Route::post('/payment/verify', [CheckoutController::class, 'verifyPayment'])->name('payment.verify');
 Route::get('/order/success/{orderNumber}', [CheckoutController::class, 'success'])->name('order.success');
