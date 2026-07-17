@@ -33,33 +33,37 @@ class CouponApiController extends Controller
     {
         Log::info('Razorpay Get Promotions API called', ['payload' => $request->all()]);
 
-        $coupons = Coupon::where('is_active', true)
-            ->where(function ($q) {
-                $q->whereNull('end_date')->orWhere('end_date', '>=', now());
-            })
-            ->where(function ($q) {
-                $q->whereNull('start_date')->orWhere('start_date', '<=', now());
-            })
-            ->where(function ($q) {
-                $q->whereNull('usage_limit')->orWhereColumn('usage_count', '<', 'usage_limit');
-            })
-            ->get();
+        try {
+            $coupons = Coupon::where('is_active', true)
+                ->where(function ($q) {
+                    $q->whereNull('end_date')->orWhere('end_date', '>=', now());
+                })
+                ->where(function ($q) {
+                    $q->whereNull('start_date')->orWhere('start_date', '<=', now());
+                })
+                ->where(function ($q) {
+                    $q->whereNull('usage_limit')->orWhereColumn('usage_count', '<', 'usage_limit');
+                })
+                ->get();
 
-        $promotions = $coupons->map(function ($coupon) {
-            return [
-                'code' => $coupon->code,
-                'summary' => $coupon->description ?: ($coupon->type === 'percentage' ? $coupon->value . '% OFF' : '₹' . number_format($coupon->value) . ' OFF'),
-                'description' => $this->buildDescription($coupon),
-            ];
-        });
+            $promotions = $coupons->map(function ($coupon) {
+                return [
+                    'code' => $coupon->code,
+                    'summary' => $coupon->description ?: ($coupon->type === 'percentage' ? $coupon->value . '% OFF' : '₹' . number_format($coupon->value) . ' OFF'),
+                    'description' => $this->buildDescription($coupon),
+                    'tnc' => $this->buildTnc($coupon),
+                ];
+            });
 
-        $response = [
-            'promotions' => $promotions->values()->toArray(),
-        ];
+            Log::info('Razorpay Get Promotions response', ['count' => $promotions->count()]);
 
-        Log::info('Razorpay Get Promotions response', ['count' => $promotions->count()]);
-
-        return response()->json($response);
+            return response()->json([
+                'promotions' => $promotions->values()->toArray(),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Razorpay Get Promotions error', ['error' => $e->getMessage()]);
+            return response()->json(['promotions' => []]);
+        }
     }
 
     /**
@@ -172,5 +176,15 @@ class CouponApiController extends Controller
             $desc .= " (max ₹" . number_format($coupon->max_discount) . ")";
         }
         return $desc;
+    }
+
+    private function buildTnc(Coupon $coupon): string
+    {
+        $tnc = [];
+        if ($coupon->min_order_amount) $tnc[] = "Min order: ₹" . number_format($coupon->min_order_amount);
+        if ($coupon->max_discount) $tnc[] = "Max discount: ₹" . number_format($coupon->max_discount);
+        if ($coupon->end_date) $tnc[] = "Valid till: " . $coupon->end_date->format('d M Y');
+        if ($coupon->usage_limit) $tnc[] = "Limited usage";
+        return implode(' | ', $tnc) ?: 'No restrictions';
     }
 }

@@ -128,7 +128,7 @@
             </div>
 
             <button @click="openRazorpay()" :disabled="items.length === 0" class="block w-full py-3.5 bg-gradient-to-r from-gold-500 to-gold-600 text-white font-bold text-xs uppercase tracking-widest rounded-xl text-center shadow-lg hover:from-gold-600 hover:to-gold-700 transition disabled:opacity-50 disabled:cursor-not-allowed">Pay Now • ₹<span x-text="total.toLocaleString()"></span></button>
-            <a href="{{ route('checkout.index') }}" class="block w-full text-center text-[11px] text-gray-400 hover:text-espresso-600 transition mt-1">Or checkout with COD →</a>
+            <p class="text-[10px] text-gray-400 text-center mt-2">UPI, Cards, Net Banking, Wallets & COD available</p>
             <button @click="open = false" class="block w-full text-center text-[11px] text-gray-400 hover:text-espresso-600 transition">← Continue Shopping</button>
         </div>
     </div>
