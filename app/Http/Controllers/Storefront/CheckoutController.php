@@ -69,8 +69,8 @@ class CheckoutController extends Controller
         $shippingCharge = 0;
         if ($request->shipping_method === 'express') {
             $shippingCharge = config('shivara.express_rate', 149);
-        } elseif ($subtotal < config('shivara.free_shipping_threshold', 299)) {
-            $shippingCharge = config('shivara.standard_rate', 79);
+        } elseif ($subtotal < config('shivara.free_shipping_threshold', 999)) {
+            $shippingCharge = config('shivara.standard_rate', 50);
         }
         // Free standard shipping if above threshold, Express always charged
 
@@ -305,7 +305,7 @@ class CheckoutController extends Controller
             }
         }
 
-        $shipping = $subtotal >= config('shivara.free_shipping_threshold', 299) ? 0 : config('shivara.standard_rate', 79);
+        $shipping = $subtotal >= config('shivara.free_shipping_threshold', 999) ? 0 : config('shivara.standard_rate', 50);
         $totalAmount = $subtotal - $discount + $shipping;
 
         // Create Razorpay order

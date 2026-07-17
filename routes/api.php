@@ -16,8 +16,12 @@ use App\Http\Controllers\Api\RazorpayWebhookController;
 // Set these URLs in Razorpay Dashboard > Magic Checkout > Coupon Settings:
 // - URL for get promotions: https://theshivara.com/api/promotions
 // - URL for apply promotions: https://theshivara.com/api/promotions/apply
-Route::get('/promotions', [CouponApiController::class, 'getPromotions']);
-Route::post('/promotions/apply', [CouponApiController::class, 'applyPromotion']);
+Route::withoutMiddleware('throttle:api')->group(function () {
+    Route::get('/promotions', [CouponApiController::class, 'getPromotions']);
+    Route::post('/promotions/apply', [CouponApiController::class, 'applyPromotion']);
+});
 
 // Razorpay Webhook (accepts both GET for validation and POST for events)
-Route::match(['get', 'post'], '/razorpay/webhook', [RazorpayWebhookController::class, 'handle']);
+Route::withoutMiddleware('throttle:api')->group(function () {
+    Route::match(['get', 'post'], '/razorpay/webhook', [RazorpayWebhookController::class, 'handle']);
+});
