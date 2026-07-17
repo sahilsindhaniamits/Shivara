@@ -18,7 +18,6 @@
 </div>
 
 @push('scripts')
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 document.getElementById('pay-btn').addEventListener('click', function() {
     var options = {
@@ -27,26 +26,11 @@ document.getElementById('pay-btn').addEventListener('click', function() {
         currency: 'INR',
         name: 'Shivara',
         description: 'Order {{ $order->order_number }}',
-        image: '{{ url("/public/shivaralogo1.png") }}',
         order_id: '{{ $razorpayOrderId }}',
-        handler: function(response) {
-            var form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '{{ route("payment.verify") }}';
-            var fields = {
-                _token: '{{ csrf_token() }}',
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature
-            };
-            for (var key in fields) {
-                var input = document.createElement('input');
-                input.type = 'hidden'; input.name = key; input.value = fields[key];
-                form.appendChild(input);
-            }
-            document.body.appendChild(form);
-            form.submit();
-        },
+        one_click_checkout: true,
+        show_coupons: true,
+        callback_url: '{{ route("payment.verify") }}',
+        redirect: true,
         prefill: {
             name: '{{ $order->address->full_name ?? "" }}',
             email: '{{ $order->address->email ?? (auth()->user()->email ?? "") }}',
@@ -57,12 +41,9 @@ document.getElementById('pay-btn').addEventListener('click', function() {
             customer_id: '{{ auth()->id() }}'
         },
         theme: { color: '#2C2418' },
-        modal: { ondismiss: function() { /* User closed payment modal */ } }
+        modal: { ondismiss: function() {} }
     };
     var rzp = new Razorpay(options);
-    rzp.on('payment.failed', function(response) {
-        alert('Payment failed. Please try again or choose a different payment method.');
-    });
     rzp.open();
 });
 // Auto-open payment on page load

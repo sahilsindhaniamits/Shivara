@@ -235,23 +235,21 @@ function sideCart() {
                     name: data.name,
                     description: data.description,
                     order_id: data.razorpay_order_id,
-                    image: '/public/shivaralogo1.png',
-                    handler: function(response) {
-                        // Payment success - verify on server
-                        var form = document.createElement('form');
-                        form.method = 'POST';
-                        form.action = '/payment/verify';
-                        var fields = { _token: document.querySelector('meta[name="csrf-token"]').content, razorpay_order_id: response.razorpay_order_id, razorpay_payment_id: response.razorpay_payment_id, razorpay_signature: response.razorpay_signature };
-                        for (var key in fields) { var input = document.createElement('input'); input.type='hidden'; input.name=key; input.value=fields[key]; form.appendChild(input); }
-                        document.body.appendChild(form);
-                        form.submit();
-                    },
+                    one_click_checkout: true,
+                    show_coupons: true,
+                    callback_url: data.callback_url,
+                    redirect: true,
                     prefill: data.prefill || {},
                     theme: { color: '#2C2418' },
-                    modal: { ondismiss: function() {} }
+                    modal: {
+                        ondismiss: function() {}
+                    }
                 };
+                // Pre-apply coupon if one was applied in cart
+                if (data.coupon_code) {
+                    options.prefill.coupon_code = data.coupon_code;
+                }
                 var rzp = new Razorpay(options);
-                rzp.on('payment.failed', function(resp) { alert('Payment failed. Please try again.'); });
                 rzp.open();
             })
             .catch(err => { alert('Something went wrong. Please try again.'); console.error(err); });

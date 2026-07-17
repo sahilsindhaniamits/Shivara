@@ -14,6 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->throttleApi('60,1');
+        // Exclude payment verification from CSRF - Razorpay Magic Checkout redirects POST without CSRF token
+        $middleware->validateCsrfTokens(except: [
+            'payment/verify',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

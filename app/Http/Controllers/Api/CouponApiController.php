@@ -48,11 +48,23 @@ class CouponApiController extends Controller
     /**
      * POST /api/promotions/apply - Validates and applies a coupon
      * Called by Razorpay "URL for apply promotions"
+     *
+     * Expected request from Razorpay:
+     * { "order_id": "receipt_value", "contact": "+919000090000", "email": "...", "code": "500OFF" }
+     *
+     * Expected response format:
+     * { "promotion": { "reference_id": "...", "code": "...", "value": 50000 (paise), "value_type": "fixed_amount", "description": "..." } }
      */
     public function applyPromotion(Request $request)
     {
         $code = strtoupper($request->input('code', ''));
         $orderAmount = (float) $request->input('order_amount', 0) / 100; // Razorpay sends in paise
+
+        // If order_amount not provided, try to get from order_id (receipt) lookup
+        if ($orderAmount <= 0) {
+            $checkoutData = session('razorpay_checkout', []);
+            $orderAmount = $checkoutData['subtotal'] ?? 0;
+        }
 
         if (!$code) {
             return response()->json(['success' => false, 'message' => 'Please enter a coupon code.'], 400);
@@ -73,10 +85,17 @@ class CouponApiController extends Controller
 
         $discount = $coupon->calculateDiscount($orderAmount);
 
+        // Return in Razorpay's expected format
         return response()->json([
             'success' => true,
-            'discount' => (int)($discount * 100), // Return in paise
-            'description' => $coupon->description ?: ($coupon->type === 'percentage' ? $coupon->value . '% OFF applied!' : '₹' . $coupon->value . ' OFF applied!'),
+            'promotion' => [
+                'reference_id' => 'coupon_' . $coupon->id,
+                'code' => $coupon->code,
+                'type' => 'coupon',
+                'value' => (int)($discount * 100), // in paise
+                'value_type' => $coupon->type === 'percentage' ? 'percentage' : 'fixed_amount',
+                'description' => $coupon->description ?: ($coupon->type === 'percentage' ? $coupon->value . '% OFF applied!' : '₹' . $coupon->value . ' OFF applied!'),
+            ],
         ]);
     }
 

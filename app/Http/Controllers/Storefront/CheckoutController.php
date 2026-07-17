@@ -178,7 +178,7 @@ class CheckoutController extends Controller
 
         // Handle payment
         if ($request->payment_method === 'razorpay') {
-            return $this->initiateRazorpay($order);
+            return $this->initiateRazorpay($order->load('items.product'));
         }
 
         // COD - keep as pending (admin will confirm manually)
@@ -192,11 +192,44 @@ class CheckoutController extends Controller
     {
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
 
-        $razorpayOrder = $api->order->create([
+        // Build line_items from order items for Magic Checkout
+        $lineItems = [];
+        $lineItemsTotal = 0;
+        foreach ($order->items as $item) {
+            $product = $item->product;
+            $offerPrice = (int)($item->price * 100); // paise
+            $lineItemsTotal += $offerPrice * $item->quantity;
+
+            $imageUrl = $product ? $product->primary_image_url : null;
+            if ($imageUrl && !str_starts_with($imageUrl, 'http')) {
+                $imageUrl = config('app.url') . $imageUrl;
+            }
+
+            $lineItems[] = [
+                'sku' => $product ? ($product->sku ?: ('SKU-' . $product->id)) : ('SKU-' . $item->product_id),
+                'variant_id' => $item->variant_id ? (string)$item->variant_id : (string)$item->product_id,
+                'price' => $offerPrice,
+                'offer_price' => $offerPrice,
+                'quantity' => (int)$item->quantity,
+                'name' => $item->product_name . ($item->variant_name ? ' - ' . $item->variant_name : ''),
+                'description' => $product ? substr(strip_tags($product->short_description ?: $product->description ?: $product->name), 0, 200) : $item->product_name,
+                'image_url' => $imageUrl ?: (config('app.url') . '/public/shivaralogo1.png'),
+            ];
+
+            if ($product && $product->weight) {
+                $lineItems[count($lineItems) - 1]['weight'] = (int)$product->weight;
+            }
+        }
+
+        $orderData = [
             'receipt' => $order->order_number,
-            'amount' => (int)($order->total_amount * 100), // Amount in paise
+            'amount' => (int)($order->total_amount * 100),
             'currency' => 'INR',
-        ]);
+            'line_items_total' => $lineItemsTotal,
+            'line_items' => $lineItems,
+        ];
+
+        $razorpayOrder = $api->order->create($orderData);
 
         $order->update(['razorpay_order_id' => $razorpayOrder['id']]);
 
@@ -210,29 +243,33 @@ class CheckoutController extends Controller
 
     public function verifyPayment(Request $request)
     {
-        $request->validate([
-            'razorpay_order_id' => 'required',
-            'razorpay_payment_id' => 'required',
-            'razorpay_signature' => 'required',
-        ]);
+        // Magic Checkout redirects with these parameters
+        $razorpayOrderId = $request->input('razorpay_order_id');
+        $razorpayPaymentId = $request->input('razorpay_payment_id');
+        $razorpaySignature = $request->input('razorpay_signature');
+
+        if (!$razorpayOrderId || !$razorpayPaymentId || !$razorpaySignature) {
+            return redirect()->route('cart.index')
+                ->with('error', 'Payment verification failed. Missing payment details.');
+        }
 
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
 
         $attributes = [
-            'razorpay_order_id' => $request->razorpay_order_id,
-            'razorpay_payment_id' => $request->razorpay_payment_id,
-            'razorpay_signature' => $request->razorpay_signature,
+            'razorpay_order_id' => $razorpayOrderId,
+            'razorpay_payment_id' => $razorpayPaymentId,
+            'razorpay_signature' => $razorpaySignature,
         ];
 
         try {
             $api->utility->verifyPaymentSignature($attributes);
 
             // Check if order already exists (standard checkout flow)
-            $order = Order::where('razorpay_order_id', $request->razorpay_order_id)->first();
+            $order = Order::where('razorpay_order_id', $razorpayOrderId)->first();
 
-            // If no order exists, create one from cart (direct Razorpay flow)
+            // If no order exists, create one from cart (Magic Checkout / direct Razorpay flow)
             if (!$order) {
-                $order = $this->createOrderFromCart($request->razorpay_order_id, $request->razorpay_payment_id);
+                $order = $this->createOrderFromCart($razorpayOrderId, $razorpayPaymentId);
             }
 
             if (!$order) {
@@ -240,8 +277,8 @@ class CheckoutController extends Controller
             }
 
             $order->update([
-                'razorpay_payment_id' => $request->razorpay_payment_id,
-                'razorpay_signature' => $request->razorpay_signature,
+                'razorpay_payment_id' => $razorpayPaymentId,
+                'razorpay_signature' => $razorpaySignature,
                 'payment_status' => 'paid',
                 'status' => 'confirmed',
                 'paid_at' => now(),
@@ -257,6 +294,7 @@ class CheckoutController extends Controller
                 ->with('success', 'Payment successful! Order confirmed.');
 
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Razorpay verification failed', ['error' => $e->getMessage(), 'order_id' => $razorpayOrderId]);
             return redirect()->route('cart.index')
                 ->with('error', 'Payment verification failed. Please contact support.');
         }
@@ -273,7 +311,7 @@ class CheckoutController extends Controller
 
     /**
      * Create Razorpay order directly from cart (skips checkout page)
-     * Called via AJAX from side cart
+     * Called via AJAX from side cart - creates Magic Checkout order with line_items
      */
     public function createRazorpayOrder(Request $request)
     {
@@ -308,17 +346,65 @@ class CheckoutController extends Controller
         $shipping = $subtotal >= config('shivara.free_shipping_threshold', 299) ? 0 : config('shivara.standard_rate', 79);
         $totalAmount = $subtotal - $discount + $shipping;
 
-        // Create Razorpay order
+        // Build line_items for Magic Checkout (mandatory)
+        $lineItems = [];
+        $lineItemsTotal = 0;
+        foreach ($cartItems as $item) {
+            $product = $item->product;
+            $price = $item->variant ? $item->variant->selling_price : $product->selling_price;
+            $mrp = $item->variant ? ($item->variant->mrp ?? $price) : ($product->mrp ?? $price);
+            $offerPrice = (int)($price * 100); // in paise
+            $itemTotal = $offerPrice * $item->quantity;
+            $lineItemsTotal += $itemTotal;
+
+            $imageUrl = $product->primary_image_url;
+            if ($imageUrl && !str_starts_with($imageUrl, 'http')) {
+                $imageUrl = config('app.url') . $imageUrl;
+            }
+
+            $lineItems[] = [
+                'sku' => $product->sku ?: ('SKU-' . $product->id),
+                'variant_id' => $item->variant ? (string)$item->variant->id : (string)$product->id,
+                'price' => (int)($mrp * 100),
+                'offer_price' => $offerPrice,
+                'quantity' => (int)$item->quantity,
+                'name' => $product->name . ($item->variant ? ' - ' . $item->variant->name : ''),
+                'description' => substr(strip_tags($product->short_description ?: $product->description ?: $product->name), 0, 200),
+                'image_url' => $imageUrl ?: (config('app.url') . '/public/shivaralogo1.png'),
+                'product_url' => route('products.show', $product->slug),
+            ];
+
+            if ($product->weight) {
+                $lineItems[count($lineItems) - 1]['weight'] = (int)$product->weight;
+            }
+        }
+
+        // Create Razorpay order with line_items for Magic Checkout
         $api = new \Razorpay\Api\Api(config('services.razorpay.key'), config('services.razorpay.secret'));
-        $razorpayOrder = $api->order->create([
-            'receipt' => 'cart_' . time(),
+
+        $receipt = 'cart_' . time();
+        $orderData = [
+            'receipt' => $receipt,
             'amount' => (int)($totalAmount * 100),
             'currency' => 'INR',
-        ]);
+            'line_items_total' => $lineItemsTotal,
+            'line_items' => $lineItems,
+        ];
+
+        // Add notes for pre-discount if coupon applied
+        if ($discount > 0 && $couponCode) {
+            $orderData['notes'] = [
+                'coupon_code' => $couponCode,
+                'prediscount_applied' => (string)(int)($discount * 100),
+            ];
+        }
+
+        $razorpayOrder = $api->order->create($orderData);
 
         // Store in session for later verification
         session()->put('razorpay_checkout', [
             'order_id' => $razorpayOrder['id'],
+            'receipt' => $receipt,
             'amount' => $totalAmount,
             'subtotal' => $subtotal,
             'discount' => $discount,
@@ -334,16 +420,19 @@ class CheckoutController extends Controller
             'currency' => 'INR',
             'name' => 'Shivara',
             'description' => 'Order from Shivara',
+            'callback_url' => route('payment.verify'),
             'prefill' => [
                 'name' => auth()->user()->name ?? '',
                 'email' => auth()->user()->email ?? '',
                 'contact' => auth()->user()->phone ?? '',
             ],
+            'coupon_code' => $couponCode,
         ]);
     }
 
     /**
-     * Create order from cart after successful direct Razorpay payment
+     * Create order from cart after successful Magic Checkout payment.
+     * Fetches the shipping address from Razorpay order API (populated by Magic Checkout).
      */
     private function createOrderFromCart(string $razorpayOrderId, string $razorpayPaymentId): ?Order
     {
@@ -352,30 +441,107 @@ class CheckoutController extends Controller
 
         $checkoutData = session('razorpay_checkout', []);
 
-        // Get payment details from Razorpay to extract address (Magic Checkout)
+        // Fetch order from Razorpay to get customer_details.shipping_address (Magic Checkout populates this)
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
-        $payment = $api->payment->fetch($razorpayPaymentId);
 
-        $customerName = $payment->notes['customer_name'] ?? ($payment->email ? explode('@', $payment->email)[0] : 'Customer');
-        $customerEmail = $payment->email ?? '';
-        $customerPhone = $payment->contact ?? '';
+        $customerName = 'Customer';
+        $customerEmail = '';
+        $customerPhone = '';
+        $addressLine1 = 'Address collected via Razorpay';
+        $addressLine2 = '';
+        $city = '';
+        $state = '';
+        $pincode = '';
+        $rzpOrderArr = [];
 
-        // Create address from Razorpay payment info
+        try {
+            // Fetch the Razorpay order to get shipping address from Magic Checkout
+            $rzpOrder = $api->order->fetch($razorpayOrderId);
+            $rzpOrderArr = $rzpOrder->toArray();
+
+            if (!empty($rzpOrderArr['customer_details'])) {
+                $custDetails = $rzpOrderArr['customer_details'];
+                $customerEmail = $custDetails['email'] ?? '';
+                $customerPhone = $custDetails['contact'] ?? '';
+
+                if (!empty($custDetails['shipping_address'])) {
+                    $shippingAddr = $custDetails['shipping_address'];
+                    $customerName = $shippingAddr['name'] ?? $customerName;
+                    $addressLine1 = $shippingAddr['line1'] ?? $addressLine1;
+                    $addressLine2 = $shippingAddr['line2'] ?? '';
+                    $city = $shippingAddr['city'] ?? '';
+                    $state = $shippingAddr['state'] ?? '';
+                    $pincode = $shippingAddr['zipcode'] ?? '';
+                    $customerPhone = $shippingAddr['contact'] ?? $customerPhone;
+                }
+            }
+
+            // Fallback: if no address from order, try fetching from payment
+            if ($addressLine1 === 'Address collected via Razorpay') {
+                $payment = $api->payment->fetch($razorpayPaymentId);
+                $customerEmail = $customerEmail ?: ($payment->email ?? '');
+                $customerPhone = $customerPhone ?: ($payment->contact ?? '');
+                $customerName = $customerName !== 'Customer' ? $customerName : ($payment->notes['customer_name'] ?? (explode('@', $customerEmail)[0] ?? 'Customer'));
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to fetch Razorpay order/payment details', ['error' => $e->getMessage()]);
+            // Try payment fetch as fallback
+            try {
+                $payment = $api->payment->fetch($razorpayPaymentId);
+                $customerEmail = $payment->email ?? '';
+                $customerPhone = $payment->contact ?? '';
+                $customerName = $payment->notes['customer_name'] ?? (explode('@', $customerEmail)[0] ?? 'Customer');
+            } catch (\Exception $e2) {
+                // Continue with defaults
+            }
+        }
+
+        // Clean phone number (remove +91 prefix if present for storage)
+        $customerPhone = preg_replace('/^\+91/', '', $customerPhone);
+        $customerPhone = preg_replace('/^\+/', '', $customerPhone);
+
+        // Create address from Razorpay Magic Checkout shipping info
         $address = Address::create([
             'user_id' => auth()->id(),
             'full_name' => $customerName,
             'phone' => $customerPhone,
             'email' => $customerEmail,
-            'address_line1' => 'Collected via Razorpay',
-            'city' => 'N/A',
-            'state' => 'N/A',
-            'pincode' => '000000',
+            'address_line1' => $addressLine1,
+            'address_line2' => $addressLine2,
+            'city' => $city ?: 'N/A',
+            'state' => $state ?: 'N/A',
+            'pincode' => $pincode ?: '000000',
         ]);
 
         $subtotal = $checkoutData['subtotal'] ?? $cartItems->sum(fn($i) => ($i->variant ? $i->variant->selling_price : $i->product->selling_price) * $i->quantity);
         $discount = $checkoutData['discount'] ?? 0;
         $shipping = $checkoutData['shipping'] ?? 0;
         $totalAmount = $checkoutData['amount'] ?? ($subtotal - $discount + $shipping);
+
+        // Check if Razorpay order has promotions applied (coupon applied in Magic Checkout)
+        $couponCode = $checkoutData['coupon_code'] ?? null;
+        $couponId = null;
+        if (!$couponCode && !empty($rzpOrderArr['promotions'])) {
+            // Customer applied a coupon inside Magic Checkout
+            $firstPromo = $rzpOrderArr['promotions'][0] ?? null;
+            if ($firstPromo) {
+                $couponCode = $firstPromo['code'] ?? null;
+                $promoDiscount = ($firstPromo['value'] ?? 0) / 100; // paise to rupees
+                if ($promoDiscount > 0) {
+                    $discount = $promoDiscount;
+                    $totalAmount = $subtotal - $discount + $shipping;
+                }
+            }
+        }
+
+        // Increment coupon usage if applicable
+        if ($couponCode) {
+            $coupon = \App\Models\Coupon::where('code', $couponCode)->first();
+            if ($coupon) {
+                $couponId = $coupon->id;
+                $coupon->increment('usage_count');
+            }
+        }
 
         $order = Order::create([
             'order_number' => Order::generateOrderNumber(),
@@ -388,7 +554,8 @@ class CheckoutController extends Controller
             'discount' => $discount,
             'shipping_charge' => $shipping,
             'total_amount' => $totalAmount,
-            'coupon_code' => $checkoutData['coupon_code'] ?? null,
+            'coupon_id' => $couponId,
+            'coupon_code' => $couponCode,
             'razorpay_order_id' => $razorpayOrderId,
             'shipping_method' => 'standard',
         ]);
@@ -409,6 +576,28 @@ class CheckoutController extends Controller
             ]);
             if ($item->variant) { $item->variant->decrement('stock', $item->quantity); }
             elseif (!is_null($item->product->stock)) { $item->product->decrement('stock', $item->quantity); }
+        }
+
+        // Add free gift if threshold met
+        $fgEnabled = \App\Models\Setting::get('free_gift_enabled', 'false') === 'true';
+        $fgThreshold = (float) \App\Models\Setting::get('free_gift_threshold', config('shivara.free_gift_threshold', 1499));
+        $fgProductId = \App\Models\Setting::get('free_gift_product_id');
+        if ($fgEnabled && $fgProductId && $subtotal >= $fgThreshold) {
+            $fgProduct = \App\Models\Product::find($fgProductId);
+            if ($fgProduct) {
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $fgProduct->id,
+                    'variant_id' => null,
+                    'product_name' => $fgProduct->name . ' (Free Gift)',
+                    'variant_name' => null,
+                    'quantity' => 1,
+                    'price' => 0,
+                    'total_price' => 0,
+                    'gst_rate' => 0,
+                    'gst_amount' => 0,
+                ]);
+            }
         }
 
         // Clear cart
