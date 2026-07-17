@@ -4,44 +4,42 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Shipping Info API for Razorpay Magic Checkout.
- * Returns shipping serviceability, fees, and COD availability for given addresses.
+ * Returns shipping serviceability, COD serviceability, shipping fees and COD fees.
  *
- * Configure this URL in Razorpay Dashboard > Magic Checkout > Shipping Setup:
+ * Razorpay calls this API server-to-server (no session/cookies available).
+ * It sends: order_id (receipt), razorpay_order_id (without order_ prefix), contact, email, addresses[]
+ *
+ * Configure in Razorpay Dashboard > Magic Checkout > Shipping Setup:
  * URL: https://theshivara.com/api/shipping-info
  */
 class ShippingInfoController extends Controller
 {
     public function handle(Request $request)
     {
+        Log::info('Razorpay Shipping Info API called', ['payload' => $request->all()]);
+
         $addresses = $request->input('addresses', []);
-        $orderId = $request->input('order_id', '');
+        $orderId = $request->input('order_id', ''); // This is the receipt field
+        $razorpayOrderId = $request->input('razorpay_order_id', ''); // Without order_ prefix
 
-        // Calculate cart subtotal from Razorpay order if available
-        $razorpayOrderId = $request->input('razorpay_order_id', '');
+        // Get order amount from Razorpay API (since this is server-to-server, no session available)
         $subtotal = 0;
-
-        // Try to get the order amount from session or Razorpay
         if ($razorpayOrderId) {
             try {
                 $api = new \Razorpay\Api\Api(config('services.razorpay.key'), config('services.razorpay.secret'));
-                // Razorpay passes the order ID without 'order_' prefix in some cases
-                $fetchId = str_starts_with($razorpayOrderId, 'order_') ? $razorpayOrderId : ('order_' . $razorpayOrderId);
+                $fetchId = 'order_' . $razorpayOrderId;
                 $rzpOrder = $api->order->fetch($fetchId);
-                $subtotal = ($rzpOrder->line_items_total ?? $rzpOrder->amount ?? 0) / 100;
+                // line_items_total is the cart subtotal (before shipping/COD), amount includes shipping
+                $subtotal = ($rzpOrder->line_items_total ?? $rzpOrder->amount ?? 0) / 100; // Convert paise to rupees
             } catch (\Exception $e) {
-                // Fallback to session data
-                $checkoutData = session('razorpay_checkout', []);
-                $subtotal = $checkoutData['subtotal'] ?? 0;
+                Log::warning('Shipping Info: Failed to fetch Razorpay order', ['error' => $e->getMessage(), 'order_id' => $razorpayOrderId]);
+                // Use amount from order if available, otherwise default to a value that qualifies for free shipping
+                $subtotal = 999; // Default to qualify for free shipping
             }
-        }
-
-        // If subtotal is still 0, try session
-        if ($subtotal <= 0) {
-            $checkoutData = session('razorpay_checkout', []);
-            $subtotal = $checkoutData['subtotal'] ?? 0;
         }
 
         $freeShippingThreshold = config('shivara.free_shipping_threshold', 299);
@@ -56,17 +54,18 @@ class ShippingInfoController extends Controller
         foreach ($addresses as $addr) {
             $zipcode = $addr['zipcode'] ?? '';
             $id = $addr['id'] ?? '0';
+            $country = $addr['country'] ?? 'in';
 
-            // We deliver to all Indian pincodes (pan-India delivery)
+            // We deliver pan-India (all Indian pincodes serviceable)
             $serviceable = true;
 
-            // COD available for all serviceable addresses
+            // COD available for all Indian addresses
             $codAvailable = true;
 
             $responseAddresses[] = [
-                'id' => $id,
-                'zipcode' => $zipcode,
-                'country' => $addr['country'] ?? 'IN',
+                'id' => (string)$id,
+                'zipcode' => (string)$zipcode,
+                'country' => $country,
                 'shipping_methods' => [
                     [
                         'id' => 'standard',
@@ -75,14 +74,18 @@ class ShippingInfoController extends Controller
                         'serviceable' => $serviceable,
                         'shipping_fee' => (int)($shippingFee * 100), // in paise
                         'cod' => $codAvailable,
-                        'cod_fee' => $codAvailable ? (int)($codCharge * 100) : 0, // in paise
+                        'cod_fee' => (int)($codCharge * 100), // ₹49 = 4900 paise (COD charge ₹50 as you mentioned)
                     ],
                 ],
             ];
         }
 
-        return response()->json([
+        $response = [
             'addresses' => $responseAddresses,
-        ]);
+        ];
+
+        Log::info('Razorpay Shipping Info API response', ['response' => $response]);
+
+        return response()->json($response);
     }
 }
