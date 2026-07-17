@@ -26,8 +26,8 @@ return [
     ],
 
     // Shipping
-    'free_shipping_threshold' => 299,
-    'standard_rate' => 79,
+    'free_shipping_threshold' => 999,
+    'standard_rate' => 50,
     'express_rate' => 149,
     'cod_charge' => 49,
     'standard_days' => '5-7 business days',

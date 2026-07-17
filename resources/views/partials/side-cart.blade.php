@@ -5,8 +5,8 @@
     $fgProduct = $fgProductId ? \App\Models\Product::with('primaryImage')->find($fgProductId) : null;
     // Only truly enabled if both setting is true AND a gift product exists
     $fgEnabled = $fgEnabled && $fgProduct;
-    $fsThreshold = config('shivara.free_shipping_threshold', 299);
-    $shipRate = config('shivara.standard_rate', 79);
+    $fsThreshold = config('shivara.free_shipping_threshold', 999);
+    $shipRate = config('shivara.standard_rate', 50);
     $recs = \App\Models\Product::active()->featured()->with('primaryImage')->take(3)->get();
 @endphp
 

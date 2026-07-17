@@ -211,7 +211,7 @@
                         <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full" style="background-color:#dcfce7; color:#166534;">Save ₹{{ number_format($product->mrp - $product->selling_price) }}</span>
                         @endif
                     </div>
-                    <p class="text-[10px] mt-1.5" style="color:#8c7560;">Inclusive of all taxes • Free shipping above ₹{{ config('shivara.free_shipping_threshold', 499) }}</p>
+                    <p class="text-[10px] mt-1.5" style="color:#8c7560;">Inclusive of all taxes • Free shipping above ₹{{ config('shivara.free_shipping_threshold', 999) }}</p>
                 </div>
 
 

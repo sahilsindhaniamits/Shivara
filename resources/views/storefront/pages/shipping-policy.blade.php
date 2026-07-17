@@ -11,7 +11,7 @@
     <div class="prose prose-sm max-w-none text-espresso-600 space-y-6 leading-relaxed">
         <div class="grid sm:grid-cols-2 gap-4 !mt-0">
             <div class="bg-white p-5 rounded-2xl border border-gold-100 text-center">
-                <p class="text-2xl font-display font-bold text-gold-600">₹{{ config('shivara.free_shipping_threshold', 299) }}+</p>
+                <p class="text-2xl font-display font-bold text-gold-600">₹{{ config('shivara.free_shipping_threshold', 999) }}+</p>
                 <p class="text-xs text-espresso-500 font-semibold uppercase mt-1">Free Shipping</p>
             </div>
             <div class="bg-white p-5 rounded-2xl border border-gold-100 text-center">
@@ -25,7 +25,7 @@
             <table class="w-full text-sm">
                 <thead><tr class="bg-cream-100"><th class="px-5 py-3 text-left text-xs font-bold text-espresso-600 uppercase">Method</th><th class="px-5 py-3 text-left text-xs font-bold text-espresso-600 uppercase">Delivery Time</th><th class="px-5 py-3 text-left text-xs font-bold text-espresso-600 uppercase">Cost</th></tr></thead>
                 <tbody>
-                    <tr class="border-t border-gold-50"><td class="px-5 py-3">Standard Shipping</td><td class="px-5 py-3">5-7 business days</td><td class="px-5 py-3 font-semibold">₹{{ config('shivara.standard_rate', 79) }} (Free above ₹{{ config('shivara.free_shipping_threshold', 299) }})</td></tr>
+                    <tr class="border-t border-gold-50"><td class="px-5 py-3">Standard Shipping</td><td class="px-5 py-3">5-7 business days</td><td class="px-5 py-3 font-semibold">₹{{ config('shivara.standard_rate', 50) }} (Free above ₹{{ config('shivara.free_shipping_threshold', 999) }})</td></tr>
                     <tr class="border-t border-gold-50"><td class="px-5 py-3">Express Shipping</td><td class="px-5 py-3">2-3 business days</td><td class="px-5 py-3 font-semibold">₹{{ config('shivara.express_rate', 149) }}</td></tr>
                 </tbody>
             </table>
