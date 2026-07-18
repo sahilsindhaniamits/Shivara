@@ -113,7 +113,7 @@
                 <div class="flex justify-between text-sm"><span class="text-gray-500">Payment Status</span><span class="font-medium {{ $order->payment_status == 'paid' ? 'text-green-600' : 'text-yellow-600' }}">{{ ucfirst($order->payment_status) }}</span></div>
                 <div class="flex justify-between text-sm"><span class="text-gray-500">Shipping</span><span class="font-medium">{{ ucfirst($order->shipping_method) }}</span></div>
                 @if($order->coupon_code)<div class="flex justify-between text-sm"><span class="text-gray-500">Coupon</span><span class="font-medium text-primary">{{ $order->coupon_code }}</span></div>@endif
-                <div class="flex justify-between text-sm"><span class="text-gray-500">Customer</span><span class="font-medium">{{ $order->user->name }}</span></div>
+                <div class="flex justify-between text-sm"><span class="text-gray-500">Customer</span><span class="font-medium">{{ $order->user->name ?? ($order->address->full_name ?? 'Guest') }}</span></div>
             </div>
 
             <!-- Tracking Info -->
