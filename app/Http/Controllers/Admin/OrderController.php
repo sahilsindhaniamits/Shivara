@@ -224,6 +224,13 @@ class OrderController extends Controller
             } catch (\Exception $e) {
                 \Log::warning('Order email failed: ' . $e->getMessage());
             }
+        } elseif (!$customerEmail) {
+            // No customer email found - send only to shop for record
+            try {
+                \Illuminate\Support\Facades\Mail::to('shop@theshivara.com')->send(new \App\Mail\OrderStatusMail($order->fresh(['items', 'address'])));
+            } catch (\Exception $e) {
+                \Log::warning('Order shop email failed: ' . $e->getMessage());
+            }
         }
 
         return back()->with('success', 'Order status updated.');
