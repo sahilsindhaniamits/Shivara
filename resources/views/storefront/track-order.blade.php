@@ -36,8 +36,9 @@
 
             <!-- Status Progress -->
             @php
-                $statuses = ['pending', 'confirmed', 'processing', 'shipped', 'out_for_delivery', 'delivered'];
+                $statuses = ['confirmed', 'processing', 'shipped', 'delivered'];
                 $currentIndex = array_search($order->status, $statuses);
+                if ($currentIndex === false) $currentIndex = -1;
                 if ($order->status === 'cancelled') $currentIndex = -1;
             @endphp
 
