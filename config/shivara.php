@@ -6,6 +6,7 @@ return [
     'description' => 'Shivara offers natural herbal products crafted with care to support wellness, purity, and everyday health.',
     'url' => env('APP_URL', 'https://theshivara.com'),
     'email' => 'Info@theshivara.com',
+    'shop_email' => 'shop@theshivara.com',
     'phone' => '+91-9828385808',
     'whatsapp' => '919828385808',
 

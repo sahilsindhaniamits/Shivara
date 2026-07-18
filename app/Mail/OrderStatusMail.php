@@ -5,6 +5,7 @@ namespace App\Mail;
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -20,6 +21,7 @@ class OrderStatusMail extends Mailable
     {
         $this->order = $order;
         $this->statusMessage = match ($order->status) {
+            'pending' => 'Thank you for your order! We have received it and will confirm it shortly.',
             'confirmed' => 'Your order has been confirmed! We are preparing it for shipment.',
             'processing' => 'Your order is being processed and will be shipped soon.',
             'shipped' => 'Great news! Your order has been shipped.' . ($order->tracking_number ? " Tracking: {$order->tracking_number}" : ''),
@@ -33,6 +35,7 @@ class OrderStatusMail extends Mailable
     public function envelope(): Envelope
     {
         $subject = match ($this->order->status) {
+            'pending' => 'Order Received - ' . $this->order->order_number,
             'confirmed' => 'Order Confirmed - ' . $this->order->order_number,
             'processing' => 'Order Processing - ' . $this->order->order_number,
             'shipped' => 'Order Shipped - ' . $this->order->order_number,
@@ -42,7 +45,15 @@ class OrderStatusMail extends Mailable
             default => 'Order Update - ' . $this->order->order_number,
         };
 
-        return new Envelope(subject: $subject);
+        return new Envelope(
+            subject: $subject,
+            bcc: [
+                new Address('shop@theshivara.com', 'Shivara Orders'),
+            ],
+            replyTo: [
+                new Address('shop@theshivara.com', 'Shivara'),
+            ],
+        );
     }
 
     public function content(): Content
