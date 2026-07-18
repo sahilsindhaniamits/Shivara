@@ -184,6 +184,16 @@ class CheckoutController extends Controller
         // COD - keep as pending (admin will confirm manually)
         $order->update(['status' => 'pending']);
 
+        // Send order confirmation email for COD
+        $customerEmail = $order->address?->email ?? ($order->user?->email ?? null);
+        if ($customerEmail) {
+            try {
+                \Illuminate\Support\Facades\Mail::to($customerEmail)->send(new \App\Mail\OrderStatusMail($order->fresh(['items', 'address'])));
+            } catch (\Exception $e) {
+                \Log::warning('COD order email failed: ' . $e->getMessage());
+            }
+        }
+
         return redirect()->route('order.success', $order->order_number)
             ->with('success', 'Order placed successfully!');
     }
@@ -250,7 +260,11 @@ class CheckoutController extends Controller
             // Send confirmation email
             $customerEmail = $order->address?->email ?? ($order->user?->email ?? null);
             if ($customerEmail) {
-                try { \Illuminate\Support\Facades\Mail::to($customerEmail)->send(new \App\Mail\OrderStatusMail($order->fresh(['items', 'address']))); } catch (\Exception $e) {}
+                try {
+                    \Illuminate\Support\Facades\Mail::to($customerEmail)->send(new \App\Mail\OrderStatusMail($order->fresh(['items', 'address'])));
+                } catch (\Exception $e) {
+                    \Log::warning('Order confirmation email failed for ' . $order->order_number . ': ' . $e->getMessage());
+                }
             }
 
             return redirect()->route('order.success', $order->order_number)

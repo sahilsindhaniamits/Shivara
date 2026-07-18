@@ -19,11 +19,14 @@ return [
     ],
 
     'social' => [
-        'instagram' => 'https://www.instagram.com/theshivara',
+        'instagram' => 'https://www.instagram.com/shivarawellness',
         'facebook' => 'https://www.facebook.com/profile.php?id=61588139999665',
         'twitter' => 'https://twitter.com/theshivara',
         'youtube' => 'https://youtube.com/@theshivara',
     ],
+
+    // Contact form email
+    'contact_email' => 'Contact@theshivara.com',
 
     // Shipping
     'free_shipping_threshold' => 999,

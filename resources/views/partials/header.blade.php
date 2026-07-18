@@ -65,8 +65,9 @@
         <!-- Search -->
         <div x-show="searchOpen" x-transition x-cloak class="absolute top-full left-0 right-0 bg-cream-50 border-b shadow-xl p-4" style="z-index:60;">
             <form action="{{ route('products.index') }}" method="GET" class="max-w-xl mx-auto relative">
-                <input type="text" name="search" placeholder="Search products..." class="w-full pl-11 pr-4 py-3 bg-white border border-gold-200 rounded-xl text-sm focus:outline-none" autofocus>
+                <input type="text" name="search" placeholder="Search products..." class="w-full pl-11 pr-12 py-3 bg-white border border-gold-200 rounded-xl text-sm focus:outline-none" autofocus>
                 <svg class="w-4 h-4 text-gold-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1.5 text-white text-[10px] font-bold uppercase rounded-lg" style="background-color:#2C2418;">Go</button>
             </form>
         </div>
     </header>

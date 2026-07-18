@@ -4,14 +4,13 @@
 
 @section('content')
 @php
-    $avgRating = $product->average_rating ?: 4.5;
-    $reviewCount = $product->review_count ?: rand(12,48);
+    $avgRating = 0;
+    $reviewCount = 0;
     $approvedReviews = $product->reviews()->where('is_approved', true)->with('user')->latest()->get();
     $totalReviews = $approvedReviews->count();
     if($totalReviews > 0) { $avgRating = $approvedReviews->avg('rating'); $reviewCount = $totalReviews; }
     $ratingCounts = [5=>0,4=>0,3=>0,2=>0,1=>0];
     foreach($approvedReviews as $r) { if(isset($ratingCounts[$r->rating])) $ratingCounts[$r->rating]++; }
-    $activeCoupons = \App\Models\Coupon::where('is_active', true)->where(function($q) { $q->whereNull('end_date')->orWhere('end_date', '>', now()); })->take(3)->get();
     $reviewImages = $approvedReviews->pluck('images')->filter()->flatten()->take(12)->values();
     $productTestimonials = \App\Models\VideoTestimonial::active()->where('product_id', $product->id)->orderBy('sort_order')->get();
 @endphp
@@ -341,23 +340,6 @@
 <!-- Scroll trigger marker for sticky bottom bar -->
 <div id="stickyBarTrigger"></div>
 
-<!-- SECTION: Offers Strip -->
-@if($activeCoupons->count())
-<section id="offersSection" class="py-5 sm:py-8" style="background-color:#2C2418;">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="flex items-center gap-4 sm:gap-6 overflow-x-auto scrollbar-hide pb-1">
-            <span class="shrink-0 text-[10px] sm:text-xs font-bold uppercase tracking-wider" style="color:#B7925C;">Offers</span>
-            @foreach($activeCoupons as $coupon)
-            <div class="shrink-0 flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2 sm:py-3 rounded-full border border-dashed" style="border-color: rgba(183,146,92,0.5);">
-                <span class="text-[10px] sm:text-xs font-bold text-white whitespace-nowrap">{{ $coupon->description ?? ($coupon->type == 'percentage' ? $coupon->value.'% OFF' : '₹'.$coupon->value.' OFF') }}</span>
-                <span class="px-2 sm:px-3 py-0.5 sm:py-1 text-[9px] sm:text-[10px] font-bold rounded-full" style="background-color:#B7925C; color:#fff;">{{ $coupon->code }}</span>
-            </div>
-            @endforeach
-        </div>
-    </div>
-</section>
-@endif
-
 <!-- SECTION: Product Banners -->
 @if($product->banners && count($product->banners))
 <section x-data="{ pb: 0 }" x-init="setInterval(() => pb = (pb + 1) % {{ count($product->banners) }}, 5000)">
@@ -515,20 +497,41 @@
 </section>
 
 
-<!-- Image Lightbox -->
-<div x-show="lightbox" x-cloak x-transition.opacity class="fixed inset-0 z-[200] flex items-center justify-center p-4" style="background-color: rgba(0,0,0,0.92);" @click.self="lightbox = false" @keydown.escape.window="lightbox = false">
-    <button @click="lightbox = false" class="absolute top-4 right-4 w-11 h-11 rounded-full flex items-center justify-center text-white z-10" style="background-color: rgba(255,255,255,0.1);">
+<!-- Image Lightbox with Zoom -->
+<div x-show="lightbox" x-cloak x-transition.opacity.duration.300ms class="fixed inset-0 z-[200] flex items-center justify-center" style="background-color: rgba(0,0,0,0.95);" @keydown.escape.window="lightbox = false" @keydown.arrow-left.window="if(lightbox) lbImg = (lbImg - 1 + {{ $product->images->count() }}) % {{ $product->images->count() }}" @keydown.arrow-right.window="if(lightbox) lbImg = (lbImg + 1) % {{ $product->images->count() }}" x-data="{ zoomed: false, scale: 1, posX: 0, posY: 0 }">
+    <button @click="lightbox = false" class="absolute top-4 right-4 w-11 h-11 rounded-full flex items-center justify-center text-white z-10 hover:bg-white/20 transition" style="background-color: rgba(255,255,255,0.1);">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
+    <!-- Zoom toggle -->
+    <button @click="zoomed = !zoomed; scale = zoomed ? 2.5 : 1; posX = 0; posY = 0;" class="absolute top-4 left-4 w-11 h-11 rounded-full flex items-center justify-center text-white z-10 hover:bg-white/20 transition" style="background-color: rgba(255,255,255,0.1);">
+        <svg x-show="!zoomed" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+        <svg x-show="zoomed" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7"/></svg>
+    </button>
+    <!-- Counter -->
+    <div class="absolute top-4 left-1/2 -translate-x-1/2 text-white/60 text-xs font-medium z-10" x-text="(lbImg + 1) + ' / {{ $product->images->count() }}'"></div>
     @if($product->images->count() > 1)
-    <button @click="lbImg = (lbImg - 1 + {{ $product->images->count() }}) % {{ $product->images->count() }}" class="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center text-white" style="background-color: rgba(255,255,255,0.1);"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
-    <button @click="lbImg = (lbImg + 1) % {{ $product->images->count() }}" class="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center text-white" style="background-color: rgba(255,255,255,0.1);"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+    <button @click="lbImg = (lbImg - 1 + {{ $product->images->count() }}) % {{ $product->images->count() }}; zoomed = false; scale = 1;" class="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center text-white z-10 hover:bg-white/20 transition" style="background-color: rgba(255,255,255,0.1);"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+    <button @click="lbImg = (lbImg + 1) % {{ $product->images->count() }}; zoomed = false; scale = 1;" class="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center text-white z-10 hover:bg-white/20 transition" style="background-color: rgba(255,255,255,0.1);"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
     @endif
-    <div class="max-w-3xl w-full">
+    <div class="max-w-4xl w-full px-4 overflow-hidden" @click.self="if(!zoomed) lightbox = false">
         @foreach($product->images as $i => $lbImgItem)
-        <img x-show="lbImg === {{ $i }}" x-transition.opacity src="{{ str_starts_with($lbImgItem->url, '/storage/') ? '/public' . $lbImgItem->url : $lbImgItem->url }}" alt="{{ $product->name }}" class="w-full max-h-[85vh] object-contain rounded-2xl mx-auto">
+        @php $lbSrc = str_starts_with($lbImgItem->url, '/storage/') ? '/public' . $lbImgItem->url : $lbImgItem->url; @endphp
+        <div x-show="lbImg === {{ $i }}" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="flex items-center justify-center" @dblclick="zoomed = !zoomed; scale = zoomed ? 2.5 : 1; posX = 0; posY = 0;">
+            <img src="{{ $lbSrc }}" alt="{{ $product->name }}" class="max-h-[85vh] max-w-full object-contain rounded-xl mx-auto cursor-zoom-in transition-transform duration-300" :class="zoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'" :style="'transform: scale(' + scale + ') translate(' + posX + 'px, ' + posY + 'px)'" @mousemove="if(zoomed) { let rect = $el.getBoundingClientRect(); posX = ((event.clientX - rect.left) / rect.width - 0.5) * -80; posY = ((event.clientY - rect.top) / rect.height - 0.5) * -80; }" @mouseleave="posX = 0; posY = 0">
+        </div>
         @endforeach
     </div>
+    <!-- Thumbnail strip at bottom -->
+    @if($product->images->count() > 1)
+    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+        @foreach($product->images as $i => $thumb)
+        @php $thumbSrc = str_starts_with($thumb->url, '/storage/') ? '/public' . $thumb->url : $thumb->url; @endphp
+        <button @click="lbImg = {{ $i }}; zoomed = false; scale = 1;" class="w-12 h-12 rounded-lg overflow-hidden border-2 transition-all" :class="lbImg === {{ $i }} ? 'border-white opacity-100 scale-110' : 'border-transparent opacity-50 hover:opacity-80'">
+            <img src="{{ $thumbSrc }}" class="w-full h-full object-cover">
+        </button>
+        @endforeach
+    </div>
+    @endif
 </div>
 
 <!-- Bottom Sticky Add to Cart Bar (appears when scrolled past product section) -->
