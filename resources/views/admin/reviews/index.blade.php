@@ -9,10 +9,66 @@
             <h1 class="text-2xl font-bold text-slate-800">Reviews</h1>
             <p class="text-sm text-slate-500 mt-1">Manage customer product reviews</p>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-wrap">
+            <button onclick="document.getElementById('addReviewModal').classList.remove('hidden')" class="px-4 py-2 text-xs font-bold text-white rounded-lg hover:opacity-90 transition" style="background-color:#2C2418">+ Add Review</button>
             <a href="{{ route('admin.reviews.index') }}" class="px-3 py-2 text-xs font-medium rounded-lg transition {{ !request('status') ? 'text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50' }}" @if(!request('status')) style="background-color:#c06d22" @endif>All ({{ $totalCount }})</a>
             <a href="{{ route('admin.reviews.index', ['status' => 'pending']) }}" class="px-3 py-2 text-xs font-medium rounded-lg transition {{ request('status') === 'pending' ? 'text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50' }}" @if(request('status') === 'pending') style="background-color:#c06d22" @endif>Pending ({{ $pendingCount }})</a>
             <a href="{{ route('admin.reviews.index', ['status' => 'approved']) }}" class="px-3 py-2 text-xs font-medium rounded-lg transition {{ request('status') === 'approved' ? 'text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50' }}" @if(request('status') === 'approved') style="background-color:#c06d22" @endif>Approved ({{ $approvedCount }})</a>
+        </div>
+    </div>
+
+    <!-- Add Review Modal -->
+    <div id="addReviewModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background-color: rgba(0,0,0,0.5);">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-slate-800">Add Review</h2>
+                <button onclick="document.getElementById('addReviewModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            </div>
+            <form method="POST" action="{{ route('admin.reviews.store') }}" enctype="multipart/form-data" class="space-y-4">
+                @csrf
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Product *</label>
+                    <select name="product_id" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-200">
+                        <option value="">Select product...</option>
+                        @foreach($products as $p)
+                        <option value="{{ $p->id }}">{{ $p->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Reviewer Name *</label>
+                        <input type="text" name="reviewer_name" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-200" placeholder="Customer name">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Email</label>
+                        <input type="email" name="reviewer_email" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-200" placeholder="customer@email.com">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Rating *</label>
+                    <div class="flex gap-1" x-data="{ rating: 5 }">
+                        @for($s = 1; $s <= 5; $s++)
+                        <button type="button" @click="rating = {{ $s }}; document.getElementById('adminRatingInput').value = {{ $s }}" :class="{{ $s }} <= rating ? 'text-amber-400' : 'text-gray-300'" class="transition hover:scale-110">
+                            <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        </button>
+                        @endfor
+                    </div>
+                    <input type="hidden" name="rating" id="adminRatingInput" value="5">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Review *</label>
+                    <textarea name="comment" rows="4" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-200" placeholder="Write the review..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Attach Images</label>
+                    <input type="file" name="review_images[]" multiple accept="image/*" class="text-xs">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="px-5 py-2.5 text-white text-xs font-bold uppercase rounded-lg hover:opacity-90 transition" style="background-color:#2C2418">Add Review</button>
+                    <button type="button" onclick="document.getElementById('addReviewModal').classList.add('hidden')" class="px-5 py-2.5 text-slate-500 text-xs font-bold uppercase rounded-lg border border-slate-200 hover:bg-slate-50 transition">Cancel</button>
+                </div>
+            </form>
         </div>
     </div>
 

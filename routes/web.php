@@ -51,6 +51,12 @@ Route::get('/terms-and-conditions', fn() => view('storefront.pages.terms'))->nam
 Route::get('/blog', [StorefrontBlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [StorefrontBlogController::class, 'show'])->name('blog.show');
 
+// Contact Form Submission
+Route::post('/contact', [HomeController::class, 'submitContact'])->name('contact.submit');
+
+// Newsletter Subscription
+Route::post('/newsletter', [HomeController::class, 'subscribeNewsletter'])->name('newsletter.subscribe');
+
 // Cart (works for guests and authenticated users)
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::get('/cart/data', [CartController::class, 'data'])->name('cart.data');
@@ -163,8 +169,12 @@ Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\AdminMiddleware
 
     // Reviews
     Route::get('/reviews', [\App\Http\Controllers\Admin\ReviewController::class, 'index'])->name('reviews.index');
+    Route::post('/reviews', [\App\Http\Controllers\Admin\ReviewController::class, 'store'])->name('reviews.store');
     Route::patch('/reviews/{review}/approve', [\App\Http\Controllers\Admin\ReviewController::class, 'approve'])->name('reviews.approve');
     Route::delete('/reviews/{review}', [\App\Http\Controllers\Admin\ReviewController::class, 'decline'])->name('reviews.decline');
+
+    // Newsletter
+    Route::get('/newsletter', [\App\Http\Controllers\Admin\NewsletterController::class, 'index'])->name('newsletter.index');
 
     // Blog
     Route::resource('blogs', \App\Http\Controllers\Admin\BlogController::class);

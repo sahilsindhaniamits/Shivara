@@ -593,62 +593,98 @@ document.addEventListener('alpine:init', () => {
                 ->latest()
                 ->take(10)
                 ->get();
-            if($homeReviews->isEmpty()) {
-                $homeReviews = collect([
-                    (object)['user' => (object)['name' => 'Priya S.'], 'product' => (object)['name' => 'Madhu Balance'], 'rating' => 5, 'comment' => 'Madhu Balance Capsules have transformed my daily routine. My sugar levels are stable and I feel more energetic.', 'images' => null],
-                    (object)['user' => (object)['name' => 'Rahul M.'], 'product' => (object)['name' => 'Shilajit Gold'], 'rating' => 5, 'comment' => 'The Shilajit Gold Resin is pure gold! I can feel the difference in my stamina within weeks of usage.', 'images' => null],
-                    (object)['user' => (object)['name' => 'Anita K.'], 'product' => (object)['name' => 'Hair Growth Oil'], 'rating' => 5, 'comment' => 'Finally found an Ayurvedic brand I can trust. The packaging is premium and products are genuine.', 'images' => null],
-                    (object)['user' => (object)['name' => 'Deepak R.'], 'product' => (object)['name' => 'Joint Support'], 'rating' => 4, 'comment' => 'Great product for joint pain. Noticed improvement in just 2 weeks. Will continue using.', 'images' => null],
-                    (object)['user' => (object)['name' => 'Meera J.'], 'product' => (object)['name' => 'Liver Detox'], 'rating' => 5, 'comment' => 'Best ayurvedic brand I have used. Products are authentic and results are visible. Highly recommend!', 'images' => null],
-                ]);
-            }
         @endphp
-        <div class="relative" x-data="{ revSlide: 0 }" x-init="setInterval(() => revSlide = (revSlide + 1) % {{ ceil($homeReviews->count() / 3) }}, 5000)">
+        @if($homeReviews->count())
+        <div class="relative" x-data="{ revSlide: 0 }" x-init="setInterval(() => revSlide = (revSlide + 1) % {{ $homeReviews->count() }}, 5000)">
             <div class="overflow-hidden">
-                <div class="flex transition-transform duration-700" :style="'transform: translateX(-' + (revSlide * 100) + '%)'">
-                    @foreach($homeReviews->chunk(3) as $chunk)
-                    <div class="w-full flex-shrink-0 grid md:grid-cols-3 gap-5 px-1">
-                        @foreach($chunk as $rev)
-                        <div class="bg-white/5 border border-gold-400/10 rounded-2xl p-6 backdrop-blur-sm">
-                            <div class="flex items-center gap-0.5 mb-3">
-                                @for($s = 1; $s <= 5; $s++)
-                                <svg class="w-4 h-4 {{ $s <= $rev->rating ? 'text-gold-400 fill-gold-400' : 'text-gray-600 fill-gray-600' }}" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                @endfor
-                            </div>
-                            <p class="text-cream-200 text-sm leading-relaxed mb-4 line-clamp-3">"{{ $rev->comment }}"</p>
-                            @if($rev->images && count($rev->images))
-                            <div class="flex gap-1.5 mb-3">
-                                @foreach(array_slice($rev->images, 0, 3) as $rImg)
-                                <div class="w-10 h-10 rounded-lg overflow-hidden border border-white/10">
-                                    <img src="{{ str_starts_with($rImg, '/storage/') ? '/public' . $rImg : $rImg }}" class="w-full h-full object-cover" loading="lazy">
+                <!-- MOBILE: One review at a time -->
+                <div class="md:hidden">
+                    <div class="flex transition-transform duration-700 ease-in-out" :style="'transform: translateX(-' + (revSlide * 100) + '%)'">
+                        @foreach($homeReviews as $rev)
+                        <div class="w-full flex-shrink-0 px-1">
+                            <div class="bg-white/5 border border-gold-400/10 rounded-2xl p-6 backdrop-blur-sm">
+                                <div class="flex items-center gap-0.5 mb-3">
+                                    @for($s = 1; $s <= 5; $s++)
+                                    <svg class="w-4 h-4 {{ $s <= $rev->rating ? 'text-gold-400 fill-gold-400' : 'text-gray-600 fill-gray-600' }}" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                    @endfor
                                 </div>
-                                @endforeach
-                            </div>
-                            @endif
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white" style="background-color:#B08840">{{ substr($rev->user->name ?? 'C', 0, 1) }}</div>
-                                <div>
-                                    <p class="text-gold-300 text-xs font-semibold">{{ $rev->user->name ?? 'Customer' }}</p>
-                                    <p class="text-[10px] text-cream-300/50">{{ $rev->product->name ?? 'Verified Buyer' }}</p>
+                                <p class="text-cream-200 text-sm leading-relaxed mb-4">"{{ $rev->comment }}"</p>
+                                @if($rev->images && count($rev->images))
+                                <div class="flex gap-1.5 mb-3">
+                                    @foreach(array_slice($rev->images, 0, 3) as $rImg)
+                                    <div class="w-10 h-10 rounded-lg overflow-hidden border border-white/10">
+                                        <img src="{{ str_starts_with($rImg, '/storage/') ? '/public' . $rImg : $rImg }}" class="w-full h-full object-cover" loading="lazy">
+                                    </div>
+                                    @endforeach
+                                </div>
+                                @endif
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white" style="background-color:#B08840">{{ substr($rev->user->name ?? 'C', 0, 1) }}</div>
+                                    <div>
+                                        <p class="text-gold-300 text-xs font-semibold">{{ $rev->user->name ?? 'Customer' }}</p>
+                                        <p class="text-[10px] text-cream-300/50">{{ $rev->product->name ?? 'Verified Buyer' }}</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         @endforeach
                     </div>
-                    @endforeach
+                </div>
+                <!-- DESKTOP: 3 per slide -->
+                <div class="hidden md:block">
+                    <div class="flex transition-transform duration-700 ease-in-out" :style="'transform: translateX(-' + (Math.floor(revSlide / 3) * 100) + '%)'">
+                        @foreach($homeReviews->chunk(3) as $chunk)
+                        <div class="w-full flex-shrink-0 grid md:grid-cols-3 gap-5 px-1">
+                            @foreach($chunk as $rev)
+                            <div class="bg-white/5 border border-gold-400/10 rounded-2xl p-6 backdrop-blur-sm">
+                                <div class="flex items-center gap-0.5 mb-3">
+                                    @for($s = 1; $s <= 5; $s++)
+                                    <svg class="w-4 h-4 {{ $s <= $rev->rating ? 'text-gold-400 fill-gold-400' : 'text-gray-600 fill-gray-600' }}" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                    @endfor
+                                </div>
+                                <p class="text-cream-200 text-sm leading-relaxed mb-4 line-clamp-3">"{{ $rev->comment }}"</p>
+                                @if($rev->images && count($rev->images))
+                                <div class="flex gap-1.5 mb-3">
+                                    @foreach(array_slice($rev->images, 0, 3) as $rImg)
+                                    <div class="w-10 h-10 rounded-lg overflow-hidden border border-white/10">
+                                        <img src="{{ str_starts_with($rImg, '/storage/') ? '/public' . $rImg : $rImg }}" class="w-full h-full object-cover" loading="lazy">
+                                    </div>
+                                    @endforeach
+                                </div>
+                                @endif
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white" style="background-color:#B08840">{{ substr($rev->user->name ?? 'C', 0, 1) }}</div>
+                                    <div>
+                                        <p class="text-gold-300 text-xs font-semibold">{{ $rev->user->name ?? 'Customer' }}</p>
+                                        <p class="text-[10px] text-cream-300/50">{{ $rev->product->name ?? 'Verified Buyer' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
             <!-- Slider dots -->
-            @if($homeReviews->count() > 3)
             <div class="flex justify-center gap-2 mt-6">
-                @for($d = 0; $d < ceil($homeReviews->count() / 3); $d++)
-                <button @click="revSlide = {{ $d }}" :class="revSlide === {{ $d }} ? 'w-8 bg-gold-400' : 'w-3 bg-white/20'" class="h-2.5 rounded-full transition-all"></button>
-                @endfor
+                <!-- Mobile dots (one per review) -->
+                <div class="md:hidden flex gap-2">
+                    @for($d = 0; $d < $homeReviews->count(); $d++)
+                    <button @click="revSlide = {{ $d }}" :class="revSlide === {{ $d }} ? 'w-8 bg-gold-400' : 'w-3 bg-white/20'" class="h-2.5 rounded-full transition-all"></button>
+                    @endfor
+                </div>
+                <!-- Desktop dots (one per group of 3) -->
+                <div class="hidden md:flex gap-2">
+                    @for($d = 0; $d < ceil($homeReviews->count() / 3); $d++)
+                    <button @click="revSlide = {{ $d * 3 }}" :class="Math.floor(revSlide / 3) === {{ $d }} ? 'w-8 bg-gold-400' : 'w-3 bg-white/20'" class="h-2.5 rounded-full transition-all"></button>
+                    @endfor
+                </div>
             </div>
-            @endif
         </div>
     </div>
 </section>
+@endif
 
 <!-- FAQ Section -->
 <section class="py-16 md:py-20 scroll-reveal" style="background-color: #FBF7F0;">
@@ -758,9 +794,14 @@ document.addEventListener('alpine:init', () => {
         <span class="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-500">Stay Connected</span>
         <h2 class="font-display text-3xl md:text-4xl font-bold text-espresso-700 mt-3 mb-4">Join the community.</h2>
         <p class="text-espresso-400 text-sm mb-8">Exclusive offers, Ayurvedic wisdom & new launches — straight to your inbox.</p>
-        <form class="flex flex-col sm:flex-row gap-3">
-            <input type="email" placeholder="Your email address" class="flex-1 px-5 py-4 bg-white border border-gold-200 rounded-xl text-sm text-espresso-700 placeholder:text-espresso-300 focus:outline-none focus:ring-2 focus:ring-gold-300 focus:border-gold-400">
-            <button type="button" class="px-7 py-4 bg-gold-500 text-white text-sm font-bold uppercase tracking-wider rounded-xl hover:bg-gold-600 transition shadow-lg shadow-gold-500/20">Subscribe</button>
+        <form class="flex flex-col sm:flex-row gap-3" x-data="{ email: '', msg: '', success: false, sending: false }" @submit.prevent="
+            sending = true; msg = '';
+            fetch('{{ route('newsletter.subscribe') }}', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' }, body: JSON.stringify({ email: email }) })
+            .then(r => r.json()).then(d => { sending = false; if(d.success) { success = true; msg = d.message; email = ''; } else { msg = d.message || 'Please enter a valid email.'; } })
+            .catch(() => { sending = false; msg = 'Something went wrong. Try again.'; });">
+            <input type="email" x-model="email" placeholder="Your email address" required class="flex-1 px-5 py-4 bg-white border border-gold-200 rounded-xl text-sm text-espresso-700 placeholder:text-espresso-300 focus:outline-none focus:ring-2 focus:ring-gold-300 focus:border-gold-400">
+            <button type="submit" :disabled="sending" class="px-7 py-4 bg-gold-500 text-white text-sm font-bold uppercase tracking-wider rounded-xl hover:bg-gold-600 transition shadow-lg shadow-gold-500/20 disabled:opacity-50" x-text="sending ? 'Subscribing...' : 'Subscribe'"></button>
+            <template x-if="msg"><p class="text-xs font-semibold mt-2 sm:mt-0 sm:self-center" :class="success ? 'text-green-600' : 'text-red-500'" x-text="msg"></p></template>
         </form>
     </div>
 </section>
