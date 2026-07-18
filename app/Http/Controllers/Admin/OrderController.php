@@ -131,7 +131,7 @@ class OrderController extends Controller
         $request->validate([
             'ids' => 'required|array',
             'ids.*' => 'exists:orders,id',
-            'status' => 'required|in:pending,confirmed,processing,shipped,out_for_delivery,delivered,cancelled',
+            'status' => 'required|in:confirmed,processing,shipped,delivered,cancelled',
         ]);
 
         $orders = Order::whereIn('id', $request->ids)->get();
@@ -187,7 +187,7 @@ class OrderController extends Controller
     public function updateStatus(Request $request, Order $order)
     {
         $request->validate([
-            'status' => 'required|in:pending,confirmed,processing,shipped,out_for_delivery,delivered,cancelled',
+            'status' => 'required|in:confirmed,processing,shipped,delivered,cancelled',
         ]);
 
         $order->update(['status' => $request->status]);
@@ -204,10 +204,7 @@ class OrderController extends Controller
                 'payment_status' => $order->payment_status === 'paid' ? 'refunded' : $order->payment_status,
             ]),
             'shipped' => $order->update(['shipped_at' => now()]),
-            // If moved BACK from delivered to any other status, revert payment for COD
-            default => $order->payment_method === 'cod' && $order->payment_status === 'paid'
-                ? $order->update(['payment_status' => 'pending', 'paid_at' => null])
-                : null,
+            default => null,
         };
 
         // Add to timeline
@@ -216,20 +213,13 @@ class OrderController extends Controller
             'message' => "Order status changed to " . ucfirst(str_replace('_', ' ', $request->status)),
         ]);
 
-        // Send email notification to customer
+        // Send email notification to customer (NOT for cancelled)
         $customerEmail = $order->address?->email ?? ($order->user?->email ?? null);
-        if ($customerEmail && in_array($request->status, ['confirmed', 'processing', 'shipped', 'out_for_delivery', 'delivered', 'cancelled'])) {
+        if ($customerEmail && in_array($request->status, ['processing', 'shipped', 'delivered'])) {
             try {
                 \Illuminate\Support\Facades\Mail::to($customerEmail)->send(new \App\Mail\OrderStatusMail($order->fresh(['items', 'address'])));
             } catch (\Exception $e) {
                 \Log::warning('Order email failed: ' . $e->getMessage());
-            }
-        } elseif (!$customerEmail) {
-            // No customer email found - send only to shop for record
-            try {
-                \Illuminate\Support\Facades\Mail::to('shop@theshivara.com')->send(new \App\Mail\OrderStatusMail($order->fresh(['items', 'address'])));
-            } catch (\Exception $e) {
-                \Log::warning('Order shop email failed: ' . $e->getMessage());
             }
         }
 

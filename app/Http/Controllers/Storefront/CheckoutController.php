@@ -181,14 +181,14 @@ class CheckoutController extends Controller
             return $this->initiateRazorpay($order);
         }
 
-        // COD - keep as pending (admin will confirm manually)
-        $order->update(['status' => 'pending']);
+        // COD - set as confirmed
+        $order->update(['status' => 'confirmed']);
 
-        // Send order confirmation email for COD
+        // Send order confirmation email for COD (+ BCC to shop as new order)
         $customerEmail = $order->address?->email ?? ($order->user?->email ?? null);
         if ($customerEmail) {
             try {
-                \Illuminate\Support\Facades\Mail::to($customerEmail)->send(new \App\Mail\OrderStatusMail($order->fresh(['items', 'address'])));
+                \Illuminate\Support\Facades\Mail::to($customerEmail)->send(new \App\Mail\OrderStatusMail($order->fresh(['items', 'address']), true));
             } catch (\Exception $e) {
                 \Log::warning('COD order email failed: ' . $e->getMessage());
             }
@@ -261,7 +261,7 @@ class CheckoutController extends Controller
             $customerEmail = $order->address?->email ?? ($order->user?->email ?? null);
             if ($customerEmail) {
                 try {
-                    \Illuminate\Support\Facades\Mail::to($customerEmail)->send(new \App\Mail\OrderStatusMail($order->fresh(['items', 'address'])));
+                    \Illuminate\Support\Facades\Mail::to($customerEmail)->send(new \App\Mail\OrderStatusMail($order->fresh(['items', 'address']), true));
                 } catch (\Exception $e) {
                     \Log::warning('Order confirmation email failed for ' . $order->order_number . ': ' . $e->getMessage());
                 }
