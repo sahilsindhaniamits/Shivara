@@ -25,13 +25,10 @@
         <td style="padding:0;">
             @php
                 $statusConfig = match($order->status) {
-                    'pending' => ['icon' => '🛒', 'color' => '#B7925C', 'bg' => '#FBF7F0', 'title' => 'Order Received!', 'subtitle' => 'We\'ve received your order and will confirm it shortly.'],
                     'confirmed' => ['icon' => '✓', 'color' => '#16a34a', 'bg' => '#f0fdf4', 'title' => 'Order Confirmed!', 'subtitle' => 'Your order has been confirmed and is being prepared.'],
                     'processing' => ['icon' => '⚙️', 'color' => '#2563eb', 'bg' => '#eff6ff', 'title' => 'Order Processing', 'subtitle' => 'We are carefully packing your products with love.'],
                     'shipped' => ['icon' => '🚚', 'color' => '#7c3aed', 'bg' => '#f5f3ff', 'title' => 'Order Shipped!', 'subtitle' => 'Your package is on its way to you.'],
-                    'out_for_delivery' => ['icon' => '📦', 'color' => '#ea580c', 'bg' => '#fff7ed', 'title' => 'Out for Delivery!', 'subtitle' => 'Your package will arrive today.'],
                     'delivered' => ['icon' => '🎉', 'color' => '#16a34a', 'bg' => '#f0fdf4', 'title' => 'Order Delivered!', 'subtitle' => 'Your order has been delivered. Enjoy!'],
-                    'cancelled' => ['icon' => '✗', 'color' => '#dc2626', 'bg' => '#fef2f2', 'title' => 'Order Cancelled', 'subtitle' => 'Your order has been cancelled.'],
                     default => ['icon' => '📋', 'color' => '#B7925C', 'bg' => '#FBF7F0', 'title' => 'Order Update', 'subtitle' => $statusMessage],
                 };
             @endphp
@@ -43,27 +40,27 @@
         </td>
     </tr>
 
-    <!-- Order Progress Bar (for shipped/processing/out_for_delivery) -->
-    @if(in_array($order->status, ['confirmed', 'processing', 'shipped', 'out_for_delivery', 'delivered']))
+    <!-- Order Progress Bar -->
+    @if(in_array($order->status, ['confirmed', 'processing', 'shipped', 'delivered']))
     <tr>
         <td style="padding:24px 32px 0;">
             @php
-                $steps = ['confirmed' => 1, 'processing' => 2, 'shipped' => 3, 'out_for_delivery' => 4, 'delivered' => 5];
+                $steps = ['confirmed' => 1, 'processing' => 2, 'shipped' => 3, 'delivered' => 4];
                 $currentStep = $steps[$order->status] ?? 1;
             @endphp
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                    @foreach(['Confirmed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered'] as $idx => $step)
-                    <td style="text-align:center;width:20%;padding:0;">
+                    @foreach(['Confirmed', 'Processing', 'Shipped', 'Delivered'] as $idx => $step)
+                    <td style="text-align:center;width:25%;padding:0;">
                         <div style="width:24px;height:24px;border-radius:50%;margin:0 auto 4px;line-height:24px;font-size:10px;font-weight:700;{{ ($idx + 1) <= $currentStep ? 'background-color:#2C2418;color:#fff;' : 'background-color:#e5e7eb;color:#9ca3af;' }}">{{ ($idx + 1) <= $currentStep ? '✓' : ($idx + 1) }}</div>
                         <p style="margin:0;font-size:9px;color:{{ ($idx + 1) <= $currentStep ? '#2C2418' : '#9ca3af' }};font-weight:{{ ($idx + 1) <= $currentStep ? '600' : '400' }};">{{ $step }}</p>
                     </td>
                     @endforeach
                 </tr>
                 <tr>
-                    <td colspan="5" style="padding:12px 0 0;">
+                    <td colspan="4" style="padding:12px 0 0;">
                         <div style="height:3px;background-color:#e5e7eb;border-radius:3px;overflow:hidden;">
-                            <div style="height:100%;width:{{ ($currentStep / 5) * 100 }}%;background-color:#2C2418;border-radius:3px;"></div>
+                            <div style="height:100%;width:{{ ($currentStep / 4) * 100 }}%;background-color:#2C2418;border-radius:3px;"></div>
                         </div>
                     </td>
                 </tr>

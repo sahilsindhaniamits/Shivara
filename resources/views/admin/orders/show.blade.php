@@ -98,7 +98,7 @@
                 <form method="POST" action="{{ route('admin.orders.updateStatus', $order) }}">
                     @csrf @method('PATCH')
                     <select name="status" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm mb-3">
-                        @foreach(['pending','confirmed','processing','shipped','out_for_delivery','delivered','cancelled'] as $status)
+                        @foreach(['confirmed','processing','shipped','delivered','cancelled'] as $status)
                         <option value="{{ $status }}" {{ $order->status == $status ? 'selected' : '' }}>{{ ucfirst(str_replace('_', ' ', $status)) }}</option>
                         @endforeach
                     </select>
