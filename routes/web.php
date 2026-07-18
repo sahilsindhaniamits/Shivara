@@ -194,6 +194,42 @@ Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\AdminMiddleware
         return back()->with('success', 'Announcement bar updated!');
     })->name('marquee.update');
 
+    // Test Email (for debugging)
+    Route::get('/test-email', function () {
+        $error = null;
+        $success = null;
+
+        if (request()->has('send')) {
+            try {
+                $testTo = request('to', 'shop@theshivara.com');
+                \Illuminate\Support\Facades\Mail::raw(
+                    "This is a test email from Shivara.\n\nIf you're reading this, email sending is working correctly!\n\nSent at: " . now()->format('d M Y, h:i:s A'),
+                    function ($message) use ($testTo) {
+                        $message->to($testTo)
+                                ->subject('Shivara Test Email - ' . now()->format('H:i:s'));
+                    }
+                );
+                $success = "Test email sent successfully to {$testTo}! Check your inbox (and spam folder).";
+            } catch (\Exception $e) {
+                $error = "Email FAILED: " . $e->getMessage();
+            }
+        }
+
+        // Show current mail config (hide password)
+        $config = [
+            'MAIL_MAILER' => config('mail.default'),
+            'MAIL_HOST' => config('mail.mailers.smtp.host'),
+            'MAIL_PORT' => config('mail.mailers.smtp.port'),
+            'MAIL_ENCRYPTION' => config('mail.mailers.smtp.encryption'),
+            'MAIL_USERNAME' => config('mail.mailers.smtp.username'),
+            'MAIL_PASSWORD' => config('mail.mailers.smtp.password') ? '***SET***' : '***NOT SET***',
+            'MAIL_FROM_ADDRESS' => config('mail.from.address'),
+            'MAIL_FROM_NAME' => config('mail.from.name'),
+        ];
+
+        return view('admin.test-email', compact('config', 'error', 'success'));
+    })->name('test-email');
+
     // Reports & Analytics
     Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/revenue-chart', [AdminReportController::class, 'revenueChart'])->name('reports.revenueChart');
