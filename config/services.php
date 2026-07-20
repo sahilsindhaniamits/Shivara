@@ -38,6 +38,9 @@ return [
     'razorpay' => [
         'key' => env('RAZORPAY_KEY_ID'),
         'secret' => env('RAZORPAY_KEY_SECRET'),
+        'webhook_secret' => env('RAZORPAY_WEBHOOK_SECRET'),
+        'cod_review_username' => env('RAZORPAY_COD_REVIEW_USERNAME', 'shivara_cod_review'),
+        'cod_review_password' => env('RAZORPAY_COD_REVIEW_PASSWORD', 'Shivara@COD2024!'),
     ],
 
     'google' => [
