@@ -5,11 +5,11 @@
 @php $heroBanners = \App\Models\Banner::active()->orderBy('sort_order')->get(); @endphp
 <style>
 .shivara-banner { margin-top: 0; }
-.shivara-banner .banner-desktop { display: none; }
-.shivara-banner .banner-mobile { display: block; }
+.shivara-banner .banner-desktop { display: none !important; }
+.shivara-banner .banner-mobile { display: block !important; }
 @media (min-width: 1024px) {
-    .shivara-banner .banner-desktop { display: block; }
-    .shivara-banner .banner-mobile { display: none; }
+    .shivara-banner .banner-desktop { display: block !important; }
+    .shivara-banner .banner-mobile { display: none !important; }
 }
 </style>
 @if($heroBanners->count())
@@ -19,7 +19,7 @@
     <div class="relative w-full overflow-hidden transition-opacity duration-700" :class="current === 0 ? 'opacity-100' : 'opacity-0'">
         @if($firstBanner->mobile_image_url)
         {{-- Mobile/Tablet: show mobile image (below 1024px) --}}
-        <img src="{{ $firstBanner->mobile_image_url }}" alt="{{ $firstBanner->title }}" class="banner-mobile" style="width:100%;height:auto;display:block;" loading="eager" fetchpriority="high">
+        <img src="{{ $firstBanner->mobile_image_url }}" alt="{{ $firstBanner->title }}" class="banner-mobile" style="width:100%;height:auto;" loading="eager" fetchpriority="high">
         {{-- Desktop: show desktop image (1024px+) --}}
         <img src="{{ $firstBanner->image_url }}" alt="{{ $firstBanner->title }}" class="banner-desktop" style="width:100%;height:auto;" loading="eager" fetchpriority="high">
         @else
