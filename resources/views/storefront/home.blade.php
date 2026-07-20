@@ -5,6 +5,12 @@
 @php $heroBanners = \App\Models\Banner::active()->orderBy('sort_order')->get(); @endphp
 <style>
 .shivara-banner { margin-top: 0; }
+.shivara-banner .banner-desktop { display: none; }
+.shivara-banner .banner-mobile { display: block; }
+@media (min-width: 1024px) {
+    .shivara-banner .banner-desktop { display: block; }
+    .shivara-banner .banner-mobile { display: none; }
+}
 </style>
 @if($heroBanners->count())
 <section x-data="{ current: 0, slides: {{ $heroBanners->count() }} }" x-init="setInterval(() => current = (current + 1) % slides, 3000); initSwipe($el, () => current = (current+1)%slides, () => current = (current-1+slides)%slides)" class="relative overflow-hidden select-none cursor-grab active:cursor-grabbing shivara-banner">
@@ -12,13 +18,13 @@
     @php $firstBanner = $heroBanners->first(); @endphp
     <div class="relative w-full overflow-hidden transition-opacity duration-700" :class="current === 0 ? 'opacity-100' : 'opacity-0'">
         @if($firstBanner->mobile_image_url)
-        {{-- Mobile/Tablet: show mobile image at its natural aspect ratio (up to 1024px) --}}
-        <img src="{{ $firstBanner->mobile_image_url }}" alt="{{ $firstBanner->title }}" class="w-full lg:hidden" style="display:block;" loading="eager" fetchpriority="high">
-        {{-- Desktop: show desktop image (1024px and above) --}}
-        <img src="{{ $firstBanner->image_url }}" alt="{{ $firstBanner->title }}" class="w-full hidden lg:block" loading="eager" fetchpriority="high">
+        {{-- Mobile/Tablet: show mobile image (below 1024px) --}}
+        <img src="{{ $firstBanner->mobile_image_url }}" alt="{{ $firstBanner->title }}" class="w-full banner-mobile" loading="eager" fetchpriority="high">
+        {{-- Desktop: show desktop image (1024px+) --}}
+        <img src="{{ $firstBanner->image_url }}" alt="{{ $firstBanner->title }}" class="w-full banner-desktop" loading="eager" fetchpriority="high">
         @else
-        {{-- No mobile image uploaded: show desktop image with min-height on mobile --}}
-        <img src="{{ $firstBanner->image_url }}" alt="{{ $firstBanner->title }}" class="w-full object-cover object-center min-h-[250px] sm:min-h-[300px] md:min-h-0" loading="eager" fetchpriority="high">
+        {{-- No mobile image uploaded: show desktop image --}}
+        <img src="{{ $firstBanner->image_url }}" alt="{{ $firstBanner->title }}" class="w-full object-cover object-center" style="min-height:250px;" loading="eager" fetchpriority="high">
         @endif
         @if($firstBanner->title || $firstBanner->subtitle)
         <div class="absolute inset-0 flex items-center" style="background: linear-gradient(135deg, rgba(44,36,24,0.5), rgba(44,36,24,0.1));">
@@ -37,8 +43,8 @@
     @foreach($heroBanners->slice(1)->values() as $idx => $banner)
     <div x-show="current === {{ $idx + 1 }}" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-cloak class="absolute inset-0 w-full h-full overflow-hidden">
         @if($banner->mobile_image_url)
-        <img src="{{ $banner->mobile_image_url }}" alt="{{ $banner->title }}" class="w-full h-full object-cover object-center lg:hidden" loading="lazy">
-        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="w-full h-full object-cover object-center hidden lg:block" loading="lazy">
+        <img src="{{ $banner->mobile_image_url }}" alt="{{ $banner->title }}" class="w-full h-full object-cover object-center banner-mobile" loading="lazy">
+        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="w-full h-full object-cover object-center banner-desktop" loading="lazy">
         @else
         <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="w-full h-full object-cover object-center" loading="lazy">
         @endif
