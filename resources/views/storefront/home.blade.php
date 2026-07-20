@@ -13,11 +13,12 @@
     <div class="relative w-full overflow-hidden transition-opacity duration-700" :class="current === 0 ? 'opacity-100' : 'opacity-0'">
         @if($firstBanner->mobile_image_url)
         {{-- Mobile: show mobile image at its natural aspect ratio --}}
-        <img src="{{ $firstBanner->mobile_image_url }}" alt="{{ $firstBanner->title }}" class="w-full object-cover object-center md:hidden" loading="eager" fetchpriority="high">
+        <img src="{{ $firstBanner->mobile_image_url }}" alt="{{ $firstBanner->title }}" class="w-full md:hidden" style="display:block;" loading="eager" fetchpriority="high">
         {{-- Desktop: show desktop image --}}
-        <img src="{{ $firstBanner->image_url }}" alt="{{ $firstBanner->title }}" class="w-full object-cover object-center hidden md:block" loading="eager" fetchpriority="high">
+        <img src="{{ $firstBanner->image_url }}" alt="{{ $firstBanner->title }}" class="w-full hidden md:block" loading="eager" fetchpriority="high">
         @else
-        <img src="{{ $firstBanner->image_url }}" alt="{{ $firstBanner->title }}" class="w-full object-cover object-center" loading="eager" fetchpriority="high">
+        {{-- No mobile image uploaded: show desktop image with min-height on mobile --}}
+        <img src="{{ $firstBanner->image_url }}" alt="{{ $firstBanner->title }}" class="w-full object-cover object-center min-h-[250px] sm:min-h-[300px] md:min-h-0" loading="eager" fetchpriority="high">
         @endif
         @if($firstBanner->title || $firstBanner->subtitle)
         <div class="absolute inset-0 flex items-center" style="background: linear-gradient(135deg, rgba(44,36,24,0.5), rgba(44,36,24,0.1));">
