@@ -79,9 +79,6 @@
         ::-webkit-scrollbar-track { background: #FFF9ED; }
         ::-webkit-scrollbar-thumb { background: #D4B078; border-radius: 3px; }
 
-        /* HD images - prevent blur */
-        img { image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; }
-
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }

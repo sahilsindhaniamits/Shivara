@@ -19,12 +19,12 @@
     <div class="relative w-full overflow-hidden transition-opacity duration-700" :class="current === 0 ? 'opacity-100' : 'opacity-0'">
         @if($firstBanner->mobile_image_url)
         {{-- Mobile/Tablet: show mobile image (below 1024px) --}}
-        <img src="{{ $firstBanner->mobile_image_url }}" alt="{{ $firstBanner->title }}" class="w-full banner-mobile" loading="eager" fetchpriority="high">
+        <img src="{{ $firstBanner->mobile_image_url }}" alt="{{ $firstBanner->title }}" class="banner-mobile" style="width:100%;height:auto;display:block;" loading="eager" fetchpriority="high">
         {{-- Desktop: show desktop image (1024px+) --}}
-        <img src="{{ $firstBanner->image_url }}" alt="{{ $firstBanner->title }}" class="w-full banner-desktop" loading="eager" fetchpriority="high">
+        <img src="{{ $firstBanner->image_url }}" alt="{{ $firstBanner->title }}" class="banner-desktop" style="width:100%;height:auto;" loading="eager" fetchpriority="high">
         @else
         {{-- No mobile image uploaded: show desktop image --}}
-        <img src="{{ $firstBanner->image_url }}" alt="{{ $firstBanner->title }}" class="w-full object-cover object-center" style="min-height:250px;" loading="eager" fetchpriority="high">
+        <img src="{{ $firstBanner->image_url }}" alt="{{ $firstBanner->title }}" style="width:100%;height:auto;min-height:250px;object-fit:cover;" loading="eager" fetchpriority="high">
         @endif
         @if($firstBanner->title || $firstBanner->subtitle)
         <div class="absolute inset-0 flex items-center" style="background: linear-gradient(135deg, rgba(44,36,24,0.5), rgba(44,36,24,0.1));">
@@ -43,10 +43,10 @@
     @foreach($heroBanners->slice(1)->values() as $idx => $banner)
     <div x-show="current === {{ $idx + 1 }}" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-cloak class="absolute inset-0 w-full h-full overflow-hidden">
         @if($banner->mobile_image_url)
-        <img src="{{ $banner->mobile_image_url }}" alt="{{ $banner->title }}" class="w-full h-full object-cover object-center banner-mobile" loading="lazy">
-        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="w-full h-full object-cover object-center banner-desktop" loading="lazy">
+        <img src="{{ $banner->mobile_image_url }}" alt="{{ $banner->title }}" class="banner-mobile" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
+        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="banner-desktop" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
         @else
-        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="w-full h-full object-cover object-center" loading="lazy">
+        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
         @endif
         @if($banner->title || $banner->subtitle)
         <div class="absolute inset-0 flex items-center" style="background: linear-gradient(135deg, rgba(44,36,24,0.5), rgba(44,36,24,0.1));">
