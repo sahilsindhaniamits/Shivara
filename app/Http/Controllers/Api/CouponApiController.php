@@ -9,18 +9,11 @@ use Illuminate\Http\Request;
 /**
  * API endpoints for Razorpay Magic Checkout coupon integration.
  * These are called by Razorpay to display/apply promotions during checkout.
- * 
- * Razorpay Dashboard > Magic Checkout > Coupon Settings:
- * - URL for get promotions: https://theshivara.com/api/promotions
- * - URL for apply promotions: https://theshivara.com/api/promotions/apply
  */
 class CouponApiController extends Controller
 {
     /**
-     * GET /api/promotions - Returns available coupons for display in Magic Checkout
-     * 
-     * Razorpay sends: order_id, contact (phone) as query params
-     * Expected response: { "promotions": [ { "code", "summary", "description", "tnc" } ] }
+     * GET /api/promotions - Returns available coupons for display
      */
     public function getPromotions(Request $request)
     {
@@ -45,20 +38,14 @@ class CouponApiController extends Controller
             ];
         });
 
-        // Razorpay Magic Checkout expects flat response with "promotions" key
         return response()->json([
+            'success' => true,
             'promotions' => $promotions->values(),
         ]);
     }
 
     /**
      * POST /api/promotions/apply - Validates and applies a coupon
-     * 
-     * Razorpay sends: { "code": "COUPONCODE", "order_id": "order_xxx", "order_amount": 94900 }
-     * order_amount is in paise (e.g., 94900 = ₹949)
-     * 
-     * Expected success response: { "promotion_applied": true, "discount": 9490, "code": "SHIVARA10", "description": "..." }
-     * Expected failure response: { "promotion_applied": false, "error_message": "..." }
      */
     public function applyPromotion(Request $request)
     {
@@ -67,35 +54,28 @@ class CouponApiController extends Controller
         $orderAmount = $orderAmountPaise / 100; // Convert paise to rupees
 
         if (!$code) {
-            return response()->json([
-                'promotion_applied' => false,
-                'error_message' => 'Please enter a coupon code.',
-            ]);
+            return response()->json(['success' => false, 'message' => 'Please enter a coupon code.'], 400);
         }
 
         $coupon = Coupon::where('code', $code)->first();
 
         if (!$coupon || !$coupon->isValid()) {
-            return response()->json([
-                'promotion_applied' => false,
-                'error_message' => 'Invalid or expired coupon code.',
-            ]);
+            return response()->json(['success' => false, 'message' => 'Invalid or expired coupon code.'], 400);
         }
 
         if ($coupon->min_order_amount && $orderAmount < $coupon->min_order_amount) {
             return response()->json([
-                'promotion_applied' => false,
-                'error_message' => 'Minimum order amount is ₹' . number_format($coupon->min_order_amount) . '.',
-            ]);
+                'success' => false,
+                'message' => 'Minimum order amount is ₹' . number_format($coupon->min_order_amount) . '.',
+            ], 400);
         }
 
         $discount = $coupon->calculateDiscount($orderAmount);
-        $discountPaise = (int) round($discount * 100); // Return discount in paise
+        $discountPaise = (int) round($discount * 100);
 
         return response()->json([
-            'promotion_applied' => true,
+            'success' => true,
             'discount' => $discountPaise,
-            'code' => $coupon->code,
             'description' => $coupon->description ?: ($coupon->type === 'percentage' ? $coupon->value . '% OFF applied!' : '₹' . $coupon->value . ' OFF applied!'),
         ]);
     }
