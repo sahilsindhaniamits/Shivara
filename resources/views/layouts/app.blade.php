@@ -91,9 +91,9 @@
 <body class="min-h-screen" style="overflow-x:hidden; max-width:100vw;">
 
     @include('partials.header')
-    <!-- Spacer for fixed desktop header (non-homepage only) -->
+    <!-- Spacer for fixed header (non-homepage only) -->
     @unless(request()->routeIs('home'))
-    <div class="hidden lg:block" style="height: 92px;"></div>
+    <div style="height: 80px;"></div>
     @endunless
 
     <!-- Flash Messages -->
