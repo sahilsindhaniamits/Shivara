@@ -3,9 +3,9 @@
         <div class="relative aspect-square overflow-hidden bg-cream-100">
             @php $imgUrl = $product->primary_image_url; @endphp
             @if($imgUrl)
-                <img src="{{ $imgUrl }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
+                <img src="{{ $imgUrl }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async">
             @else
-                <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop&q=80" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
+                <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop&q=80" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async">
             @endif
             @if($product->discount_percent > 0)
             <span class="absolute top-2.5 left-2.5 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm" style="background-color:#c06d22">-{{ $product->discount_percent }}%</span>

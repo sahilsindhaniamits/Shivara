@@ -72,12 +72,16 @@
 
         /* Product card hover */
         .product-card { transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
-        .product-card:hover { transform: translateY(-6px); box-shadow: 0 20px 60px rgba(44, 36, 24, 0.1); }
+        .product-card:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(44, 36, 24, 0.1); }
 
         /* Custom scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #FFF9ED; }
         ::-webkit-scrollbar-thumb { background: #D4B078; border-radius: 3px; }
+
+        /* Force high-quality image rendering */
+        img { image-rendering: auto; -ms-interpolation-mode: bicubic; }
+        .product-card img { will-change: auto; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
