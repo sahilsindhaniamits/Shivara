@@ -85,6 +85,20 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Track Order Button -->
+            <div class="mt-6">
+                <a href="{{ route('track.order', ['order_number' => $order->order_number, 'phone' => $order->address?->phone]) }}" class="inline-flex items-center gap-2 px-6 py-3 text-white text-sm font-bold rounded-xl hover:opacity-90 transition" style="background-color:#2C2418;">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                    Track Order
+                </a>
+                @if($order->tracking_url)
+                <a href="{{ $order->tracking_url }}" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold rounded-xl border-2 hover:bg-gray-50 transition ml-3" style="color:#2C2418; border-color:#2C2418;">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    Track Shipment
+                </a>
+                @endif
+            </div>
         </div>
     </div>
 </div>
