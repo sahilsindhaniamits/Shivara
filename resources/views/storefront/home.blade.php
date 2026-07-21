@@ -17,22 +17,21 @@
     {{-- First slide: ALWAYS in DOM (relative, sets height), visibility controlled by opacity --}}
     @php $firstBanner = $heroBanners->first(); @endphp
     <div class="relative w-full overflow-hidden transition-opacity duration-700" :class="current === 0 ? 'opacity-100' : 'opacity-0'">
+        @if($firstBanner->link)<a href="{{ $firstBanner->link }}" class="block w-full">@endif
         @if($firstBanner->mobile_image_url)
-        {{-- Mobile/Tablet: show mobile image (below 1024px) --}}
         <img src="{{ $firstBanner->mobile_image_url }}" alt="{{ $firstBanner->title }}" class="banner-mobile" style="width:100%;height:auto;" loading="eager" fetchpriority="high">
-        {{-- Desktop: show desktop image (1024px+) --}}
         <img src="{{ $firstBanner->image_url }}" alt="{{ $firstBanner->title }}" class="banner-desktop" style="width:100%;height:auto;" loading="eager" fetchpriority="high">
         @else
-        {{-- No mobile image uploaded: show desktop image --}}
         <img src="{{ $firstBanner->image_url }}" alt="{{ $firstBanner->title }}" style="width:100%;height:auto;min-height:250px;object-fit:cover;" loading="eager" fetchpriority="high">
         @endif
+        @if($firstBanner->link)</a>@endif
         @if($firstBanner->title || $firstBanner->subtitle)
-        <div class="absolute inset-0 flex items-center" style="background: linear-gradient(135deg, rgba(44,36,24,0.5), rgba(44,36,24,0.1));">
+        <div class="absolute inset-0 flex items-center pointer-events-none" style="background: linear-gradient(135deg, rgba(44,36,24,0.5), rgba(44,36,24,0.1));">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 w-full">
                 <div class="max-w-xl">
                     @if($firstBanner->title)<h2 class="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-3">{{ $firstBanner->title }}</h2>@endif
                     @if($firstBanner->subtitle)<p class="text-white/90 text-sm md:text-base max-w-md mb-6">{{ $firstBanner->subtitle }}</p>@endif
-                    @if($firstBanner->link)<a href="{{ $firstBanner->link }}" class="inline-flex items-center gap-2 px-6 py-3 bg-white text-sm font-bold rounded-full transition shadow-xl" style="color:#2C2418;">Shop Now <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>@endif
+                    @if($firstBanner->link)<a href="{{ $firstBanner->link }}" class="inline-flex items-center gap-2 px-6 py-3 bg-white text-sm font-bold rounded-full transition shadow-xl pointer-events-auto" style="color:#2C2418;">Shop Now <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>@endif
                 </div>
             </div>
         </div>
@@ -42,19 +41,21 @@
     {{-- Other slides: absolute on top, use x-show --}}
     @foreach($heroBanners->slice(1)->values() as $idx => $banner)
     <div x-show="current === {{ $idx + 1 }}" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-cloak class="absolute inset-0 w-full h-full overflow-hidden">
+        @if($banner->link)<a href="{{ $banner->link }}" class="block w-full h-full">@endif
         @if($banner->mobile_image_url)
         <img src="{{ $banner->mobile_image_url }}" alt="{{ $banner->title }}" class="banner-mobile" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
         <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="banner-desktop" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
         @else
         <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
         @endif
+        @if($banner->link)</a>@endif
         @if($banner->title || $banner->subtitle)
-        <div class="absolute inset-0 flex items-center" style="background: linear-gradient(135deg, rgba(44,36,24,0.5), rgba(44,36,24,0.1));">
+        <div class="absolute inset-0 flex items-center pointer-events-none" style="background: linear-gradient(135deg, rgba(44,36,24,0.5), rgba(44,36,24,0.1));">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 w-full">
                 <div class="max-w-xl">
                     @if($banner->title)<h2 class="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-3">{{ $banner->title }}</h2>@endif
                     @if($banner->subtitle)<p class="text-white/90 text-sm md:text-base max-w-md mb-6">{{ $banner->subtitle }}</p>@endif
-                    @if($banner->link)<a href="{{ $banner->link }}" class="inline-flex items-center gap-2 px-6 py-3 bg-white text-sm font-bold rounded-full transition shadow-xl" style="color:#2C2418;">Shop Now <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>@endif
+                    @if($banner->link)<a href="{{ $banner->link }}" class="inline-flex items-center gap-2 px-6 py-3 bg-white text-sm font-bold rounded-full transition shadow-xl pointer-events-auto" style="color:#2C2418;">Shop Now <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>@endif
                 </div>
             </div>
         </div>
