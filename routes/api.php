@@ -20,8 +20,6 @@ Route::match(['get', 'post'], '/razorpay/webhook', [RazorpayWebhookController::c
 // Razorpay Magic Checkout - Shipping Info API
 Route::match(['get', 'post'], '/shipping-info', function (\Illuminate\Http\Request $request) {
     $addresses = $request->input('addresses', []);
-    $freeThreshold = config('shivara.free_shipping_threshold', 999);
-    $standardRate = config('shivara.standard_rate', 50);
 
     $responseAddresses = [];
     foreach ($addresses as $address) {
@@ -35,7 +33,7 @@ Route::match(['get', 'post'], '/shipping-info', function (\Illuminate\Http\Reque
             'serviceable' => $serviceable,
             'cod' => $serviceable,
             'cod_fee' => 0,
-            'shipping_fee' => $serviceable ? (int)($standardRate * 100) : 0,
+            'shipping_fee' => 0,
         ];
     }
     return response()->json(['addresses' => $responseAddresses]);
