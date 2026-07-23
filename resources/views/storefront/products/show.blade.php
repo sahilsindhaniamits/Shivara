@@ -40,7 +40,7 @@
                 @if($product->images->count() > 1)
                 <!-- MOBILE: Swipe slider + auto-slide + arrows + tap to lightbox -->
                 <div class="lg:hidden relative" id="prodSlider">
-                    <div class="overflow-hidden rounded-xl relative">
+                    <div class="overflow-hidden rounded-xl relative" style="touch-action: pan-y;">
                         <div id="prodSliderTrack" class="flex" style="transition:transform 0.3s ease">
                             @foreach($product->images as $i => $image)
                             @php $imgSrc = str_starts_with($image->url, '/storage/') ? '/public' . $image->url : $image->url; @endphp
@@ -106,10 +106,11 @@
                     track.addEventListener('touchmove',function(e){
                         if(!dragging)return;
                         curX=e.touches[0].clientX;
-                        if(Math.abs(curX-startX)>5) hasMoved=true;
+                        var diffX = Math.abs(curX-startX);
+                        if(diffX>10) { hasMoved=true; e.preventDefault(); }
                         var pct=-(cur*100)+((curX-startX)/track.offsetWidth)*100;
                         track.style.transform='translateX('+pct+'%)';
-                    },{passive:true});
+                    },{passive:false});
                     track.addEventListener('touchend',function(){
                         if(!dragging)return; dragging=false;
                         var diff=curX-startX;
