@@ -113,7 +113,7 @@
                     track.addEventListener('touchend',function(){
                         if(!dragging)return; dragging=false;
                         var diff=curX-startX;
-                        if(diff<-40)slideTo(cur+1); else if(diff>40)slideTo(cur-1); else slideTo(cur);
+                        if(diff<-25)slideTo(cur+1); else if(diff>25)slideTo(cur-1); else slideTo(cur);
                     });
 
                     // Tap to open lightbox (only if not swiped)
