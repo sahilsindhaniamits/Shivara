@@ -38,35 +38,32 @@
             <!-- IMAGE AREA -->
             <div class="lg:w-[60%]">
                 @if($product->images->count() > 1)
-                <!-- MOBILE: Swipe slider + auto-slide + arrows + tap to lightbox -->
+                <!-- MOBILE: Native scroll-snap slider -->
                 <div class="lg:hidden relative" id="prodSlider">
-                    <div class="overflow-hidden rounded-xl relative" style="touch-action: pan-y;">
-                        <div id="prodSliderTrack" class="flex" style="transition:transform 0.3s ease">
-                            @foreach($product->images as $i => $image)
-                            @php $imgSrc = str_starts_with($image->url, '/storage/') ? '/public' . $image->url : $image->url; @endphp
-                            <div class="w-full shrink-0 prod-slide-item" data-idx="{{ $i }}">
-                                <img src="{{ $imgSrc }}" alt="{{ $product->name }}" class="w-full object-cover" style="aspect-ratio:4/5;" loading="{{ $i === 0 ? 'eager' : 'lazy' }}">
-                            </div>
-                            @endforeach
+                    <div id="prodSliderScroll" class="flex overflow-x-auto snap-x snap-mandatory rounded-xl scrollbar-hide" style="scroll-behavior:smooth; -webkit-overflow-scrolling:touch;">
+                        @foreach($product->images as $i => $image)
+                        @php $imgSrc = str_starts_with($image->url, '/storage/') ? '/public' . $image->url : $image->url; @endphp
+                        <div class="w-full shrink-0 snap-center prod-slide-item" data-idx="{{ $i }}">
+                            <img src="{{ $imgSrc }}" alt="{{ $product->name }}" class="w-full object-cover" style="aspect-ratio:4/5;" loading="{{ $i === 0 ? 'eager' : 'lazy' }}">
                         </div>
-                        @if($product->discount_percent > 0)
-                        <span class="absolute top-3 left-3 px-3 py-1.5 text-white text-[10px] font-bold rounded-full shadow-lg z-10" style="background-color:#c06d22;">{{ $product->discount_percent }}% OFF</span>
-                        @endif
-                        <!-- Arrow buttons -->
-                        <button id="prodSliderPrev" class="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center z-10 shadow-md" style="background:rgba(255,255,255,0.9);display:none;"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
-                        <button id="prodSliderNext" class="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center z-10 shadow-md" style="background:rgba(255,255,255,0.9);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></button>
+                        @endforeach
                     </div>
+                    @if($product->discount_percent > 0)
+                    <span class="absolute top-3 left-3 px-3 py-1.5 text-white text-[10px] font-bold rounded-full shadow-lg z-10" style="background-color:#c06d22;">{{ $product->discount_percent }}% OFF</span>
+                    @endif
                     <div id="prodSliderDots" class="flex justify-center gap-1.5 mt-3"></div>
                 </div>
+                <style>
+                    #prodSliderScroll::-webkit-scrollbar { display: none; }
+                    #prodSliderScroll { -ms-overflow-style: none; scrollbar-width: none; }
+                </style>
                 <script>
                 document.addEventListener('DOMContentLoaded', function(){
-                    var track = document.getElementById('prodSliderTrack');
+                    var scroll = document.getElementById('prodSliderScroll');
                     var dotsC = document.getElementById('prodSliderDots');
-                    var prevBtn = document.getElementById('prodSliderPrev');
-                    var nextBtn = document.getElementById('prodSliderNext');
-                    if(!track) return;
+                    if(!scroll) return;
                     var total = {{ $product->images->count() }};
-                    var cur = 0, startX = 0, curX = 0, dragging = false, hasMoved = false, autoTimer;
+                    var cur = 0;
 
                     // Build dots
                     for(var d=0;d<total;d++){
@@ -76,63 +73,47 @@
                         dot.style.backgroundColor = d===0?'#2C2418':'#d1d5db';
                         dotsC.appendChild(dot);
                     }
-                    dotsC.addEventListener('click',function(e){var b=e.target.closest('[data-i]');if(b)slideTo(parseInt(b.dataset.i));});
+                    dotsC.addEventListener('click',function(e){
+                        var b=e.target.closest('[data-i]');
+                        if(b) {
+                            var idx = parseInt(b.dataset.i);
+                            scroll.scrollTo({ left: idx * scroll.offsetWidth, behavior: 'smooth' });
+                        }
+                    });
 
-                    function slideTo(i){
-                        cur = Math.max(0, Math.min(total-1, i));
-                        track.style.transition = 'transform 0.3s ease';
-                        track.style.transform = 'translateX(-'+(cur*100)+'%)';
-                        updateUI();
-                        resetAuto();
-                    }
-                    function updateUI(){
+                    function updateDots(){
+                        cur = Math.round(scroll.scrollLeft / scroll.offsetWidth);
                         dotsC.querySelectorAll('button').forEach(function(b,idx){
                             b.className='h-2 rounded-full transition-all duration-300 '+(idx===cur?'w-6':'w-2');
                             b.style.backgroundColor=idx===cur?'#2C2418':'#d1d5db';
                         });
-                        prevBtn.style.display = cur>0?'flex':'none';
-                        nextBtn.style.display = cur<total-1?'flex':'none';
                     }
 
-                    // Arrows
-                    prevBtn.addEventListener('click',function(e){e.stopPropagation();slideTo(cur-1);});
-                    nextBtn.addEventListener('click',function(e){e.stopPropagation();slideTo(cur+1);});
+                    // Update dots on scroll
+                    var scrollTimer;
+                    scroll.addEventListener('scroll', function(){
+                        clearTimeout(scrollTimer);
+                        scrollTimer = setTimeout(updateDots, 50);
+                    }, {passive:true});
 
-                    // Touch swipe
-                    track.addEventListener('touchstart',function(e){
-                        startX=e.touches[0].clientX; curX=startX; dragging=true; hasMoved=false;
-                        track.style.transition='none'; clearInterval(autoTimer);
-                    },{passive:true});
-                    track.addEventListener('touchmove',function(e){
-                        if(!dragging)return;
-                        curX=e.touches[0].clientX;
-                        var diffX = Math.abs(curX-startX);
-                        if(diffX>10) { hasMoved=true; e.preventDefault(); }
-                        var pct=-(cur*100)+((curX-startX)/track.offsetWidth)*100;
-                        track.style.transform='translateX('+pct+'%)';
-                    },{passive:false});
-                    track.addEventListener('touchend',function(){
-                        if(!dragging)return; dragging=false;
-                        var diff=curX-startX;
-                        if(diff<-25)slideTo(cur+1); else if(diff>25)slideTo(cur-1); else slideTo(cur);
-                    });
-
-                    // Tap to open lightbox (only if not swiped)
-                    track.addEventListener('click',function(e){
-                        if(hasMoved) return;
-                        var slide=e.target.closest('.prod-slide-item');
+                    // Tap to open lightbox
+                    var tapStartX = 0;
+                    scroll.addEventListener('touchstart', function(e){ tapStartX = e.touches[0].clientX; }, {passive:true});
+                    scroll.addEventListener('click', function(e){
+                        if(Math.abs(e.clientX - tapStartX) > 10) return; // was a swipe, not tap
+                        var slide = e.target.closest('.prod-slide-item');
                         if(slide){
-                            var idx=parseInt(slide.dataset.idx);
-                            // Dispatch to Alpine lightbox
-                            var main=document.querySelector('[x-data]');
-                            if(main && main.__x){main.__x.$data.lbImg=idx;main.__x.$data.lightbox=true;}
-                            else{window.dispatchEvent(new CustomEvent('open-lightbox',{detail:{idx:idx}}));}
+                            var idx = parseInt(slide.dataset.idx);
+                            window.dispatchEvent(new CustomEvent('open-lightbox', {detail:{idx:idx}}));
                         }
                     });
 
                     // Auto-slide every 4s
-                    function resetAuto(){clearInterval(autoTimer);autoTimer=setInterval(function(){slideTo(cur>=total-1?0:cur+1);},4000);}
-                    resetAuto(); updateUI();
+                    setInterval(function(){
+                        cur = Math.round(scroll.scrollLeft / scroll.offsetWidth);
+                        var next = cur >= total-1 ? 0 : cur+1;
+                        scroll.scrollTo({ left: next * scroll.offsetWidth, behavior: 'smooth' });
+                    }, 4000);
                 });
                 </script>
 
