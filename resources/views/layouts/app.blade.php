@@ -166,18 +166,18 @@
 
     <!-- Mobile Floating Bottom Navigation -->
     <nav class="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 lg:hidden">
-        <div class="flex items-center gap-1 px-5 py-3 rounded-full shadow-2xl" style="background: rgba(44,36,24,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
-            <a href="{{ route('home') }}" class="w-10 h-10 flex items-center justify-center rounded-full transition {{ request()->routeIs('home') ? 'bg-white/20' : 'hover:bg-white/10' }}">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <div class="flex items-center gap-6 px-8 py-3.5 rounded-full shadow-2xl" style="background: rgba(255,255,255,0.45); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 8px 32px rgba(0,0,0,0.15);">
+            <a href="{{ route('home') }}" class="w-9 h-9 flex items-center justify-center rounded-full transition {{ request()->routeIs('home') ? 'bg-black/10' : '' }}">
+                <svg class="w-[22px] h-[22px]" style="color:#2C2418;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
             </a>
-            <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" class="w-10 h-10 flex items-center justify-center rounded-full transition {{ request()->routeIs('account.*') ? 'bg-white/20' : 'hover:bg-white/10' }}">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" class="w-9 h-9 flex items-center justify-center rounded-full transition {{ request()->routeIs('account.*') ? 'bg-black/10' : '' }}">
+                <svg class="w-[22px] h-[22px]" style="color:#2C2418;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
             </a>
-            <a href="{{ route('products.index') }}" class="w-10 h-10 flex items-center justify-center rounded-full transition {{ request()->routeIs('products.*') ? 'bg-white/20' : 'hover:bg-white/10' }}">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            <a href="{{ route('products.index') }}" class="w-9 h-9 flex items-center justify-center rounded-full transition {{ request()->routeIs('products.*') ? 'bg-black/10' : '' }}">
+                <svg class="w-[22px] h-[22px]" style="color:#2C2418;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
             </a>
-            <button onclick="window.scrollTo(0,0); setTimeout(()=>{ var hdr=document.querySelector('.shivara-header-wrap'); if(hdr && hdr.__x) hdr.__x.$data.searchOpen=true; },300);" class="w-10 h-10 flex items-center justify-center rounded-full transition hover:bg-white/10">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <button onclick="window.scrollTo(0,0); setTimeout(()=>{ var hdr=document.querySelector('.shivara-header-wrap'); if(hdr && hdr.__x) hdr.__x.$data.searchOpen=true; },300);" class="w-9 h-9 flex items-center justify-center rounded-full transition">
+                <svg class="w-[22px] h-[22px]" style="color:#2C2418;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             </button>
         </div>
     </nav>
