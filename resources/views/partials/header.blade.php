@@ -33,13 +33,13 @@
             <div class="flex items-center justify-between h-[50px] sm:h-[55px] lg:h-[60px]">
                 <!-- Left: Logo (mobile) + Shop/Blog (desktop) -->
                 <div class="flex items-center gap-3 lg:gap-5">
-                    <a href="{{ route('home') }}" class="lg:hidden"><img src="/public/shivaralogo1.png" alt="Shivara" class="h-7 sm:h-8 w-auto"></a>
+                    <a href="{{ route('home') }}" class="lg:hidden"><img src="/public/shivaralogo1.png" alt="Shivara" class="h-10 sm:h-11 w-auto"></a>
                     <a href="{{ route('products.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition" style="color:#2C2418;">Shop</a>
                     <a href="{{ route('blog.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition" style="color:#2C2418;">Blog</a>
                 </div>
                 <!-- Center: Logo (desktop only) -->
                 <div class="hidden lg:block absolute left-1/2 -translate-x-1/2">
-                    <a href="{{ route('home') }}"><img src="/public/shivaralogo1.png" alt="Shivara" class="h-9 md:h-10 w-auto"></a>
+                    <a href="{{ route('home') }}"><img src="/public/shivaralogo1.png" alt="Shivara" class="h-12 md:h-14 w-auto"></a>
                 </div>
                 <!-- Right: Icons -->
                 <div class="flex items-center gap-0.5 sm:gap-1.5" style="color:#2C2418;">
@@ -74,7 +74,7 @@
     <div x-show="mobileMenu" x-cloak class="fixed inset-0" style="z-index:99999;">
         <div x-show="mobileMenu" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="mobileMenu=false" class="absolute inset-0 bg-black/40"></div>
         <div x-show="mobileMenu" x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full" class="absolute right-0 top-0 bottom-0 w-[80%] max-w-[300px] overflow-y-auto shadow-2xl" style="background-color:#FFFDF8;">
-            <div class="flex items-center justify-between px-5 h-[50px] border-b" style="border-color:rgba(183,146,92,0.12);"><a href="{{ route('home') }}"><img src="/public/shivaralogo1.png" alt="Shivara" class="h-7 w-auto"></a><button @click="mobileMenu=false" style="color:#2C2418;"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+            <div class="flex items-center justify-between px-5 h-[50px] border-b" style="border-color:rgba(183,146,92,0.12);"><a href="{{ route('home') }}"><img src="/public/shivaralogo1.png" alt="Shivara" class="h-9 w-auto"></a><button @click="mobileMenu=false" style="color:#2C2418;"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
             <nav class="p-4">
                 <a href="{{ route('home') }}" class="block px-4 py-3 text-[13px] font-bold uppercase tracking-[0.1em] border-b" style="color:#2C2418;border-color:rgba(183,146,92,0.08);">Home</a>
                 <a href="{{ route('products.index') }}" class="block px-4 py-3 text-[13px] font-bold uppercase tracking-[0.1em] border-b" style="color:#2C2418;border-color:rgba(183,146,92,0.08);">Shop</a>
