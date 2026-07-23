@@ -6,7 +6,7 @@
 <style>
 .shivara-banner { margin-top: 0; }
 .shivara-banner .banner-desktop { display: none !important; }
-.shivara-banner .banner-mobile { display: block !important; min-height: calc(100vh - 70px); object-fit: cover; }
+.shivara-banner .banner-mobile { display: block !important; min-height: 100vh; object-fit: cover; }
 @media (min-width: 1024px) {
     .shivara-banner .banner-desktop { display: block !important; }
     .shivara-banner .banner-mobile { display: none !important; }
