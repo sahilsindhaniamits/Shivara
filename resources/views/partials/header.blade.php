@@ -10,7 +10,7 @@
 .shivara-header-wrap { position: fixed; top: 0; left: 0; right: 0; z-index: 50; }
 </style>
 
-<div class="shivara-header-wrap" x-data="{ mobileMenu: false, searchOpen: false, scrolled: false }" x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 60 })" x-effect="document.body.style.overflow = mobileMenu ? 'hidden' : ''">
+<div class="shivara-header-wrap" x-data="{ mobileMenu: false, searchOpen: false, scrolled: false }" x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 60 })" @toggle-search.window="searchOpen = true; window.scrollTo(0,0)" x-effect="document.body.style.overflow = mobileMenu ? 'hidden' : ''">
     <!-- Marquee -->
     @if(count($marqueeItems))
     <div class="text-white overflow-hidden" style="background-color: {{ $marqueeBg }};">

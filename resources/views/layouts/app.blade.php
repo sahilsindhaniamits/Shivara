@@ -166,7 +166,7 @@
 
     <!-- Mobile Floating Bottom Navigation -->
     <nav class="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 lg:hidden">
-        <div class="flex items-center gap-6 px-8 py-3.5 rounded-full shadow-2xl" style="background: rgba(255,255,255,0.45); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 8px 32px rgba(0,0,0,0.15);">
+        <div class="flex items-center gap-6 px-8 py-3.5 rounded-full" style="background: rgba(255,255,255,0.25); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border: 1.5px solid rgba(255,255,255,0.4); box-shadow: 0 8px 32px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.3);">
             <a href="{{ route('home') }}" class="w-9 h-9 flex items-center justify-center rounded-full transition {{ request()->routeIs('home') ? 'bg-black/10' : '' }}">
                 <svg class="w-[22px] h-[22px]" style="color:#2C2418;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
             </a>
@@ -176,9 +176,9 @@
             <a href="{{ route('products.index') }}" class="w-9 h-9 flex items-center justify-center rounded-full transition {{ request()->routeIs('products.*') ? 'bg-black/10' : '' }}">
                 <svg class="w-[22px] h-[22px]" style="color:#2C2418;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
             </a>
-            <button onclick="window.scrollTo(0,0); setTimeout(()=>{ var hdr=document.querySelector('.shivara-header-wrap'); if(hdr && hdr.__x) hdr.__x.$data.searchOpen=true; },300);" class="w-9 h-9 flex items-center justify-center rounded-full transition">
+            <a href="{{ route('products.index', ['search' => '']) }}" onclick="event.preventDefault(); window.dispatchEvent(new CustomEvent('toggle-search'));" class="w-9 h-9 flex items-center justify-center rounded-full transition">
                 <svg class="w-[22px] h-[22px]" style="color:#2C2418;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            </button>
+            </a>
         </div>
     </nav>
 
