@@ -29,3 +29,8 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Allow Razorpay Magic Checkout device sensors (required for 1-Click Checkout)
+<IfModule mod_headers.c>
+    Header set Permissions-Policy "accelerometer=*, gyroscope=*, magnetometer=*, geolocation=*"
+</IfModule>
