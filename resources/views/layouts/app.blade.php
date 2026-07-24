@@ -224,8 +224,8 @@
             });
         }
     </script>
-    <!-- Razorpay Checkout JS -->
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- Razorpay Magic Checkout JS -->
+    <script src="https://checkout.razorpay.com/v1/magic-checkout.js"></script>
 
     @stack('scripts')
 </body>
