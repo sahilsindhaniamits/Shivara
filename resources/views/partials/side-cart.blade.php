@@ -220,7 +220,6 @@ function sideCart() {
         },
         openRazorpay() {
             if (this.items.length === 0) return;
-            console.log('[Shivara] Creating Razorpay order...');
             fetch('/checkout/razorpay', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
@@ -228,9 +227,7 @@ function sideCart() {
             })
             .then(r => r.json())
             .then(data => {
-                console.log('[Shivara] Order response:', data);
                 if (!data.success) { alert(data.error || 'Error creating order'); return; }
-                console.log('[Shivara] Razorpay object available:', typeof Razorpay);
                 var options = {
                     key: data.razorpay_key,
                     amount: data.amount,
@@ -239,10 +236,7 @@ function sideCart() {
                     description: data.description,
                     order_id: data.razorpay_order_id,
                     image: '/public/shivaralogo1.png',
-                    one_click_checkout: true,
-                    show_coupons: true,
                     handler: function(response) {
-                        // Payment success - verify on server
                         var form = document.createElement('form');
                         form.method = 'POST';
                         form.action = '/payment/verify';
@@ -251,20 +245,15 @@ function sideCart() {
                         document.body.appendChild(form);
                         form.submit();
                     },
+                    prefill: data.prefill || {},
                     theme: { color: '#2C2418' },
-                    modal: { ondismiss: function() { console.log('[Shivara] Checkout dismissed'); } }
+                    modal: { ondismiss: function() {} }
                 };
-                console.log('[Shivara] Opening Razorpay with options:', options);
-                try {
-                    var rzp = new Razorpay(options);
-                    rzp.on('payment.failed', function(resp) { console.error('[Shivara] Payment failed:', resp); alert('Payment failed. Please try again.'); });
-                    rzp.open();
-                } catch(e) {
-                    console.error('[Shivara] Razorpay open error:', e);
-                    alert('Checkout error: ' + e.message);
-                }
+                var rzp = new Razorpay(options);
+                rzp.on('payment.failed', function(resp) { alert('Payment failed. Please try again.'); });
+                rzp.open();
             })
-            .catch(err => { alert('Something went wrong. Please try again.'); console.error('[Shivara] Fetch error:', err); });
+            .catch(err => { alert('Something went wrong. Please try again.'); console.error(err); });
         }
     }
 }
