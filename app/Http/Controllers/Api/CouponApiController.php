@@ -14,6 +14,7 @@ class CouponApiController extends Controller
 {
     /**
      * GET /api/promotions - Returns available coupons for display
+     * Called by Razorpay "URL for get promotions"
      */
     public function getPromotions(Request $request)
     {
@@ -46,12 +47,12 @@ class CouponApiController extends Controller
 
     /**
      * POST /api/promotions/apply - Validates and applies a coupon
+     * Called by Razorpay "URL for apply promotions"
      */
     public function applyPromotion(Request $request)
     {
-        $code = strtoupper(trim($request->input('code', '')));
-        $orderAmountPaise = (int) $request->input('order_amount', 0);
-        $orderAmount = $orderAmountPaise / 100; // Convert paise to rupees
+        $code = strtoupper($request->input('code', ''));
+        $orderAmount = (float) $request->input('order_amount', 0) / 100; // Razorpay sends in paise
 
         if (!$code) {
             return response()->json(['success' => false, 'message' => 'Please enter a coupon code.'], 400);
@@ -71,11 +72,10 @@ class CouponApiController extends Controller
         }
 
         $discount = $coupon->calculateDiscount($orderAmount);
-        $discountPaise = (int) round($discount * 100);
 
         return response()->json([
             'success' => true,
-            'discount' => $discountPaise,
+            'discount' => (int)($discount * 100), // Return in paise
             'description' => $coupon->description ?: ($coupon->type === 'percentage' ? $coupon->value . '% OFF applied!' : '₹' . $coupon->value . ' OFF applied!'),
         ]);
     }
