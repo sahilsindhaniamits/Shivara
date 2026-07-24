@@ -229,14 +229,12 @@ function sideCart() {
             .then(data => {
                 if (!data.success) { alert(data.error || 'Error creating order'); return; }
                 var options = {
-                    key: data.razorpay_key,
-                    amount: data.amount,
-                    currency: data.currency,
-                    name: data.name,
-                    description: data.description,
-                    order_id: data.razorpay_order_id,
-                    image: '/public/shivaralogo1.png',
-                    handler: function(response) {
+                    "key": data.razorpay_key,
+                    "one_click_checkout": true,
+                    "name": "Shivara",
+                    "order_id": data.razorpay_order_id,
+                    "show_coupons": true,
+                    "handler": function(response) {
                         var form = document.createElement('form');
                         form.method = 'POST';
                         form.action = '/payment/verify';
@@ -245,12 +243,13 @@ function sideCart() {
                         document.body.appendChild(form);
                         form.submit();
                     },
-                    prefill: data.prefill || {},
-                    theme: { color: '#2C2418' },
-                    modal: { ondismiss: function() {} }
+                    "prefill": {
+                        "contact": data.prefill && data.prefill.contact ? data.prefill.contact : "",
+                        "email": data.prefill && data.prefill.email ? data.prefill.email : ""
+                    }
                 };
                 var rzp = new Razorpay(options);
-                rzp.on('payment.failed', function(resp) { alert('Payment failed. Please try again.'); });
+                rzp.on('payment.failed', function(resp) { alert('Payment failed: ' + (resp.error ? resp.error.description : 'Please try again.')); });
                 rzp.open();
             })
             .catch(err => { alert('Something went wrong. Please try again.'); console.error(err); });
