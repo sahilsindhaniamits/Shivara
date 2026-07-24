@@ -224,8 +224,8 @@
             });
         }
     </script>
-    <!-- Razorpay Magic Checkout JS (1-Click Checkout with address, OTP, COD) -->
-    <script src="https://checkout.razorpay.com/v1/magic-checkout.js"></script>
+    <!-- Razorpay Checkout JS (Magic Checkout / 1-Click) -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     @stack('scripts')
 </body>
