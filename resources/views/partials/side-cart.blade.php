@@ -237,6 +237,7 @@ function sideCart() {
                     order_id: data.razorpay_order_id,
                     image: '/public/shivaralogo1.png',
                     one_click_checkout: true,
+                    show_coupons: true,
                     handler: function(response) {
                         // Payment success - verify on server
                         var form = document.createElement('form');
