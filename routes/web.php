@@ -148,6 +148,7 @@ Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\AdminMiddleware
     Route::get('/orders/{order}/invoice', [AdminOrderController::class, 'invoice'])->name('orders.invoice');
     Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
     Route::patch('/orders/{order}/tracking', [AdminOrderController::class, 'updateTracking'])->name('orders.updateTracking');
+    Route::post('/orders/{order}/ship-velocity', [AdminOrderController::class, 'shipViaVelocity'])->name('orders.shipVelocity');
 
     // Coupons
     Route::resource('coupons', AdminCouponController::class);

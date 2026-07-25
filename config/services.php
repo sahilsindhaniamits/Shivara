@@ -40,6 +40,13 @@ return [
         'secret' => env('RAZORPAY_KEY_SECRET'),
     ],
 
+    'velocity' => [
+        'username' => env('VELOCITY_USERNAME'),
+        'password' => env('VELOCITY_PASSWORD'),
+        'warehouse_id' => env('VELOCITY_WAREHOUSE_ID', 'WHCTPD'),
+        'pickup_location' => env('VELOCITY_PICKUP_LOCATION', 'Shivara Warehouse'),
+    ],
+
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),

@@ -116,9 +116,21 @@
                 <div class="flex justify-between text-sm"><span class="text-gray-500">Customer</span><span class="font-medium">{{ $order->user->name ?? ($order->address->full_name ?? 'Guest') }}</span></div>
             </div>
 
-            <!-- Tracking Info -->
+            <!-- Shipping & Tracking -->
             <div class="bg-white rounded-2xl border border-gray-200 p-6">
                 <h3 class="font-bold text-gray-900 mb-4">Shipping & Tracking</h3>
+
+                <!-- Ship via Velocity Button -->
+                @if(!$order->tracking_number && in_array($order->status, ['confirmed', 'processing']))
+                <form method="POST" action="{{ route('admin.orders.shipVelocity', $order) }}" class="mb-4">
+                    @csrf
+                    <button type="submit" onclick="return confirm('Ship this order via Velocity Shipping? This will assign a courier and generate AWB.')" class="w-full px-4 py-3 text-white text-sm font-bold rounded-xl hover:opacity-90 transition flex items-center justify-center gap-2" style="background-color:#16a34a;">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        Ship via Velocity (Auto Courier)
+                    </button>
+                </form>
+                @endif
+
                 <form method="POST" action="{{ route('admin.orders.updateTracking', $order) }}" class="space-y-3">
                     @csrf @method('PATCH')
                     <div>
