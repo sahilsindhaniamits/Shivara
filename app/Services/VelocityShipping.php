@@ -103,7 +103,7 @@ class VelocityShipping
         }
 
         Log::error('Velocity create shipment failed', ['response' => $data, 'order' => $order->order_number]);
-        return ['success' => false, 'error' => $data['message'] ?? $data['error'] ?? 'Shipment creation failed'];
+        return ['success' => false, 'error' => $data['message'] ?? $data['error'] ?? json_encode($data) ?? 'Shipment creation failed'];
     }
 
     /**
