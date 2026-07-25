@@ -262,6 +262,6 @@ class OrderController extends Controller
             return back()->with('success', 'Order shipped via ' . $result['courier_name'] . '! AWB: ' . $result['awb_code']);
         }
 
-        return back()->with('error', 'Velocity Shipping failed: ' . ($result['error'] ?? 'Unknown error'));
+        return back()->with('error', 'Velocity Shipping failed: ' . ($result['error'] ?? 'Unknown error. Check logs.'));
     }
 }
