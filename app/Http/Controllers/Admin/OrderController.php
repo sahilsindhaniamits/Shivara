@@ -225,4 +225,43 @@ class OrderController extends Controller
 
         return back()->with('success', 'Order status updated.');
     }
+
+    /**
+     * Ship order via Velocity Shipping (auto-assigns courier + AWB)
+     */
+    public function shipViaVelocity(Order $order)
+    {
+        $velocity = new \App\Services\VelocityShipping();
+        $result = $velocity->createShipment($order->load(['items', 'address']));
+
+        if ($result['success']) {
+            $order->update([
+                'status' => 'shipped',
+                'shipped_at' => now(),
+                'tracking_number' => $result['awb_code'],
+                'awb_number' => $result['awb_code'],
+                'courier_name' => $result['courier_name'],
+                'tracking_url' => 'https://shipfastt.in/track/' . $result['awb_code'],
+            ]);
+
+            $order->timeline()->create([
+                'status' => 'shipped',
+                'message' => 'Shipped via ' . $result['courier_name'] . ' — AWB: ' . $result['awb_code'],
+            ]);
+
+            // Send shipped email to customer
+            $customerEmail = $order->address?->email ?? ($order->user?->email ?? null);
+            if ($customerEmail) {
+                try {
+                    \Illuminate\Support\Facades\Mail::to($customerEmail)->send(new \App\Mail\OrderStatusMail($order->fresh(['items', 'address'])));
+                } catch (\Exception $e) {
+                    \Log::warning('Shipped email failed: ' . $e->getMessage());
+                }
+            }
+
+            return back()->with('success', 'Order shipped via ' . $result['courier_name'] . '! AWB: ' . $result['awb_code']);
+        }
+
+        return back()->with('error', 'Velocity Shipping failed: ' . ($result['error'] ?? 'Unknown error'));
+    }
 }
