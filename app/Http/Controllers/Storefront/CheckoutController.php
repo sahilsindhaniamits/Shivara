@@ -260,14 +260,20 @@ class CheckoutController extends Controller
             }
 
             // Update order — set to CONFIRMED directly (no pending state)
-            $order->update([
+            // For COD, add COD fee to total amount
+            $codCharge = $isCod ? config('shivara.cod_charge', 50) : 0;
+            $updateData = [
                 'razorpay_payment_id' => $razorpayPaymentId,
                 'razorpay_signature' => $razorpaySignature ?? '',
                 'payment_status' => $isCod ? 'pending' : 'paid',
                 'payment_method' => $isCod ? 'cod' : 'razorpay',
                 'status' => 'confirmed',
                 'paid_at' => $isCod ? null : now(),
-            ]);
+            ];
+            if ($codCharge > 0) {
+                $updateData['total_amount'] = $order->total_amount + $codCharge;
+            }
+            $order->update($updateData);
 
             \Log::info('Order confirmed', ['order' => $order->order_number, 'method' => $isCod ? 'cod' : 'razorpay']);
 
