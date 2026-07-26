@@ -31,10 +31,16 @@
 </IfModule>
 
 # ============================================================
+# Permissions-Policy: Allow Razorpay Magic Checkout sensors
+# Razorpay uses accelerometer and gyroscope for fraud detection.
+# Without this, Magic Checkout falls back to Standard Checkout.
+# ============================================================
+<IfModule mod_headers.c>
+    Header always set Permissions-Policy "accelerometer=*, gyroscope=*, magnetometer=*, payment=*"
+</IfModule>
+
+# ============================================================
 # CDN Bypass for API routes (Razorpay Magic Checkout)
-# Hostinger CDN "Checking your browser" challenge blocks
-# server-to-server calls from Razorpay to /api/* endpoints.
-# These headers instruct the CDN to skip caching and challenge.
 # ============================================================
 <IfModule mod_headers.c>
     <If "%{REQUEST_URI} =~ m#^/api/#">

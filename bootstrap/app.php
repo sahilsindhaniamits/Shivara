@@ -21,10 +21,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'api/*',
             'razorpay-hooks/*',
         ]);
-        // Add CDN bypass headers to all API routes
-        $middleware->api(append: [
-            \App\Http\Middleware\BypassCdnChallenge::class,
-        ]);
+        // Add Permissions-Policy + CDN bypass headers globally
+        // Razorpay Magic Checkout needs accelerometer/gyroscope for fraud detection
+        $middleware->append(\App\Http\Middleware\BypassCdnChallenge::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
