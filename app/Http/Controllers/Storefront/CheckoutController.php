@@ -212,7 +212,7 @@ class CheckoutController extends Controller
         $razorpayPaymentId = $request->input('razorpay_payment_id');
         $razorpaySignature = $request->input('razorpay_signature');
 
-        if (!$razorpayOrderId || !$razorpayPaymentId || !$razorpaySignature) {
+        if (!$razorpayOrderId || !$razorpayPaymentId) {
             return redirect()->route('cart.index')
                 ->with('error', 'Payment verification failed. Missing payment details.');
         }
@@ -220,11 +220,19 @@ class CheckoutController extends Controller
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
 
         try {
-            $api->utility->verifyPaymentSignature([
-                'razorpay_order_id' => $razorpayOrderId,
-                'razorpay_payment_id' => $razorpayPaymentId,
-                'razorpay_signature' => $razorpaySignature,
-            ]);
+            // For COD orders, Razorpay sends payment_id but signature may be empty or different
+            // Fetch payment to check method first
+            $payment = $api->payment->fetch($razorpayPaymentId);
+            $isCod = (($payment->method ?? '') === 'cod');
+
+            // Only verify signature for non-COD payments
+            if (!$isCod && $razorpaySignature) {
+                $api->utility->verifyPaymentSignature([
+                    'razorpay_order_id' => $razorpayOrderId,
+                    'razorpay_payment_id' => $razorpayPaymentId,
+                    'razorpay_signature' => $razorpaySignature,
+                ]);
+            }
 
             $order = Order::where('razorpay_order_id', $razorpayOrderId)->first();
 
@@ -236,18 +244,9 @@ class CheckoutController extends Controller
                 return redirect()->route('home')->with('error', 'Order could not be created. Please contact support.');
             }
 
-            // Check if COD
-            $isCod = false;
-            try {
-                $payment = $api->payment->fetch($razorpayPaymentId);
-                $isCod = (($payment->method ?? '') === 'cod');
-            } catch (\Exception $e) {
-                \Log::warning('Could not fetch payment method: ' . $e->getMessage());
-            }
-
             $order->update([
                 'razorpay_payment_id' => $razorpayPaymentId,
-                'razorpay_signature' => $razorpaySignature,
+                'razorpay_signature' => $razorpaySignature ?? '',
                 'payment_status' => $isCod ? 'cod' : 'paid',
                 'payment_method' => $isCod ? 'cod' : 'razorpay',
                 'status' => 'confirmed',
