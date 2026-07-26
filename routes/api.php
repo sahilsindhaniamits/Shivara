@@ -31,7 +31,7 @@ Route::match(['get', 'post'], '/shipping-info', function (\Illuminate\Http\Reque
             'country' => $address['country'] ?? 'IN',
             'serviceable' => $serviceable,
             'cod' => $serviceable,
-            'cod_fee' => 0,
+            'cod_fee' => 5000, // ₹50 in paise
             'shipping_fee' => 0,
         ];
     }
