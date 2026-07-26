@@ -440,39 +440,72 @@ class CheckoutController extends Controller
             $customerEmail = $payment->email ?? '';
             $customerPhone = $payment->contact ?? '';
 
-            // For 1CC Magic Checkout, shipping address is stored in the ORDER object
+            // For 1CC Magic Checkout, fetch order to get shipping address
             $razorpayOrder = $api->order->fetch($razorpayOrderId);
-            $orderArray = json_decode(json_encode($razorpayOrder), true) ?? [];
 
-            \Log::info('Razorpay order data for address extraction', [
-                'order_id' => $razorpayOrderId,
+            // Convert to array - Razorpay SDK uses ArrayAccess but inconsistently
+            $orderArray = [];
+            try {
+                $orderArray = $razorpayOrder->toArray();
+            } catch (\Exception $e) {
+                $orderArray = json_decode(json_encode($razorpayOrder), true) ?? [];
+            }
+
+            // Also get payment as array
+            $paymentArray = [];
+            try {
+                $paymentArray = $payment->toArray();
+            } catch (\Exception $e) {
+                $paymentArray = json_decode(json_encode($payment), true) ?? [];
+            }
+
+            \Log::info('Razorpay 1CC address debug', [
                 'order_keys' => array_keys($orderArray),
                 'has_customer_details' => isset($orderArray['customer_details']),
-                'customer_details' => $orderArray['customer_details'] ?? 'not set',
+                'customer_details' => $orderArray['customer_details'] ?? null,
+                'payment_notes' => $paymentArray['notes'] ?? null,
+                'payment_acquirer_data' => $paymentArray['acquirer_data'] ?? null,
             ]);
 
-            // Try customer_details.shipping_address (1CC format)
+            // Method 1: order.customer_details.shipping_address (1CC standard)
             $shippingAddr = null;
             if (isset($orderArray['customer_details']['shipping_address'])) {
                 $shippingAddr = $orderArray['customer_details']['shipping_address'];
             }
 
-            // Also try top-level shipping_address
+            // Method 2: order top-level
             if (!$shippingAddr && isset($orderArray['shipping_address'])) {
                 $shippingAddr = $orderArray['shipping_address'];
             }
 
-            // Also try payment notes
-            if (!$shippingAddr && isset($payment)) {
-                $paymentArray = json_decode(json_encode($payment), true) ?? [];
-                if (isset($paymentArray['notes']['shipping_address'])) {
-                    $shippingAddr = is_string($paymentArray['notes']['shipping_address'])
-                        ? json_decode($paymentArray['notes']['shipping_address'], true)
-                        : $paymentArray['notes']['shipping_address'];
+            // Method 3: payment.notes (some versions store it here)
+            if (!$shippingAddr && isset($paymentArray['notes'])) {
+                $notes = $paymentArray['notes'];
+                if (isset($notes['shipping_address'])) {
+                    $shippingAddr = is_string($notes['shipping_address'])
+                        ? json_decode($notes['shipping_address'], true)
+                        : $notes['shipping_address'];
+                }
+                // Sometimes individual fields are in notes
+                if (!$shippingAddr && isset($notes['address'])) {
+                    $shippingAddr = is_string($notes['address'])
+                        ? json_decode($notes['address'], true)
+                        : $notes['address'];
                 }
             }
 
-            \Log::info('Extracted shipping address', ['shippingAddr' => $shippingAddr]);
+            // Method 4: Try fetching 1cc shipping address from order's API response directly
+            if (!$shippingAddr) {
+                try {
+                    // Some SDK versions need direct array access
+                    $cd = $razorpayOrder['customer_details'] ?? null;
+                    if ($cd && isset($cd['shipping_address'])) {
+                        $shippingAddr = $cd['shipping_address'];
+                    }
+                } catch (\Exception $e) {}
+            }
+
+            \Log::info('Extracted shipping address result', ['shippingAddr' => $shippingAddr]);
 
             if ($shippingAddr && is_array($shippingAddr)) {
                 $customerName = $shippingAddr['name'] ?? $shippingAddr['contact_name'] ?? $customerName;

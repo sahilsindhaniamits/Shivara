@@ -20,7 +20,26 @@ Route::post('/promotions/apply', [CouponApiController::class, 'applyPromotion'])
 // Returns serviceability, COD availability, shipping fee for given addresses
 Route::match(['get', 'post'], '/shipping-info', function (\Illuminate\Http\Request $request) {
     $addresses = $request->input('addresses', []);
+    $orderId = $request->input('order_id');
     $responseAddresses = [];
+
+    // Get order amount to determine shipping fee
+    $shippingFee = 0;
+    if ($orderId) {
+        try {
+            $api = new \Razorpay\Api\Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+            $order = $api->order->fetch($orderId);
+            $orderAmount = ($order['amount'] ?? 0) / 100; // Convert paise to rupees
+            // Charge ₹50 shipping for orders below ₹999
+            if ($orderAmount < config('shivara.free_shipping_threshold', 999)) {
+                $shippingFee = (int)(config('shivara.standard_rate', 50) * 100); // in paise
+            }
+        } catch (\Exception $e) {
+            // Default: charge shipping
+            $shippingFee = (int)(config('shivara.standard_rate', 50) * 100);
+        }
+    }
+
     foreach ($addresses as $address) {
         $zipcode = $address['zipcode'] ?? ($address['pincode'] ?? '');
         $serviceable = (bool) preg_match('/^[1-9]\d{5}$/', $zipcode);
@@ -32,7 +51,7 @@ Route::match(['get', 'post'], '/shipping-info', function (\Illuminate\Http\Reque
             'serviceable' => $serviceable,
             'cod' => $serviceable,
             'cod_fee' => 5000, // ₹50 in paise
-            'shipping_fee' => 0,
+            'shipping_fee' => $shippingFee,
         ];
     }
     return response()->json(['addresses' => $responseAddresses]);
