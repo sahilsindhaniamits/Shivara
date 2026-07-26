@@ -222,61 +222,37 @@ function sideCart() {
             if (this.items.length === 0) return;
             fetch('/checkout/razorpay', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
                 body: JSON.stringify({})
             })
-            .then(r => r.json().then(data => ({ok: r.ok, data})))
-            .then(({ok, data}) => {
-                if (!ok || !data.success) {
-                    alert(data.error || data.message || 'Could not initiate payment. Please try again.');
-                    console.error('Razorpay order error:', data);
-                    return;
-                }
-                var rzp = new Razorpay({
-                    key: data.razorpay_key,
-                    order_id: data.razorpay_order_id,
-                    one_click_checkout: true,
-                    show_coupons: true,
-                    name: "Shivara",
-                    description: "Ayurvedic Wellness Products",
-                    handler: function(response) {
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) { alert(data.error || 'Error creating order'); return; }
+                var options = {
+                    "key": data.razorpay_key,
+                    "one_click_checkout": true,
+                    "name": "Shivara",
+                    "order_id": data.razorpay_order_id,
+                    "show_coupons": true,
+                    "handler": function(response) {
                         var form = document.createElement('form');
                         form.method = 'POST';
                         form.action = '/payment/verify';
-                        ['razorpay_order_id','razorpay_payment_id','razorpay_signature'].forEach(function(key) {
-                            var input = document.createElement('input');
-                            input.type = 'hidden';
-                            input.name = key;
-                            input.value = response[key];
-                            form.appendChild(input);
-                        });
-                        var csrf = document.createElement('input');
-                        csrf.type = 'hidden';
-                        csrf.name = '_token';
-                        csrf.value = document.querySelector('meta[name="csrf-token"]').content;
-                        form.appendChild(csrf);
+                        var fields = { _token: document.querySelector('meta[name="csrf-token"]').content, razorpay_order_id: response.razorpay_order_id, razorpay_payment_id: response.razorpay_payment_id, razorpay_signature: response.razorpay_signature };
+                        for (var key in fields) { var input = document.createElement('input'); input.type='hidden'; input.name=key; input.value=fields[key]; form.appendChild(input); }
                         document.body.appendChild(form);
                         form.submit();
                     },
-                    prefill: {
-                        contact: (data.prefill && data.prefill.contact) || "",
-                        email: (data.prefill && data.prefill.email) || ""
-                    },
-                    modal: { confirm_close: true }
-                });
-                rzp.on('payment.failed', function(resp) {
-                    alert('Payment failed: ' + (resp.error ? resp.error.description : 'Please try again.'));
-                });
+                    "prefill": {
+                        "contact": data.prefill && data.prefill.contact ? data.prefill.contact : "",
+                        "email": data.prefill && data.prefill.email ? data.prefill.email : ""
+                    }
+                };
+                var rzp = new Razorpay(options);
+                rzp.on('payment.failed', function(resp) { alert('Payment failed: ' + (resp.error ? resp.error.description : 'Please try again.')); });
                 rzp.open();
             })
-            .catch(err => {
-                console.error('Razorpay fetch error:', err);
-                alert('Network error. Please check your connection and try again.');
-            });
+            .catch(err => { alert('Something went wrong. Please try again.'); console.error(err); });
         }
     }
 }
