@@ -34,9 +34,12 @@
 # Permissions-Policy: Allow Razorpay Magic Checkout sensors
 # Razorpay uses accelerometer and gyroscope for fraud detection.
 # Without this, Magic Checkout falls back to Standard Checkout.
+# "always" keyword ensures this overrides CDN-injected headers.
 # ============================================================
 <IfModule mod_headers.c>
+    Header always unset Permissions-Policy
     Header always set Permissions-Policy "accelerometer=*, gyroscope=*, magnetometer=*, payment=*"
+    Header always unset X-Frame-Options
 </IfModule>
 
 # ============================================================
