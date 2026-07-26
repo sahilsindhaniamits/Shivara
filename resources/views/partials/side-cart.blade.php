@@ -225,28 +225,53 @@ function sideCart() {
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
                 body: JSON.stringify({})
             })
-            .then(r => r.json())
+            .then(r => {
+                if (!r.ok) throw new Error('Server error: ' + r.status);
+                return r.json();
+            })
             .then(data => {
                 if (!data.success) { alert(data.error || 'Error creating order'); return; }
                 var options = {
-                    "key": data.razorpay_key,
-                    "one_click_checkout": true,
-                    "show_coupons": true,
-                    "name": "Shivara",
-                    "description": "Ayurvedic Wellness Products",
-                    "order_id": data.razorpay_order_id,
-                    "callback_url": window.location.origin + "/payment/verify",
-                    "redirect": true,
-                    "prefill": {
-                        "contact": data.prefill && data.prefill.contact ? data.prefill.contact : "",
-                        "email": data.prefill && data.prefill.email ? data.prefill.email : ""
+                    key: data.razorpay_key,
+                    order_id: data.razorpay_order_id,
+                    one_click_checkout: true,
+                    show_coupons: true,
+                    name: "Shivara",
+                    description: "Ayurvedic Wellness Products",
+                    handler: function(response) {
+                        // Submit payment details to our server for verification
+                        var form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '/payment/verify';
+                        var fields = {
+                            _token: document.querySelector('meta[name="csrf-token"]').content,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature
+                        };
+                        for (var key in fields) {
+                            var input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = key;
+                            input.value = fields[key];
+                            form.appendChild(input);
+                        }
+                        document.body.appendChild(form);
+                        form.submit();
                     },
-                    "modal": {
-                        "confirm_close": true,
-                        "ondismiss": function() {}
+                    prefill: {
+                        contact: (data.prefill && data.prefill.contact) ? data.prefill.contact : "",
+                        email: (data.prefill && data.prefill.email) ? data.prefill.email : ""
+                    },
+                    modal: {
+                        confirm_close: true,
+                        ondismiss: function() {}
                     }
                 };
                 var rzp = new Razorpay(options);
+                rzp.on('payment.failed', function(resp) {
+                    alert('Payment failed: ' + (resp.error ? resp.error.description : 'Please try again.'));
+                });
                 rzp.open();
             })
             .catch(err => { alert('Something went wrong. Please try again.'); console.error(err); });
