@@ -333,48 +333,67 @@ class CheckoutController extends Controller
         $shipping = $subtotal >= config('shivara.free_shipping_threshold', 999) ? 0 : config('shivara.standard_rate', 50);
         $totalAmount = $subtotal - $discount + $shipping;
 
-        // Build line_items for Magic Checkout product display
-        $lineItems = [];
-        foreach ($cartItems as $item) {
-            $price = $item->variant ? $item->variant->selling_price : $item->product->selling_price;
-            $imageUrl = $item->product->primary_image_url ?? '';
-            $lineItems[] = [
-                'type' => 'e-commerce',
-                'sku' => (string) ($item->product->sku ?? $item->product->id),
-                'variant_id' => $item->variant ? (string) $item->variant->id : '',
-                'price' => (int)($price * 100),
-                'offer_price' => (int)($price * 100),
-                'tax_amount' => 0,
-                'quantity' => (int) $item->quantity,
-                'name' => $item->product->name . ($item->variant ? ' - ' . $item->variant->name : ''),
-                'description' => mb_substr($item->product->short_description ?? $item->product->name, 0, 250),
-                'weight' => (int) ($item->product->weight ?? 200),
-                'dimensions' => [
-                    'length' => (int) ($item->product->length ?? 10),
-                    'width' => (int) ($item->product->width ?? 10),
-                    'height' => (int) ($item->product->height ?? 10),
-                ],
-                'image_url' => $imageUrl,
-                'product_url' => url('/products/' . $item->product->slug),
-            ];
-        }
-
-        // Create Razorpay order with line_items for Magic Checkout
+        // Create Razorpay order
         $api = new \Razorpay\Api\Api(config('services.razorpay.key'), config('services.razorpay.secret'));
-        $orderData = [
-            'receipt' => 'cart_' . time(),
-            'amount' => (int)($totalAmount * 100),
-            'currency' => 'INR',
-            'line_items' => $lineItems,
-            'line_items_total' => (int)($subtotal * 100),
-        ];
 
-        // Add shipping charge if applicable
-        if ($shipping > 0) {
-            $orderData['shipping_fee'] = (int)($shipping * 100);
+        // Try creating order with line_items for Magic Checkout product display
+        // If Razorpay rejects line_items (account config), fall back to basic order
+        $razorpayOrder = null;
+        try {
+            $lineItems = [];
+            foreach ($cartItems as $item) {
+                $price = $item->variant ? $item->variant->selling_price : $item->product->selling_price;
+                $imageUrl = $item->product->primary_image_url ?? '';
+                $lineItems[] = [
+                    'type' => 'e-commerce',
+                    'sku' => (string) ($item->product->sku ?? $item->product->id),
+                    'variant_id' => $item->variant ? (string) $item->variant->id : '',
+                    'price' => (int)($price * 100),
+                    'offer_price' => (int)($price * 100),
+                    'tax_amount' => 0,
+                    'quantity' => (int) $item->quantity,
+                    'name' => $item->product->name . ($item->variant ? ' - ' . $item->variant->name : ''),
+                    'description' => mb_substr($item->product->short_description ?? $item->product->name, 0, 250),
+                    'weight' => (int) ($item->product->weight ?? 200),
+                    'dimensions' => [
+                        'length' => (int) ($item->product->length ?? 10),
+                        'width' => (int) ($item->product->width ?? 10),
+                        'height' => (int) ($item->product->height ?? 10),
+                    ],
+                    'image_url' => $imageUrl,
+                    'product_url' => url('/products/' . $item->product->slug),
+                ];
+            }
+
+            $orderData = [
+                'receipt' => 'cart_' . time(),
+                'amount' => (int)($totalAmount * 100),
+                'currency' => 'INR',
+                'line_items' => $lineItems,
+                'line_items_total' => (int)($subtotal * 100),
+            ];
+            if ($shipping > 0) {
+                $orderData['shipping_fee'] = (int)($shipping * 100);
+            }
+
+            $razorpayOrder = $api->order->create($orderData);
+        } catch (\Exception $e) {
+            \Log::info('Razorpay line_items order failed, using basic order: ' . $e->getMessage());
         }
 
-        $razorpayOrder = $api->order->create($orderData);
+        // Fallback: create basic order without line_items
+        if (!$razorpayOrder) {
+            try {
+                $razorpayOrder = $api->order->create([
+                    'receipt' => 'cart_' . time(),
+                    'amount' => (int)($totalAmount * 100),
+                    'currency' => 'INR',
+                ]);
+            } catch (\Exception $e) {
+                \Log::error('Razorpay order creation failed: ' . $e->getMessage());
+                return response()->json(['success' => false, 'error' => 'Payment gateway error. Please try again.'], 500);
+            }
+        }
 
         // Store in session for later verification
         session()->put('razorpay_checkout', [
@@ -395,9 +414,9 @@ class CheckoutController extends Controller
             'name' => 'Shivara',
             'description' => 'Order from Shivara',
             'prefill' => [
-                'name' => auth()->user()->name ?? '',
-                'email' => auth()->user()->email ?? '',
-                'contact' => auth()->user()->phone ?? '',
+                'name' => auth()->check() ? (auth()->user()->name ?? '') : '',
+                'email' => auth()->check() ? (auth()->user()->email ?? '') : '',
+                'contact' => auth()->check() ? (auth()->user()->phone ?? '') : '',
             ],
         ]);
     }
