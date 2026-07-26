@@ -33,7 +33,7 @@ return [
     'free_shipping_threshold' => 999,
     'standard_rate' => 50,
     'express_rate' => 149,
-    'cod_charge' => 49,
+    'cod_charge' => 50,
     'standard_days' => '5-7 business days',
     'express_days' => '2-3 business days',
 
