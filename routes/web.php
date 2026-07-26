@@ -235,3 +235,53 @@ Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\AdminMiddleware
     Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/revenue-chart', [AdminReportController::class, 'revenueChart'])->name('reports.revenueChart');
 });
+
+
+/*
+|--------------------------------------------------------------------------
+| Razorpay Magic Checkout Webhook Routes (CDN Bypass)
+|--------------------------------------------------------------------------
+| These are duplicate endpoints served via web routes (not /api/* prefix)
+| to bypass Hostinger CDN "Checking your browser" challenge that blocks
+| server-to-server calls to /api/* paths.
+|
+| Configure these URLs in Razorpay Dashboard → Magic Checkout:
+| - Shipping Info URL: https://theshivara.com/razorpay-hooks/shipping-info
+| - Promotions URL:    https://theshivara.com/razorpay-hooks/promotions
+|--------------------------------------------------------------------------
+*/
+Route::prefix('razorpay-hooks')->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class])->group(function () {
+
+    // Shipping Info endpoint for Razorpay Magic Checkout
+    Route::match(['get', 'post'], '/shipping-info', function (\Illuminate\Http\Request $request) {
+        $addresses = $request->input('addresses', []);
+        $responseAddresses = [];
+        foreach ($addresses as $address) {
+            $zipcode = $address['zipcode'] ?? ($address['pincode'] ?? '');
+            $serviceable = (bool) preg_match('/^[1-9]\d{5}$/', $zipcode);
+            $responseAddresses[] = [
+                'zipcode' => $zipcode,
+                'state' => $address['state'] ?? '',
+                'city' => $address['city'] ?? '',
+                'country' => $address['country'] ?? 'IN',
+                'serviceable' => $serviceable,
+                'cod' => $serviceable,
+                'cod_fee' => 0,
+                'shipping_fee' => 0,
+            ];
+        }
+        return response()->json(['addresses' => $responseAddresses], 200, [
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, private',
+            'CDN-Cache-Control' => 'no-store',
+        ]);
+    });
+
+    // Promotions endpoint for Razorpay Magic Checkout
+    Route::match(['get', 'post'], '/promotions', function (\Illuminate\Http\Request $request) {
+        return app(\App\Http\Controllers\Api\CouponApiController::class)->getPromotions($request);
+    });
+
+    Route::match(['get', 'post'], '/promotions/apply', function (\Illuminate\Http\Request $request) {
+        return app(\App\Http\Controllers\Api\CouponApiController::class)->applyPromotion($request);
+    });
+});

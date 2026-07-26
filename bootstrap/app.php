@@ -14,6 +14,17 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->throttleApi('60,1');
+        // Exclude Razorpay callback URL from CSRF verification
+        // Magic Checkout redirects POST to this URL after payment
+        $middleware->validateCsrfTokens(except: [
+            'payment/verify',
+            'api/*',
+            'razorpay-hooks/*',
+        ]);
+        // Add CDN bypass headers to all API routes
+        $middleware->api(append: [
+            \App\Http\Middleware\BypassCdnChallenge::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
