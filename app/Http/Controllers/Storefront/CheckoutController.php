@@ -322,7 +322,17 @@ class CheckoutController extends Controller
             $lineItems = [];
             foreach ($cartItems as $item) {
                 $price = $item->variant ? $item->variant->selling_price : $item->product->selling_price;
-                $lineItems[] = [
+                $imageUrl = $item->product->primary_image_url ?? '';
+                // Razorpay requires a valid URL for image_url — skip if empty/invalid
+                if ($imageUrl && !filter_var($imageUrl, FILTER_VALIDATE_URL)) {
+                    // Might be a relative path like /storage/... — make it absolute
+                    $imageUrl = url($imageUrl);
+                }
+                if (!$imageUrl || !filter_var($imageUrl, FILTER_VALIDATE_URL)) {
+                    $imageUrl = url('/shivaralogo1.png');
+                }
+
+                $lineItem = [
                     'type' => 'e-commerce',
                     'sku' => (string) ($item->product->sku ?? $item->product->id),
                     'variant_id' => $item->variant ? (string) $item->variant->id : '',
@@ -338,9 +348,10 @@ class CheckoutController extends Controller
                         'width' => (int) ($item->product->width ?? 10),
                         'height' => (int) ($item->product->height ?? 10),
                     ],
-                    'image_url' => $item->product->primary_image_url ?? '',
+                    'image_url' => $imageUrl,
                     'product_url' => url('/products/' . ($item->product->slug ?? $item->product->id)),
                 ];
+                $lineItems[] = $lineItem;
             }
 
             $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
