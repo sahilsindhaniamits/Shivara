@@ -29,3 +29,26 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# ============================================================
+# CDN Bypass for API routes (Razorpay Magic Checkout)
+# Hostinger CDN "Checking your browser" challenge blocks
+# server-to-server calls from Razorpay to /api/* endpoints.
+# These headers instruct the CDN to skip caching and challenge.
+# ============================================================
+<IfModule mod_headers.c>
+    <If "%{REQUEST_URI} =~ m#^/api/#">
+        Header set Cache-Control "no-store, no-cache, must-revalidate, private"
+        Header set Pragma "no-cache"
+        Header set CDN-Cache-Control "no-store"
+        Header set Cloudflare-CDN-Cache-Control "no-store"
+        Header set X-Robots-Tag "noindex"
+    </If>
+    <If "%{REQUEST_URI} =~ m#^/razorpay-hooks/#">
+        Header set Cache-Control "no-store, no-cache, must-revalidate, private"
+        Header set Pragma "no-cache"
+        Header set CDN-Cache-Control "no-store"
+        Header set Cloudflare-CDN-Cache-Control "no-store"
+        Header set X-Robots-Tag "noindex"
+    </If>
+</IfModule>
