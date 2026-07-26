@@ -410,31 +410,65 @@ class CheckoutController extends Controller
         $customerEmail = '';
         $customerPhone = '';
         $addressLine1 = 'Via Razorpay Magic Checkout';
+        $addressLine2 = '';
         $city = '';
         $state = '';
         $pincode = '000000';
 
         try {
+            // Fetch payment for contact info
             $payment = $api->payment->fetch($razorpayPaymentId);
             $customerEmail = $payment->email ?? '';
             $customerPhone = $payment->contact ?? '';
-            $customerName = $customerEmail ? explode('@', $customerEmail)[0] : 'Customer';
 
-            if (isset($payment->notes) && !empty($payment->notes)) {
+            // For 1CC Magic Checkout, shipping address is stored in the ORDER object
+            $razorpayOrder = $api->order->fetch($razorpayOrderId);
+
+            \Log::info('Razorpay order data for address extraction', [
+                'order_id' => $razorpayOrderId,
+                'customer_details' => $razorpayOrder->customer_details ?? 'not set',
+                'shipping_address' => $razorpayOrder->shipping_address ?? 'not set',
+            ]);
+
+            // Try customer_details.shipping_address (1CC format)
+            $shippingAddr = null;
+            if (isset($razorpayOrder['customer_details']['shipping_address'])) {
+                $shippingAddr = $razorpayOrder['customer_details']['shipping_address'];
+            } elseif (isset($razorpayOrder->customer_details['shipping_address'])) {
+                $shippingAddr = (array) $razorpayOrder->customer_details['shipping_address'];
+            }
+
+            // Also try top-level shipping_address
+            if (!$shippingAddr && isset($razorpayOrder['shipping_address'])) {
+                $shippingAddr = $razorpayOrder['shipping_address'];
+            }
+
+            // Also try payment notes
+            if (!$shippingAddr && isset($payment->notes) && !empty($payment->notes)) {
                 $notes = (array) $payment->notes;
                 if (isset($notes['shipping_address'])) {
-                    $addr = is_string($notes['shipping_address']) ? json_decode($notes['shipping_address'], true) : (array) $notes['shipping_address'];
-                    if ($addr) {
-                        $customerName = $addr['name'] ?? $addr['contact_name'] ?? $customerName;
-                        $addressLine1 = trim(($addr['line1'] ?? '') . ' ' . ($addr['line2'] ?? '')) ?: 'Via Razorpay';
-                        $city = $addr['city'] ?? '';
-                        $state = $addr['state'] ?? '';
-                        $pincode = $addr['zipcode'] ?? ($addr['pincode'] ?? '000000');
-                    }
+                    $shippingAddr = is_string($notes['shipping_address']) ? json_decode($notes['shipping_address'], true) : (array) $notes['shipping_address'];
                 }
             }
+
+            if ($shippingAddr && is_array($shippingAddr)) {
+                $customerName = $shippingAddr['name'] ?? $shippingAddr['contact_name'] ?? $customerName;
+                $addressLine1 = $shippingAddr['line1'] ?? ($shippingAddr['address_line1'] ?? '');
+                $addressLine2 = $shippingAddr['line2'] ?? ($shippingAddr['address_line2'] ?? '');
+                if (!$addressLine1) $addressLine1 = trim(($shippingAddr['street'] ?? '') . ' ' . ($shippingAddr['landmark'] ?? ''));
+                $city = $shippingAddr['city'] ?? '';
+                $state = $shippingAddr['state'] ?? '';
+                $pincode = $shippingAddr['zipcode'] ?? ($shippingAddr['pincode'] ?? ($shippingAddr['zip'] ?? '000000'));
+                $customerPhone = $shippingAddr['contact'] ?? ($shippingAddr['phone'] ?? $customerPhone);
+            }
+
+            // Fallback name from email
+            if ($customerName === 'Customer' && $customerEmail) {
+                $customerName = explode('@', $customerEmail)[0];
+            }
+
         } catch (\Exception $e) {
-            \Log::warning('Could not fetch payment details: ' . $e->getMessage());
+            \Log::warning('Could not fetch Razorpay order/payment details: ' . $e->getMessage());
         }
 
         $address = Address::create([
@@ -442,7 +476,8 @@ class CheckoutController extends Controller
             'full_name' => $customerName,
             'phone' => $customerPhone,
             'email' => $customerEmail,
-            'address_line1' => $addressLine1,
+            'address_line1' => $addressLine1 ?: 'Via Razorpay Magic Checkout',
+            'address_line2' => $addressLine2,
             'city' => $city ?: 'N/A',
             'state' => $state ?: 'N/A',
             'pincode' => $pincode,
