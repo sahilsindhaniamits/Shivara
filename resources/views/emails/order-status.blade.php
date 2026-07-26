@@ -175,6 +175,12 @@
                                 <td style="padding:4px 0;font-size:12px;color:#16a34a;text-align:right;">-₹{{ number_format($order->discount) }}</td>
                             </tr>
                             @endif
+                            @if($order->payment_method === 'cod')
+                            <tr>
+                                <td style="padding:4px 0;font-size:12px;color:#8c7560;">COD Charges</td>
+                                <td style="padding:4px 0;font-size:12px;color:#2C2418;text-align:right;">₹{{ number_format(config('shivara.cod_charge', 50)) }}</td>
+                            </tr>
+                            @endif
                             <tr>
                                 <td style="padding:10px 0 0;font-size:15px;font-weight:700;color:#2C2418;border-top:1px solid rgba(183,146,92,0.15);">Total</td>
                                 <td style="padding:10px 0 0;font-size:15px;font-weight:700;color:#2C2418;text-align:right;border-top:1px solid rgba(183,146,92,0.15);">₹{{ number_format($order->total_amount) }}</td>
