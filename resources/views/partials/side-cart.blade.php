@@ -231,25 +231,22 @@ function sideCart() {
                 var options = {
                     "key": data.razorpay_key,
                     "one_click_checkout": true,
-                    "name": "Shivara",
-                    "order_id": data.razorpay_order_id,
                     "show_coupons": true,
-                    "handler": function(response) {
-                        var form = document.createElement('form');
-                        form.method = 'POST';
-                        form.action = '/payment/verify';
-                        var fields = { _token: document.querySelector('meta[name="csrf-token"]').content, razorpay_order_id: response.razorpay_order_id, razorpay_payment_id: response.razorpay_payment_id, razorpay_signature: response.razorpay_signature };
-                        for (var key in fields) { var input = document.createElement('input'); input.type='hidden'; input.name=key; input.value=fields[key]; form.appendChild(input); }
-                        document.body.appendChild(form);
-                        form.submit();
-                    },
+                    "name": "Shivara",
+                    "description": "Ayurvedic Wellness Products",
+                    "order_id": data.razorpay_order_id,
+                    "callback_url": window.location.origin + "/payment/verify",
+                    "redirect": true,
                     "prefill": {
                         "contact": data.prefill && data.prefill.contact ? data.prefill.contact : "",
                         "email": data.prefill && data.prefill.email ? data.prefill.email : ""
+                    },
+                    "modal": {
+                        "confirm_close": true,
+                        "ondismiss": function() {}
                     }
                 };
                 var rzp = new Razorpay(options);
-                rzp.on('payment.failed', function(resp) { alert('Payment failed: ' + (resp.error ? resp.error.description : 'Please try again.')); });
                 rzp.open();
             })
             .catch(err => { alert('Something went wrong. Please try again.'); console.error(err); });
