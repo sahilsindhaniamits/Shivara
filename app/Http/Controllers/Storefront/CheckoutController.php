@@ -46,7 +46,6 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
 
-        // Create or reuse address
         $address = Address::create([
             'user_id' => auth()->id(),
             'full_name' => $request->full_name,
@@ -60,7 +59,6 @@ class CheckoutController extends Controller
             'landmark' => $request->landmark,
         ]);
 
-        // Calculate totals
         $subtotal = $cartItems->sum(function ($item) {
             $price = $item->variant ? $item->variant->selling_price : $item->product->selling_price;
             return $price * $item->quantity;
@@ -72,14 +70,12 @@ class CheckoutController extends Controller
         } elseif ($subtotal < config('shivara.free_shipping_threshold', 999)) {
             $shippingCharge = config('shivara.standard_rate', 50);
         }
-        // Free standard shipping if above threshold, Express always charged
 
         $codCharge = $request->payment_method === 'cod' ? config('shivara.cod_charge') : 0;
         $discount = 0;
         $couponId = null;
         $couponCode = null;
 
-        // Apply coupon if exists in session (manually applied)
         if (session()->has('coupon')) {
             $couponData = session('coupon');
             $coupon = Coupon::find($couponData['id']);
@@ -91,7 +87,6 @@ class CheckoutController extends Controller
             }
         }
 
-        // If no manual coupon applied, try auto-apply best coupon
         if ($discount == 0 && !$couponId) {
             $autoCoupon = Coupon::getBestAutoApply($subtotal);
             if ($autoCoupon) {
@@ -104,7 +99,6 @@ class CheckoutController extends Controller
 
         $totalAmount = $subtotal - $discount + $shippingCharge + $codCharge;
 
-        // Create order
         $order = Order::create([
             'order_number' => Order::generateOrderNumber(),
             'user_id' => auth()->id(),
@@ -121,7 +115,6 @@ class CheckoutController extends Controller
             'shipping_method' => $request->shipping_method,
         ]);
 
-        // Create order items
         foreach ($cartItems as $item) {
             $price = $item->variant ? $item->variant->selling_price : $item->product->selling_price;
             OrderItem::create([
@@ -137,7 +130,6 @@ class CheckoutController extends Controller
                 'gst_amount' => ($price * $item->quantity) * ($item->product->gst_rate / (100 + $item->product->gst_rate)),
             ]);
 
-            // Decrease stock
             if ($item->variant) {
                 $item->variant->decrement('stock', $item->quantity);
             } else {
@@ -147,7 +139,7 @@ class CheckoutController extends Controller
             }
         }
 
-        // Add free gift as order item if threshold is met
+        // Free gift
         $fgEnabled = \App\Models\Setting::get('free_gift_enabled', 'false') === 'true';
         $fgThreshold = (float) \App\Models\Setting::get('free_gift_threshold', config('shivara.free_gift_threshold', 1499));
         $fgProductId = \App\Models\Setting::get('free_gift_product_id');
@@ -169,22 +161,18 @@ class CheckoutController extends Controller
             }
         }
 
-        // Clear cart
         if (auth()->check()) {
             CartItem::where('user_id', auth()->id())->delete();
         }
         session()->forget('cart');
         session()->forget('coupon');
 
-        // Handle payment
         if ($request->payment_method === 'razorpay') {
             return $this->initiateRazorpay($order);
         }
 
-        // COD - set as confirmed
         $order->update(['status' => 'confirmed']);
 
-        // Send order confirmation email for COD (+ BCC to shop as new order)
         $customerEmail = $order->address?->email ?? ($order->user?->email ?? null);
         if ($customerEmail) {
             try {
@@ -204,7 +192,7 @@ class CheckoutController extends Controller
 
         $razorpayOrder = $api->order->create([
             'receipt' => $order->order_number,
-            'amount' => (int)($order->total_amount * 100), // Amount in paise
+            'amount' => (int)($order->total_amount * 100),
             'currency' => 'INR',
         ]);
 
@@ -218,13 +206,6 @@ class CheckoutController extends Controller
         ]);
     }
 
-    /**
-     * Verify Razorpay payment after successful checkout.
-     * Handles both:
-     * - Standard checkout flow (order already exists)
-     * - Magic Checkout / side-cart flow (order created from cart)
-     * - COD orders via Magic Checkout
-     */
     public function verifyPayment(Request $request)
     {
         $razorpayOrderId = $request->input('razorpay_order_id');
@@ -239,14 +220,12 @@ class CheckoutController extends Controller
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
 
         try {
-            // Verify signature
             $api->utility->verifyPaymentSignature([
                 'razorpay_order_id' => $razorpayOrderId,
                 'razorpay_payment_id' => $razorpayPaymentId,
                 'razorpay_signature' => $razorpaySignature,
             ]);
 
-            // Find existing order or create from cart
             $order = Order::where('razorpay_order_id', $razorpayOrderId)->first();
 
             if (!$order) {
@@ -257,7 +236,7 @@ class CheckoutController extends Controller
                 return redirect()->route('home')->with('error', 'Order could not be created. Please contact support.');
             }
 
-            // Check if COD via Magic Checkout
+            // Check if COD
             $isCod = false;
             try {
                 $payment = $api->payment->fetch($razorpayPaymentId);
@@ -275,18 +254,17 @@ class CheckoutController extends Controller
                 'paid_at' => $isCod ? null : now(),
             ]);
 
-            // Send confirmation email
             $customerEmail = $order->address?->email ?? ($order->user?->email ?? null);
             if ($customerEmail) {
                 try {
                     \Illuminate\Support\Facades\Mail::to($customerEmail)->send(new \App\Mail\OrderStatusMail($order->fresh(['items', 'address']), true));
                 } catch (\Exception $e) {
-                    \Log::warning('Order confirmation email failed for ' . $order->order_number . ': ' . $e->getMessage());
+                    \Log::warning('Order confirmation email failed: ' . $e->getMessage());
                 }
             }
 
             return redirect()->route('order.success', $order->order_number)
-                ->with('success', $isCod ? 'COD order placed successfully!' : 'Payment successful! Order confirmed.');
+                ->with('success', $isCod ? 'COD order placed!' : 'Payment successful!');
 
         } catch (\Exception $e) {
             \Log::error('Razorpay verification failed: ' . $e->getMessage());
@@ -297,18 +275,14 @@ class CheckoutController extends Controller
 
     public function success(string $orderNumber)
     {
-        $order = Order::where('order_number', $orderNumber)
-            ->with('items')
-            ->firstOrFail();
-
+        $order = Order::where('order_number', $orderNumber)->with('items')->firstOrFail();
         return view('storefront.order-success', compact('order'));
     }
 
     /**
-     * Create Razorpay order from side cart (AJAX).
-     * Simple and clean — only sends amount/currency/receipt to Razorpay.
-     * Magic Checkout features (address, COD, coupons) are handled by
-     * Razorpay's JS + Dashboard config, not by order params.
+     * Create Razorpay 1CC order with line_items for full Magic Checkout flow.
+     * line_items triggers the sequential flow: Phone → OTP → Address → Delivery → Payment/COD
+     * Without line_items, Razorpay shows OPC (one-page-checkout) instead.
      */
     public function createRazorpayOrder(Request $request)
     {
@@ -323,10 +297,9 @@ class CheckoutController extends Controller
                 return $price * $item->quantity;
             });
 
-            // Apply coupon
+            // Coupon
             $discount = 0;
             $couponCode = null;
-
             if (session()->has('coupon')) {
                 $sessionCoupon = Coupon::find(session('coupon.id'));
                 if ($sessionCoupon && $sessionCoupon->isValid()) {
@@ -334,8 +307,6 @@ class CheckoutController extends Controller
                     $couponCode = $sessionCoupon->code;
                 }
             }
-
-            // Auto-apply if no manual coupon
             if ($discount == 0) {
                 $autoCoupon = Coupon::getBestAutoApply($subtotal);
                 if ($autoCoupon) {
@@ -345,18 +316,48 @@ class CheckoutController extends Controller
             }
 
             $shipping = $subtotal >= config('shivara.free_shipping_threshold', 999) ? 0 : config('shivara.standard_rate', 50);
-            $totalAmount = max(1, $subtotal - $discount + $shipping); // min ₹1
+            $totalAmount = max(1, $subtotal - $discount + $shipping);
 
-            // Create Razorpay order — SIMPLE, no line_items
+            // Build line_items — REQUIRED for full 1CC Magic Checkout flow
+            $lineItems = [];
+            foreach ($cartItems as $item) {
+                $price = $item->variant ? $item->variant->selling_price : $item->product->selling_price;
+                $lineItems[] = [
+                    'type' => 'e-commerce',
+                    'sku' => (string) ($item->product->sku ?? $item->product->id),
+                    'variant_id' => $item->variant ? (string) $item->variant->id : '',
+                    'price' => (string) round($price * 100),
+                    'offer_price' => (string) round($price * 100),
+                    'tax_amount' => 0,
+                    'quantity' => (int) $item->quantity,
+                    'name' => mb_substr($item->product->name . ($item->variant ? ' - ' . $item->variant->name : ''), 0, 200),
+                    'description' => mb_substr($item->product->short_description ?? $item->product->name, 0, 200),
+                    'weight' => (int) ($item->product->weight ?? 200),
+                    'dimensions' => [
+                        'length' => (int) ($item->product->length ?? 10),
+                        'width' => (int) ($item->product->width ?? 10),
+                        'height' => (int) ($item->product->height ?? 10),
+                    ],
+                    'image_url' => $item->product->primary_image_url ?? '',
+                    'product_url' => url('/products/' . ($item->product->slug ?? $item->product->id)),
+                ];
+            }
+
             $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
 
-            $razorpayOrder = $api->order->create([
-                'receipt' => 'cart_' . time() . '_' . rand(100, 999),
+            $orderPayload = [
                 'amount' => (int) round($totalAmount * 100),
                 'currency' => 'INR',
-            ]);
+                'receipt' => 'cart_' . time() . '_' . rand(100, 999),
+                'line_items' => $lineItems,
+                'line_items_total' => (int) round($subtotal * 100),
+            ];
 
-            // Save checkout data in session for order creation after payment
+            \Log::info('Razorpay 1CC order payload', $orderPayload);
+
+            $razorpayOrder = $api->order->create($orderPayload);
+
+            // Save for verification later
             session()->put('razorpay_checkout', [
                 'order_id' => $razorpayOrder['id'],
                 'amount' => $totalAmount,
@@ -379,32 +380,26 @@ class CheckoutController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('createRazorpayOrder failed: ' . $e->getMessage() . ' | ' . $e->getFile() . ':' . $e->getLine());
+            \Log::error('createRazorpayOrder FAILED: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
             return response()->json([
                 'success' => false,
-                'error' => 'Could not create payment order. Please try again.',
+                'error' => 'Payment error: ' . $e->getMessage(),
             ]);
         }
     }
 
-    /**
-     * Create order from cart after Razorpay payment is verified.
-     * Called when payment comes from side-cart Magic Checkout flow.
-     */
     private function createOrderFromCart(string $razorpayOrderId, string $razorpayPaymentId): ?Order
     {
         $cartItems = $this->getCartItems();
         if ($cartItems->isEmpty()) return null;
 
         $checkoutData = session('razorpay_checkout', []);
-
-        // Fetch payment info from Razorpay for address/contact
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
 
         $customerName = 'Customer';
         $customerEmail = '';
         $customerPhone = '';
-        $addressLine1 = 'Collected via Razorpay';
+        $addressLine1 = 'Via Razorpay Magic Checkout';
         $city = '';
         $state = '';
         $pincode = '000000';
@@ -415,7 +410,6 @@ class CheckoutController extends Controller
             $customerPhone = $payment->contact ?? '';
             $customerName = $customerEmail ? explode('@', $customerEmail)[0] : 'Customer';
 
-            // Try to get shipping address from payment notes (Magic Checkout)
             if (isset($payment->notes) && !empty($payment->notes)) {
                 $notes = (array) $payment->notes;
                 if (isset($notes['shipping_address'])) {
@@ -428,15 +422,11 @@ class CheckoutController extends Controller
                         $pincode = $addr['zipcode'] ?? ($addr['pincode'] ?? '000000');
                     }
                 }
-                if (isset($notes['customer_name'])) {
-                    $customerName = $notes['customer_name'];
-                }
             }
         } catch (\Exception $e) {
-            \Log::warning('Could not fetch Razorpay payment details: ' . $e->getMessage());
+            \Log::warning('Could not fetch payment details: ' . $e->getMessage());
         }
 
-        // Create address
         $address = Address::create([
             'user_id' => auth()->id(),
             'full_name' => $customerName,
@@ -490,32 +480,18 @@ class CheckoutController extends Controller
             }
         }
 
-        // Add free gift if threshold is met
+        // Free gift
         $fgEnabled = \App\Models\Setting::get('free_gift_enabled', 'false') === 'true';
         $fgThreshold = (float) \App\Models\Setting::get('free_gift_threshold', config('shivara.free_gift_threshold', 1499));
         $fgProductId = \App\Models\Setting::get('free_gift_product_id');
         if ($fgEnabled && $fgProductId && $subtotal >= $fgThreshold) {
             $fgProduct = \App\Models\Product::find($fgProductId);
             if ($fgProduct) {
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $fgProduct->id,
-                    'variant_id' => null,
-                    'product_name' => $fgProduct->name . ' (Free Gift)',
-                    'variant_name' => null,
-                    'quantity' => 1,
-                    'price' => 0,
-                    'total_price' => 0,
-                    'gst_rate' => 0,
-                    'gst_amount' => 0,
-                ]);
+                OrderItem::create(['order_id' => $order->id, 'product_id' => $fgProduct->id, 'variant_id' => null, 'product_name' => $fgProduct->name . ' (Free Gift)', 'variant_name' => null, 'quantity' => 1, 'price' => 0, 'total_price' => 0, 'gst_rate' => 0, 'gst_amount' => 0]);
             }
         }
 
-        // Clear cart
-        if (auth()->check()) {
-            CartItem::where('user_id', auth()->id())->delete();
-        }
+        if (auth()->check()) { CartItem::where('user_id', auth()->id())->delete(); }
         session()->forget('cart');
         session()->forget('coupon');
         session()->forget('razorpay_checkout');
@@ -533,7 +509,6 @@ class CheckoutController extends Controller
 
         $cart = session()->get('cart', []);
         $items = collect();
-
         foreach ($cart as $key => $item) {
             $product = \App\Models\Product::with('primaryImage')->find($item['product_id']);
             if ($product) {
@@ -545,7 +520,6 @@ class CheckoutController extends Controller
                 ]);
             }
         }
-
         return $items;
     }
 }

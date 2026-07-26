@@ -227,7 +227,7 @@ function sideCart() {
             })
             .then(r => r.json())
             .then(data => {
-                if (!data.success) { alert(data.error || 'Error creating order'); return; }
+                if (!data.success) { alert(data.error || 'Error creating order'); console.error('Order error:', data); return; }
                 var options = {
                     "key": data.razorpay_key,
                     "one_click_checkout": true,
