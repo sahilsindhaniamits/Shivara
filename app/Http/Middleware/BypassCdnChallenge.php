@@ -7,12 +7,13 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Middleware to add headers that bypass CDN browser challenge
- * for API routes called by Razorpay Magic Checkout (server-to-server).
+ * Middleware to:
+ * 1. Allow Razorpay sensors (accelerometer, gyroscope) via Permissions-Policy
+ * 2. Add CDN bypass headers for API routes
  *
- * Hostinger CDN / Cloudflare "Checking your browser" challenge blocks
- * automated server-to-server requests. This middleware ensures API
- * responses include headers that instruct CDN to not cache or challenge.
+ * Razorpay Magic Checkout uses device sensors for fraud detection.
+ * Without the Permissions-Policy allowing these, Magic Checkout
+ * falls back to Standard Checkout.
  */
 class BypassCdnChallenge
 {
@@ -20,17 +21,18 @@ class BypassCdnChallenge
     {
         $response = $next($request);
 
-        // Set headers to prevent CDN caching and challenge
-        $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-        $response->headers->set('Pragma', 'no-cache');
-        $response->headers->set('CDN-Cache-Control', 'no-store');
-        $response->headers->set('Cloudflare-CDN-Cache-Control', 'no-store');
-        $response->headers->set('X-Robots-Tag', 'noindex');
+        // Allow Razorpay sensors — CRITICAL for Magic Checkout
+        $response->headers->set('Permissions-Policy', 'accelerometer=*, gyroscope=*, magnetometer=*, payment=*');
 
-        // Add CORS headers for Razorpay server calls
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+        // API-specific headers
+        if ($request->is('api/*') || $request->is('razorpay-hooks/*')) {
+            $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+            $response->headers->set('Pragma', 'no-cache');
+            $response->headers->set('CDN-Cache-Control', 'no-store');
+            $response->headers->set('Access-Control-Allow-Origin', '*');
+            $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+            $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+        }
 
         return $response;
     }
