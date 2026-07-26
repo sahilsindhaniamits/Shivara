@@ -36,8 +36,15 @@ Route::get('/track-order', function (\Illuminate\Http\Request $request) {
         $query = \App\Models\Order::where('order_number', $request->order_number)
             ->with(['items', 'timeline']);
         if ($request->filled('phone')) {
-            $query->whereHas('address', function($q) use ($request) {
-                $q->where('phone', $request->phone);
+            // Normalize phone: strip +, spaces, dashes for flexible matching
+            $phone = preg_replace('/[^0-9]/', '', $request->phone);
+            $query->whereHas('address', function($q) use ($phone) {
+                $q->where(function($q2) use ($phone) {
+                    $q2->where('phone', 'LIKE', '%' . substr($phone, -10))
+                       ->orWhere('phone', $phone)
+                       ->orWhere('phone', '+' . $phone)
+                       ->orWhere('phone', '+91' . substr($phone, -10));
+                });
             });
         }
         $order = $query->first();
