@@ -212,7 +212,14 @@ class CheckoutController extends Controller
         $razorpayPaymentId = $request->input('razorpay_payment_id');
         $razorpaySignature = $request->input('razorpay_signature');
 
+        \Log::info('verifyPayment called', [
+            'order_id' => $razorpayOrderId,
+            'payment_id' => $razorpayPaymentId,
+            'has_signature' => !empty($razorpaySignature),
+        ]);
+
         if (!$razorpayOrderId || !$razorpayPaymentId) {
+            \Log::error('verifyPayment: missing order_id or payment_id');
             return redirect()->route('cart.index')
                 ->with('error', 'Payment verification failed. Missing payment details.');
         }
@@ -220,30 +227,39 @@ class CheckoutController extends Controller
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
 
         try {
-            // For COD orders, Razorpay sends payment_id but signature may be empty or different
-            // Fetch payment to check method first
-            $payment = $api->payment->fetch($razorpayPaymentId);
-            $isCod = (($payment->method ?? '') === 'cod');
+            // Fetch payment to determine method (COD vs prepaid)
+            $isCod = false;
+            try {
+                $payment = $api->payment->fetch($razorpayPaymentId);
+                $isCod = (($payment->method ?? '') === 'cod');
+                \Log::info('Payment fetched', ['method' => $payment->method ?? 'unknown', 'isCod' => $isCod]);
+            } catch (\Exception $e) {
+                \Log::warning('Could not fetch payment to check method: ' . $e->getMessage());
+                // If we can't fetch payment, try signature verification
+            }
 
-            // Only verify signature for non-COD payments
-            if (!$isCod && $razorpaySignature) {
+            // Only verify signature for prepaid (non-COD) payments
+            if (!$isCod && !empty($razorpaySignature)) {
                 $api->utility->verifyPaymentSignature([
                     'razorpay_order_id' => $razorpayOrderId,
                     'razorpay_payment_id' => $razorpayPaymentId,
                     'razorpay_signature' => $razorpaySignature,
                 ]);
+                \Log::info('Signature verified for prepaid payment');
             }
 
+            // Find or create order
             $order = Order::where('razorpay_order_id', $razorpayOrderId)->first();
-
             if (!$order) {
                 $order = $this->createOrderFromCart($razorpayOrderId, $razorpayPaymentId);
             }
 
             if (!$order) {
+                \Log::error('Could not find or create order for: ' . $razorpayOrderId);
                 return redirect()->route('home')->with('error', 'Order could not be created. Please contact support.');
             }
 
+            // Update order — set to CONFIRMED directly (no pending state)
             $order->update([
                 'razorpay_payment_id' => $razorpayPaymentId,
                 'razorpay_signature' => $razorpaySignature ?? '',
@@ -253,6 +269,9 @@ class CheckoutController extends Controller
                 'paid_at' => $isCod ? null : now(),
             ]);
 
+            \Log::info('Order confirmed', ['order' => $order->order_number, 'method' => $isCod ? 'cod' : 'razorpay']);
+
+            // Send confirmation email
             $customerEmail = $order->address?->email ?? ($order->user?->email ?? null);
             if ($customerEmail) {
                 try {
@@ -266,7 +285,7 @@ class CheckoutController extends Controller
                 ->with('success', $isCod ? 'COD order placed!' : 'Payment successful!');
 
         } catch (\Exception $e) {
-            \Log::error('Razorpay verification failed: ' . $e->getMessage());
+            \Log::error('verifyPayment EXCEPTION: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
             return redirect()->route('cart.index')
                 ->with('error', 'Payment verification failed. Please contact support.');
         }
@@ -423,33 +442,37 @@ class CheckoutController extends Controller
 
             // For 1CC Magic Checkout, shipping address is stored in the ORDER object
             $razorpayOrder = $api->order->fetch($razorpayOrderId);
+            $orderArray = json_decode(json_encode($razorpayOrder), true) ?? [];
 
             \Log::info('Razorpay order data for address extraction', [
                 'order_id' => $razorpayOrderId,
-                'customer_details' => $razorpayOrder->customer_details ?? 'not set',
-                'shipping_address' => $razorpayOrder->shipping_address ?? 'not set',
+                'order_keys' => array_keys($orderArray),
+                'has_customer_details' => isset($orderArray['customer_details']),
+                'customer_details' => $orderArray['customer_details'] ?? 'not set',
             ]);
 
             // Try customer_details.shipping_address (1CC format)
             $shippingAddr = null;
-            if (isset($razorpayOrder['customer_details']['shipping_address'])) {
-                $shippingAddr = $razorpayOrder['customer_details']['shipping_address'];
-            } elseif (isset($razorpayOrder->customer_details['shipping_address'])) {
-                $shippingAddr = (array) $razorpayOrder->customer_details['shipping_address'];
+            if (isset($orderArray['customer_details']['shipping_address'])) {
+                $shippingAddr = $orderArray['customer_details']['shipping_address'];
             }
 
             // Also try top-level shipping_address
-            if (!$shippingAddr && isset($razorpayOrder['shipping_address'])) {
-                $shippingAddr = $razorpayOrder['shipping_address'];
+            if (!$shippingAddr && isset($orderArray['shipping_address'])) {
+                $shippingAddr = $orderArray['shipping_address'];
             }
 
             // Also try payment notes
-            if (!$shippingAddr && isset($payment->notes) && !empty($payment->notes)) {
-                $notes = (array) $payment->notes;
-                if (isset($notes['shipping_address'])) {
-                    $shippingAddr = is_string($notes['shipping_address']) ? json_decode($notes['shipping_address'], true) : (array) $notes['shipping_address'];
+            if (!$shippingAddr && isset($payment)) {
+                $paymentArray = json_decode(json_encode($payment), true) ?? [];
+                if (isset($paymentArray['notes']['shipping_address'])) {
+                    $shippingAddr = is_string($paymentArray['notes']['shipping_address'])
+                        ? json_decode($paymentArray['notes']['shipping_address'], true)
+                        : $paymentArray['notes']['shipping_address'];
                 }
             }
+
+            \Log::info('Extracted shipping address', ['shippingAddr' => $shippingAddr]);
 
             if ($shippingAddr && is_array($shippingAddr)) {
                 $customerName = $shippingAddr['name'] ?? $shippingAddr['contact_name'] ?? $customerName;
