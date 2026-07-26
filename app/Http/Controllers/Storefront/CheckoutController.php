@@ -263,7 +263,7 @@ class CheckoutController extends Controller
             $order->update([
                 'razorpay_payment_id' => $razorpayPaymentId,
                 'razorpay_signature' => $razorpaySignature ?? '',
-                'payment_status' => $isCod ? 'cod' : 'paid',
+                'payment_status' => $isCod ? 'pending' : 'paid',
                 'payment_method' => $isCod ? 'cod' : 'razorpay',
                 'status' => 'confirmed',
                 'paid_at' => $isCod ? null : now(),
