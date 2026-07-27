@@ -213,9 +213,9 @@ class OrderController extends Controller
             'message' => "Order status changed to " . ucfirst(str_replace('_', ' ', $request->status)),
         ]);
 
-        // Send email notification to customer (NOT for cancelled)
+        // Send email notification to customer
         $customerEmail = $order->address?->email ?? ($order->user?->email ?? null);
-        if ($customerEmail && in_array($request->status, ['processing', 'shipped', 'delivered'])) {
+        if ($customerEmail && in_array($request->status, ['processing', 'shipped', 'delivered', 'cancelled'])) {
             try {
                 \Illuminate\Support\Facades\Mail::to($customerEmail)->send(new \App\Mail\OrderStatusMail($order->fresh(['items', 'address'])));
             } catch (\Exception $e) {

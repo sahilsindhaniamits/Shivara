@@ -31,6 +31,7 @@ class OrderStatusMail extends Mailable
             'processing' => 'Your order is being processed and will be shipped soon.',
             'shipped' => 'Great news! Your order has been shipped.' . ($order->tracking_number ? " Tracking: {$order->tracking_number}" : ''),
             'delivered' => 'Your order has been delivered. Thank you for shopping with Shivara!',
+            'cancelled' => 'Your order has been cancelled. If you did not request this, please contact us immediately.',
             default => 'Your order status has been updated.',
         };
     }
@@ -42,6 +43,7 @@ class OrderStatusMail extends Mailable
             'processing' => 'Order Processing - ' . $this->order->order_number,
             'shipped' => 'Order Shipped - ' . $this->order->order_number,
             'delivered' => 'Order Delivered - ' . $this->order->order_number,
+            'cancelled' => 'Order Cancelled - ' . $this->order->order_number,
             default => 'Order Update - ' . $this->order->order_number,
         };
 
