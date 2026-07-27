@@ -29,6 +29,7 @@
                     'processing' => ['icon' => '⚙️', 'color' => '#2563eb', 'bg' => '#eff6ff', 'title' => 'Order Processing', 'subtitle' => 'We are carefully packing your products with love.'],
                     'shipped' => ['icon' => '🚚', 'color' => '#7c3aed', 'bg' => '#f5f3ff', 'title' => 'Order Shipped!', 'subtitle' => 'Your package is on its way to you.'],
                     'delivered' => ['icon' => '🎉', 'color' => '#16a34a', 'bg' => '#f0fdf4', 'title' => 'Order Delivered!', 'subtitle' => 'Your order has been delivered. Enjoy!'],
+                    'cancelled' => ['icon' => '✕', 'color' => '#dc2626', 'bg' => '#fef2f2', 'title' => 'Order Cancelled', 'subtitle' => 'Your order has been cancelled. If you did not request this, please contact us.'],
                     default => ['icon' => '📋', 'color' => '#B7925C', 'bg' => '#FBF7F0', 'title' => 'Order Update', 'subtitle' => $statusMessage],
                 };
             @endphp
