@@ -394,6 +394,14 @@ class CheckoutController extends Controller
 
             $razorpayOrder = $api->order->create($orderPayload);
 
+            // Cache the subtotal so shipping-info API can determine shipping fee
+            // without making an API call back to Razorpay (which times out on shared hosting)
+            \Illuminate\Support\Facades\Cache::put(
+                'rzp_order_subtotal_' . $razorpayOrder['id'],
+                $subtotal,
+                now()->addHours(2)
+            );
+
             // Save for verification later
             session()->put('razorpay_checkout', [
                 'order_id' => $razorpayOrder['id'],
