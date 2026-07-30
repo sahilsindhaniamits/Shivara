@@ -18,27 +18,11 @@ Route::post('/promotions/apply', [CouponApiController::class, 'applyPromotion'])
 
 // Razorpay Magic Checkout - Shipping Info API
 // Returns serviceability, COD availability, shipping fee for given addresses
+// NOTE: shipping_fee is 0 because we already include shipping in the order amount
+// The COD fee is separate — Razorpay adds it on top
 Route::match(['get', 'post'], '/shipping-info', function (\Illuminate\Http\Request $request) {
     $addresses = $request->input('addresses', []);
-    $orderId = $request->input('order_id');
     $responseAddresses = [];
-
-    // Get order amount to determine shipping fee
-    $shippingFee = 0;
-    if ($orderId) {
-        try {
-            $api = new \Razorpay\Api\Api(config('services.razorpay.key'), config('services.razorpay.secret'));
-            $order = $api->order->fetch($orderId);
-            $orderAmount = ($order['amount'] ?? 0) / 100; // Convert paise to rupees
-            // Charge ₹50 shipping for orders below ₹999
-            if ($orderAmount < config('shivara.free_shipping_threshold', 999)) {
-                $shippingFee = (int)(config('shivara.standard_rate', 50) * 100); // in paise
-            }
-        } catch (\Exception $e) {
-            // Default: charge shipping
-            $shippingFee = (int)(config('shivara.standard_rate', 50) * 100);
-        }
-    }
 
     foreach ($addresses as $address) {
         $zipcode = $address['zipcode'] ?? ($address['pincode'] ?? '');
@@ -51,7 +35,7 @@ Route::match(['get', 'post'], '/shipping-info', function (\Illuminate\Http\Reque
             'serviceable' => $serviceable,
             'cod' => $serviceable,
             'cod_fee' => 5000, // ₹50 in paise
-            'shipping_fee' => $shippingFee,
+            'shipping_fee' => 0, // Already included in order amount
         ];
     }
     return response()->json(['addresses' => $responseAddresses]);
