@@ -17,32 +17,39 @@ Route::get('/promotions', [CouponApiController::class, 'getPromotions']);
 Route::post('/promotions/apply', [CouponApiController::class, 'applyPromotion']);
 
 // Razorpay Magic Checkout - Shipping Info API
-// Returns serviceability, COD availability, shipping fee for given addresses
 Route::match(['get', 'post'], '/shipping-info', function (\Illuminate\Http\Request $request) {
+    // Log full request to see what Razorpay sends
+    \Log::info('shipping-info request', $request->all());
+
     $addresses = $request->input('addresses', []);
     $responseAddresses = [];
 
-    // Determine shipping fee: free for orders >= ₹999
-    $shippingFee = (int)(config('shivara.standard_rate', 50) * 100); // Default ₹50 in paise
+    // Razorpay sends order_id — look up the amount from our database
+    // We store it in a simple file-based approach since cache/session won't work
+    // for server-to-server calls
+    $shippingFee = (int)(config('shivara.standard_rate', 50) * 100); // Default ₹50
     $orderId = $request->input('order_id');
 
     if ($orderId) {
-        // Try cache first (fast, no API call needed)
-        $subtotal = \Illuminate\Support\Facades\Cache::get('rzp_order_subtotal_' . $orderId);
-
-        if ($subtotal === null) {
-            // Fallback: fetch from Razorpay API
+        // Try reading from our stored file
+        $cacheFile = storage_path('app/rzp_orders/' . md5($orderId) . '.txt');
+        if (file_exists($cacheFile)) {
+            $subtotal = (float) file_get_contents($cacheFile);
+            if ($subtotal >= config('shivara.free_shipping_threshold', 999)) {
+                $shippingFee = 0;
+            }
+        } else {
+            // Fallback: try Razorpay API
             try {
                 $api = new \Razorpay\Api\Api(config('services.razorpay.key'), config('services.razorpay.secret'));
                 $order = $api->order->fetch($orderId);
                 $subtotal = ($order['amount'] ?? 0) / 100;
+                if ($subtotal >= config('shivara.free_shipping_threshold', 999)) {
+                    $shippingFee = 0;
+                }
             } catch (\Exception $e) {
-                $subtotal = 0; // Default: charge shipping
+                // Default: charge shipping
             }
-        }
-
-        if ($subtotal >= config('shivara.free_shipping_threshold', 999)) {
-            $shippingFee = 0;
         }
     }
 
@@ -56,7 +63,7 @@ Route::match(['get', 'post'], '/shipping-info', function (\Illuminate\Http\Reque
             'country' => $address['country'] ?? 'IN',
             'serviceable' => $serviceable,
             'cod' => $serviceable,
-            'cod_fee' => 5000, // ₹50 COD fee in paise
+            'cod_fee' => 5000,
             'shipping_fee' => $shippingFee,
         ];
     }

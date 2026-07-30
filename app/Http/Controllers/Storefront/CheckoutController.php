@@ -394,8 +394,13 @@ class CheckoutController extends Controller
 
             $razorpayOrder = $api->order->create($orderPayload);
 
-            // Cache the subtotal so shipping-info API can determine shipping fee
-            // without making an API call back to Razorpay (which times out on shared hosting)
+            // Store subtotal in file so shipping-info API can read it
+            // (Cache/session won't work for server-to-server calls from Razorpay)
+            $cacheDir = storage_path('app/rzp_orders');
+            if (!is_dir($cacheDir)) { mkdir($cacheDir, 0755, true); }
+            file_put_contents($cacheDir . '/' . md5($razorpayOrder['id']) . '.txt', (string) $subtotal);
+
+            // Also try cache (works if same server process)
             \Illuminate\Support\Facades\Cache::put(
                 'rzp_order_subtotal_' . $razorpayOrder['id'],
                 $subtotal,
