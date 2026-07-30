@@ -30,34 +30,8 @@
     RewriteRule ^ index.php [L]
 </IfModule>
 
-# ============================================================
-# Permissions-Policy: Allow Razorpay Magic Checkout sensors
-# Razorpay uses accelerometer and gyroscope for fraud detection.
-# Without this, Magic Checkout falls back to Standard Checkout.
-# "always" keyword ensures this overrides CDN-injected headers.
-# ============================================================
+# Permissions-Policy for Razorpay Magic Checkout
 <IfModule mod_headers.c>
     Header always unset Permissions-Policy
     Header always set Permissions-Policy "accelerometer=*, gyroscope=*, magnetometer=*, payment=*"
-    Header always unset X-Frame-Options
-</IfModule>
-
-# ============================================================
-# CDN Bypass for API routes (Razorpay Magic Checkout)
-# ============================================================
-<IfModule mod_headers.c>
-    <If "%{REQUEST_URI} =~ m#^/api/#">
-        Header set Cache-Control "no-store, no-cache, must-revalidate, private"
-        Header set Pragma "no-cache"
-        Header set CDN-Cache-Control "no-store"
-        Header set Cloudflare-CDN-Cache-Control "no-store"
-        Header set X-Robots-Tag "noindex"
-    </If>
-    <If "%{REQUEST_URI} =~ m#^/razorpay-hooks/#">
-        Header set Cache-Control "no-store, no-cache, must-revalidate, private"
-        Header set Pragma "no-cache"
-        Header set CDN-Cache-Control "no-store"
-        Header set Cloudflare-CDN-Cache-Control "no-store"
-        Header set X-Robots-Tag "noindex"
-    </If>
 </IfModule>
