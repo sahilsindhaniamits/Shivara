@@ -340,8 +340,9 @@ class CheckoutController extends Controller
             }
 
             $shipping = $subtotal >= config('shivara.free_shipping_threshold', 999) ? 0 : config('shivara.standard_rate', 50);
-            $totalAmount = max(1, $subtotal - $discount);
-            // Don't include shipping in amount — Razorpay adds it from shipping-info API
+            $totalAmount = max(1, $subtotal - $discount + $shipping);
+            // Shipping included in amount — Razorpay caches shipping-info responses
+            // so we can't reliably control "Standard Delivery" display
 
             // Build line_items — REQUIRED for full 1CC Magic Checkout flow
             $lineItems = [];
