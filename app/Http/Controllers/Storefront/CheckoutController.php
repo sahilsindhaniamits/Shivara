@@ -340,9 +340,7 @@ class CheckoutController extends Controller
             }
 
             $shipping = $subtotal >= config('shivara.free_shipping_threshold', 999) ? 0 : config('shivara.standard_rate', 50);
-            $totalAmount = max(1, $subtotal - $discount);
-            // NOTE: Don't add shipping here — Razorpay adds it from shipping-info API
-            // We store shipping in session for our order record
+            $totalAmount = max(1, $subtotal - $discount + $shipping);
 
             // Build line_items — REQUIRED for full 1CC Magic Checkout flow
             $lineItems = [];
@@ -563,21 +561,7 @@ class CheckoutController extends Controller
         $subtotal = $checkoutData['subtotal'] ?? $cartItems->sum(fn($i) => ($i->variant ? $i->variant->selling_price : $i->product->selling_price) * $i->quantity);
         $discount = $checkoutData['discount'] ?? 0;
         $shipping = $checkoutData['shipping'] ?? 0;
-
-        // Get actual amount charged by Razorpay (includes shipping added by their system)
         $totalAmount = $subtotal - $discount + $shipping;
-        try {
-            $razorpayOrderData = $api->order->fetch($razorpayOrderId);
-            $rzpAmount = ($razorpayOrderData['amount_paid'] ?? $razorpayOrderData['amount'] ?? 0) / 100;
-            if ($rzpAmount > 0) {
-                $totalAmount = $rzpAmount;
-                // Calculate shipping from difference
-                $shipping = $totalAmount - ($subtotal - $discount);
-                if ($shipping < 0) $shipping = 0;
-            }
-        } catch (\Exception $e) {
-            \Log::warning('Could not fetch Razorpay order amount: ' . $e->getMessage());
-        }
 
         $order = Order::create([
             'order_number' => Order::generateOrderNumber(),

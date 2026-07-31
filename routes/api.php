@@ -17,41 +17,11 @@ Route::get('/promotions', [CouponApiController::class, 'getPromotions']);
 Route::post('/promotions/apply', [CouponApiController::class, 'applyPromotion']);
 
 // Razorpay Magic Checkout - Shipping Info API
+// shipping_fee is 0 because we include shipping in the order amount
+// This avoids Razorpay caching issues that add ₹50 incorrectly
 Route::match(['get', 'post'], '/shipping-info', function (\Illuminate\Http\Request $request) {
-    // Log full request to see what Razorpay sends
-    \Log::info('shipping-info request', $request->all());
-
     $addresses = $request->input('addresses', []);
     $responseAddresses = [];
-
-    // Razorpay sends order_id — look up the amount from our database
-    // We store it in a simple file-based approach since cache/session won't work
-    // for server-to-server calls
-    $shippingFee = (int)(config('shivara.standard_rate', 50) * 100); // Default ₹50
-    $orderId = $request->input('order_id');
-
-    if ($orderId) {
-        // Try reading from our stored file
-        $cacheFile = storage_path('app/rzp_orders/' . md5($orderId) . '.txt');
-        if (file_exists($cacheFile)) {
-            $subtotal = (float) file_get_contents($cacheFile);
-            if ($subtotal >= config('shivara.free_shipping_threshold', 999)) {
-                $shippingFee = 0;
-            }
-        } else {
-            // Fallback: try Razorpay API
-            try {
-                $api = new \Razorpay\Api\Api(config('services.razorpay.key'), config('services.razorpay.secret'));
-                $order = $api->order->fetch($orderId);
-                $subtotal = ($order['amount'] ?? 0) / 100;
-                if ($subtotal >= config('shivara.free_shipping_threshold', 999)) {
-                    $shippingFee = 0;
-                }
-            } catch (\Exception $e) {
-                // Default: charge shipping
-            }
-        }
-    }
 
     foreach ($addresses as $address) {
         $zipcode = $address['zipcode'] ?? ($address['pincode'] ?? '');
@@ -63,8 +33,8 @@ Route::match(['get', 'post'], '/shipping-info', function (\Illuminate\Http\Reque
             'country' => $address['country'] ?? 'IN',
             'serviceable' => $serviceable,
             'cod' => $serviceable,
-            'cod_fee' => 5000,
-            'shipping_fee' => $shippingFee,
+            'cod_fee' => 5000, // ₹50 COD fee
+            'shipping_fee' => 0, // Shipping already in order amount
         ];
     }
     return response()->json(['addresses' => $responseAddresses]);
