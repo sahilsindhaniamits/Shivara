@@ -385,7 +385,7 @@ class CheckoutController extends Controller
                 'currency' => 'INR',
                 'receipt' => 'cart_' . time() . '_' . rand(100, 999),
                 'line_items' => $lineItems,
-                'line_items_total' => (int) round($subtotal * 100),
+                'line_items_total' => (int) round($totalAmount * 100),
             ];
 
             \Log::info('Razorpay 1CC order payload', $orderPayload);
