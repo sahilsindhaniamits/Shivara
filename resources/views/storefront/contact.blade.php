@@ -4,7 +4,7 @@
 
 @section('content')
 <!-- Hero -->
-<div class="relative py-16 md:py-20" style="background: linear-gradient(135deg, #2C2418 0%, #4A3828 100%);">
+<div class="relative py-16 md:py-20 mt-0" style="background: linear-gradient(135deg, #2C2418 0%, #4A3828 100%);">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center">
         <span class="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-400">We're Here to Help</span>
         <h1 class="font-display text-4xl md:text-5xl font-bold text-white mt-3">Contact Us</h1>
