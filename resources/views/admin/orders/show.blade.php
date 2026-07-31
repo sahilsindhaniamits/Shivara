@@ -53,7 +53,8 @@
                 <div class="space-y-2 text-sm">
                     <div class="flex justify-between"><span class="text-gray-600">Subtotal</span><span>₹{{ number_format($order->subtotal) }}</span></div>
                     @if($order->discount > 0)<div class="flex justify-between text-green-600"><span>Discount</span><span>-₹{{ number_format($order->discount) }}</span></div>@endif
-                    <div class="flex justify-between"><span class="text-gray-600">Shipping</span><span>₹{{ number_format($order->shipping_charge) }}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-600">Shipping</span><span>{{ $order->shipping_charge > 0 ? '₹' . number_format($order->shipping_charge) : 'FREE' }}</span></div>
+                    @if($order->payment_method === 'cod')<div class="flex justify-between"><span class="text-gray-600">COD Charges</span><span>₹{{ number_format(config('shivara.cod_charge', 50)) }}</span></div>@endif
                     <hr>
                     <div class="flex justify-between font-bold text-lg"><span>Total</span><span class="text-primary">₹{{ number_format($order->total_amount) }}</span></div>
                 </div>
@@ -63,11 +64,12 @@
             <div class="bg-white rounded-2xl border border-gray-200 p-6">
                 <h2 class="font-bold text-gray-900 mb-4">Shipping Address</h2>
                 @if($order->address)
-                <p class="text-sm text-gray-700">{{ $order->address->full_name }}</p>
+                <p class="text-sm text-gray-700 font-semibold">{{ $order->address->full_name }}</p>
                 <p class="text-sm text-gray-600">{{ $order->address->address_line1 }}</p>
                 @if($order->address->address_line2)<p class="text-sm text-gray-600">{{ $order->address->address_line2 }}</p>@endif
                 <p class="text-sm text-gray-600">{{ $order->address->city }}, {{ $order->address->state }} - {{ $order->address->pincode }}</p>
                 <p class="text-sm text-gray-600 mt-1">Phone: {{ $order->address->phone }}</p>
+                @if($order->address->email)<p class="text-sm text-gray-600">Email: {{ $order->address->email }}</p>@endif
                 @endif
             </div>
 
