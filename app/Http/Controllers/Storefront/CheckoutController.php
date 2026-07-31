@@ -340,7 +340,8 @@ class CheckoutController extends Controller
             }
 
             $shipping = $subtotal >= config('shivara.free_shipping_threshold', 999) ? 0 : config('shivara.standard_rate', 50);
-            $totalAmount = max(1, $subtotal - $discount + $shipping);
+            $totalAmount = max(1, $subtotal - $discount);
+            // Don't include shipping in amount — Razorpay adds it from shipping-info API
 
             // Build line_items — REQUIRED for full 1CC Magic Checkout flow
             $lineItems = [];
@@ -374,25 +375,6 @@ class CheckoutController extends Controller
                     'product_url' => url('/products/' . ($item->product->slug ?? $item->product->id)),
                 ];
                 $lineItems[] = $lineItem;
-            }
-
-            // Add shipping as a line item so Razorpay displays the correct total
-            if ($shipping > 0) {
-                $lineItems[] = [
-                    'type' => 'e-commerce',
-                    'sku' => 'SHIPPING',
-                    'variant_id' => '',
-                    'price' => (string) round($shipping * 100),
-                    'offer_price' => (string) round($shipping * 100),
-                    'tax_amount' => 0,
-                    'quantity' => 1,
-                    'name' => 'Shipping Charges',
-                    'description' => 'Standard Delivery',
-                    'weight' => 0,
-                    'dimensions' => ['length' => 0, 'width' => 0, 'height' => 0],
-                    'image_url' => url('/shivaralogo1.png'),
-                    'product_url' => url('/'),
-                ];
             }
 
             $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
@@ -578,6 +560,7 @@ class CheckoutController extends Controller
         $subtotal = $checkoutData['subtotal'] ?? $cartItems->sum(fn($i) => ($i->variant ? $i->variant->selling_price : $i->product->selling_price) * $i->quantity);
         $discount = $checkoutData['discount'] ?? 0;
         $shipping = $checkoutData['shipping'] ?? 0;
+        // Shipping is added by Razorpay (not in our order amount), so add it for our records
         $totalAmount = $subtotal - $discount + $shipping;
 
         $order = Order::create([
