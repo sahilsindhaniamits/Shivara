@@ -341,13 +341,12 @@ class CheckoutController extends Controller
 
             $shipping = $subtotal >= config('shivara.free_shipping_threshold', 999) ? 0 : config('shivara.standard_rate', 50);
             $totalAmount = max(1, $subtotal - $discount + $shipping);
-            // Shipping included in amount — Razorpay caches shipping-info responses
-            // so we can't reliably control "Standard Delivery" display
 
             // Build line_items — REQUIRED for full 1CC Magic Checkout flow
             $lineItems = [];
             foreach ($cartItems as $item) {
                 $price = $item->variant ? $item->variant->selling_price : $item->product->selling_price;
+
                 $imageUrl = $item->product->primary_image_url ?? '';
                 if ($imageUrl && !filter_var($imageUrl, FILTER_VALIDATE_URL)) {
                     $imageUrl = url($imageUrl);
@@ -378,14 +377,35 @@ class CheckoutController extends Controller
                 $lineItems[] = $lineItem;
             }
 
+            // Add Shipping as line item so Grand Total matches amount
+            if ($shipping > 0) {
+                $lineItems[] = [
+                    'type' => 'e-commerce',
+                    'sku' => 'SHIP-STD',
+                    'variant_id' => '',
+                    'price' => (string) round($shipping * 100),
+                    'offer_price' => (string) round($shipping * 100),
+                    'tax_amount' => 0,
+                    'quantity' => 1,
+                    'name' => 'Delivery Charges (Standard)',
+                    'description' => 'Standard delivery charges',
+                    'weight' => 0,
+                    'dimensions' => ['length' => 0, 'width' => 0, 'height' => 0],
+                    'image_url' => url('/shivaralogo1.png'),
+                    'product_url' => url('/shipping-policy'),
+                ];
+            }
+
             $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
 
+            // amount = line_items_total = sum of all line_items (products + shipping)
+            // This ensures Grand Total in popup = amount charged
             $orderPayload = [
                 'amount' => (int) round($totalAmount * 100),
                 'currency' => 'INR',
                 'receipt' => 'cart_' . time() . '_' . rand(100, 999),
                 'line_items' => $lineItems,
-                'line_items_total' => (int) round(($subtotal - $discount) * 100),
+                'line_items_total' => (int) round($totalAmount * 100),
             ];
 
             \Log::info('Razorpay 1CC order payload', $orderPayload);
