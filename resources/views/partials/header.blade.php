@@ -28,7 +28,7 @@
     @endif
 
     <!-- Header -->
-    <header class="relative transition-all duration-300" :style="scrolled ? 'background:rgba(255,253,248,0.92);backdrop-filter:blur(12px);box-shadow:0 1px 3px rgba(0,0,0,0.06)' : 'background:transparent'">
+    <header class="relative transition-all duration-300" :style="scrolled ? 'background:rgba(255,253,248,0.92);backdrop-filter:blur(12px);box-shadow:0 1px 3px rgba(0,0,0,0.06)' : '{{ request()->routeIs("home") ? "background:transparent" : "background:rgba(255,253,248,0.98);box-shadow:0 1px 2px rgba(0,0,0,0.04)" }}'">
         <div class="max-w-7xl mx-auto px-3 sm:px-6">
             <div class="flex items-center justify-between h-[50px] sm:h-[55px] lg:h-[60px]">
                 <!-- Left: Logo (mobile) + Shop/Blog (desktop) -->
