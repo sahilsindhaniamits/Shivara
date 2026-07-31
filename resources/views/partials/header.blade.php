@@ -33,13 +33,13 @@
             <div class="flex items-center justify-between h-[50px] sm:h-[55px] lg:h-[60px]">
                 <!-- Left: Logo (mobile) + Shop/Blog (desktop) -->
                 <div class="flex items-center gap-3 lg:gap-5">
-                    <a href="{{ route('home') }}" class="lg:hidden"><img src="/public/shivaralogo1.png" alt="Shivara" class="h-10 sm:h-11 w-auto"></a>
+                    <a href="{{ route('home') }}" class="lg:hidden"><img src="/public/shivaralogo1.png" alt="Shivara" class="h-10 sm:h-11 w-auto" width="120" height="44" fetchpriority="high"></a>
                     <a href="{{ route('products.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition" style="color:#2C2418;">Shop</a>
                     <a href="{{ route('blog.index') }}" class="hidden lg:block text-[12px] font-bold uppercase tracking-[0.12em] transition" style="color:#2C2418;">Blog</a>
                 </div>
                 <!-- Center: Logo (desktop only) -->
                 <div class="hidden lg:block absolute left-1/2 -translate-x-1/2">
-                    <a href="{{ route('home') }}"><img src="/public/shivaralogo1.png" alt="Shivara" class="h-12 md:h-14 w-auto"></a>
+                    <a href="{{ route('home') }}"><img src="/public/shivaralogo1.png" alt="Shivara" class="h-12 md:h-14 w-auto" width="160" height="56" fetchpriority="high"></a>
                 </div>
                 <!-- Right: Icons -->
                 <div class="flex items-center gap-0.5 sm:gap-1.5" style="color:#2C2418;">
