@@ -118,23 +118,53 @@ class RegisterController extends Controller
 
     private function linkGuestOrders(User $user): void
     {
-        $phone = $user->phone;
+        $phone = $user->phone; // Stored as 10 digits
         $email = $user->email;
 
+        if (!$phone && !$email) return;
+
+        // Build flexible phone patterns for matching
+        $phonePatterns = [];
+        if ($phone && strlen($phone) >= 10) {
+            $last10 = substr($phone, -10);
+            $phonePatterns = [
+                $last10,                    // 9876543210
+                '+91' . $last10,            // +919876543210
+                '+91 ' . $last10,           // +91 9876543210
+                '91' . $last10,             // 919876543210
+                '0' . $last10,              // 09876543210
+            ];
+        }
+
         $guestOrders = Order::whereNull('user_id')
-            ->whereHas('address', function ($query) use ($phone, $email) {
-                $query->where(function ($q) use ($phone, $email) {
-                    if ($phone) {
-                        $q->where('phone', 'LIKE', '%' . substr($phone, -10))
-                          ->orWhere('phone', $phone)
-                          ->orWhere('phone', '+91' . $phone);
+            ->whereHas('address', function ($query) use ($phonePatterns, $email) {
+                $query->where(function ($q) use ($phonePatterns, $email) {
+                    // Match by phone (try all formats)
+                    foreach ($phonePatterns as $pattern) {
+                        $q->orWhere('phone', $pattern);
                     }
+                    // Also try LIKE match for last 10 digits
+                    if (count($phonePatterns) > 0) {
+                        $q->orWhere('phone', 'LIKE', '%' . $phonePatterns[0]);
+                    }
+                    // Match by email
                     if ($email) {
                         $q->orWhere('email', $email);
                     }
                 });
             })
             ->get();
+
+        if ($guestOrders->isEmpty()) {
+            \Log::info('linkGuestOrders: No guest orders found', [
+                'user_id' => $user->id,
+                'phone' => $phone,
+                'email' => $email,
+            ]);
+            return;
+        }
+
+        \Log::info('linkGuestOrders: Linking ' . $guestOrders->count() . ' orders to user ' . $user->id);
 
         foreach ($guestOrders as $order) {
             $order->update(['user_id' => $user->id]);
