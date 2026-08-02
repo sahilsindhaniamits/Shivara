@@ -7,7 +7,6 @@
     <div class="mb-10">
         <span class="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-500">Customer Support</span>
         <h1 class="font-display text-3xl md:text-4xl font-bold text-espresso-700 mt-2">Return & Refund Policy</h1>
-        <p class="text-sm text-espresso-400 mt-2">Last Updated: July 18, 2026</p>
         <p class="text-sm text-espresso-500 mt-3 leading-relaxed">Please read this policy carefully before ordering. As Shivara Wellness deals in Ayurvedic health and wellness products meant for consumption/application, our return policy is designed keeping product safety and hygiene regulations in mind.</p>
     </div>
 

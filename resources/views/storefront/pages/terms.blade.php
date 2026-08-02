@@ -7,7 +7,6 @@
     <div class="mb-10">
         <span class="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-500">Legal</span>
         <h1 class="font-display text-3xl md:text-4xl font-bold text-espresso-700 mt-2">Terms and Conditions</h1>
-        <p class="text-sm text-espresso-400 mt-2">Last Updated: July 18, 2026</p>
         <p class="text-sm text-espresso-500 mt-3 leading-relaxed">Welcome to Shivara Wellness (<a href="https://theshivara.com" class="text-gold-600 hover:underline">https://theshivara.com</a>). By accessing this Site or placing an order, you agree to these Terms and Conditions.</p>
     </div>
 

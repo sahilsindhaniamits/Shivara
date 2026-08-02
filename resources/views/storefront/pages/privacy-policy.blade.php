@@ -7,7 +7,6 @@
     <div class="mb-10">
         <span class="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-500">Your Privacy</span>
         <h1 class="font-display text-3xl md:text-4xl font-bold text-espresso-700 mt-2">Privacy Policy</h1>
-        <p class="text-sm text-espresso-400 mt-2">Last Updated: July 18, 2026</p>
         <p class="text-sm text-espresso-500 mt-3 leading-relaxed">Shivara Wellness ("we," "us," "our") operates <a href="https://theshivara.com" class="text-gold-600 hover:underline">https://theshivara.com</a> (the "Site"), a custom-built e-commerce website. This Privacy Policy explains how we collect, use, and protect your personal information.</p>
     </div>
 
