@@ -11,7 +11,9 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::active()->with(['primaryImage', 'images', 'category', 'variants']);
+        $query = Product::active()->with(['primaryImage', 'category', 'variants'])
+            ->withCount(['reviews as reviews_count'])
+            ->withAvg('reviews as reviews_avg_rating', 'rating');
 
         // Category filter
         if ($request->filled('category')) {
@@ -20,9 +22,10 @@ class ProductController extends Controller
 
         // Search
         if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'LIKE', "%{$request->search}%")
-                    ->orWhere('description', 'LIKE', "%{$request->search}%");
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('description', 'LIKE', "%{$search}%");
             });
         }
 
@@ -45,7 +48,11 @@ class ProductController extends Controller
         };
 
         $products = $query->paginate(12)->appends($request->query());
-        $categories = Category::active()->orderBy('sort_order')->get();
+
+        // Cache categories sidebar (rarely changes)
+        $categories = \Illuminate\Support\Facades\Cache::remember('storefront_categories', 1800, function () {
+            return \App\Models\Category::active()->orderBy('sort_order')->get();
+        });
 
         return view('storefront.products.index', compact('products', 'categories'));
     }
@@ -61,6 +68,7 @@ class ProductController extends Controller
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->with('primaryImage')
+            ->inRandomOrder()
             ->take(4)
             ->get();
 

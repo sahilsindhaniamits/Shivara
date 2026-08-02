@@ -46,6 +46,15 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
 
+        // Stock validation before proceeding
+        foreach ($cartItems as $item) {
+            $availableStock = $item->variant ? $item->variant->stock : $item->product->stock;
+            if (!is_null($availableStock) && $item->quantity > $availableStock) {
+                $name = $item->product->name . ($item->variant ? ' - ' . $item->variant->name : '');
+                return redirect()->route('cart.index')->with('error', "Sorry, \"{$name}\" only has {$availableStock} units available.");
+            }
+        }
+
         $address = Address::create([
             'user_id' => auth()->id(),
             'full_name' => $request->full_name,
@@ -83,7 +92,11 @@ class CheckoutController extends Controller
                 $discount = $coupon->calculateDiscount($subtotal);
                 $couponId = $coupon->id;
                 $couponCode = $coupon->code;
-                $coupon->increment('usage_count');
+                // Only increment usage for COD (immediate confirmation)
+                // For Razorpay, increment after payment verification
+                if ($request->payment_method === 'cod') {
+                    $coupon->increment('usage_count');
+                }
             }
         }
 
@@ -93,7 +106,9 @@ class CheckoutController extends Controller
                 $discount = $autoCoupon->calculateDiscount($subtotal);
                 $couponId = $autoCoupon->id;
                 $couponCode = $autoCoupon->code;
-                $autoCoupon->increment('usage_count');
+                if ($request->payment_method === 'cod') {
+                    $autoCoupon->increment('usage_count');
+                }
             }
         }
 
@@ -260,7 +275,8 @@ class CheckoutController extends Controller
             }
 
             // Update order — set to CONFIRMED directly (no pending state)
-            // For COD, add COD fee to total amount
+            // For COD, add COD fee to total amount ONLY if not already included
+            // (store() flow already includes COD; createOrderFromCart() does not)
             $codCharge = $isCod ? config('shivara.cod_charge', 50) : 0;
             $updateData = [
                 'razorpay_payment_id' => $razorpayPaymentId,
@@ -270,10 +286,20 @@ class CheckoutController extends Controller
                 'status' => 'confirmed',
                 'paid_at' => $isCod ? null : now(),
             ];
-            if ($codCharge > 0) {
+            // Only add COD charge if order was created via Magic Checkout (not store())
+            // Orders from store() already have COD charge in total_amount
+            if ($codCharge > 0 && $order->payment_method !== 'cod') {
                 $updateData['total_amount'] = $order->total_amount + $codCharge;
             }
             $order->update($updateData);
+
+            // Increment coupon usage on successful payment
+            if ($order->coupon_id) {
+                $usedCoupon = Coupon::find($order->coupon_id);
+                if ($usedCoupon) {
+                    $usedCoupon->increment('usage_count');
+                }
+            }
 
             \Log::info('Order confirmed', ['order' => $order->order_number, 'method' => $isCod ? 'cod' : 'razorpay']);
 
@@ -314,6 +340,15 @@ class CheckoutController extends Controller
             $cartItems = $this->getCartItems();
             if ($cartItems->isEmpty()) {
                 return response()->json(['success' => false, 'error' => 'Your cart is empty.']);
+            }
+
+            // Stock validation
+            foreach ($cartItems as $item) {
+                $availableStock = $item->variant ? $item->variant->stock : $item->product->stock;
+                if (!is_null($availableStock) && $item->quantity > $availableStock) {
+                    $name = $item->product->name . ($item->variant ? ' - ' . $item->variant->name : '');
+                    return response()->json(['success' => false, 'error' => "Sorry, \"{$name}\" only has {$availableStock} units available."]);
+                }
             }
 
             $subtotal = $cartItems->sum(function ($item) {
