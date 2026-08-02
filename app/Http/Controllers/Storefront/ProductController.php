@@ -11,9 +11,7 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::active()->with(['primaryImage', 'category', 'variants'])
-            ->withCount(['reviews as reviews_count'])
-            ->withAvg('reviews as reviews_avg_rating', 'rating');
+        $query = Product::active()->with(['primaryImage', 'category', 'variants']);
 
         // Category filter
         if ($request->filled('category')) {

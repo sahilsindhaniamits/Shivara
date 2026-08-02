@@ -32,8 +32,6 @@ class HomeController extends Controller
         $featuredProducts = Cache::remember('home_featured_products', 600, function () {
             return Product::active()
                 ->with(['primaryImage', 'images', 'category', 'variants'])
-                ->withCount(['reviews as reviews_count'])
-                ->withAvg('reviews as reviews_avg_rating', 'rating')
                 ->orderBy('is_featured', 'desc')
                 ->orderBy('created_at', 'desc')
                 ->take(32)
