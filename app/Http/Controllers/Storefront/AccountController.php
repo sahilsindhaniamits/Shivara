@@ -15,6 +15,10 @@ class AccountController extends Controller
     public function dashboard()
     {
         $user = auth()->user();
+
+        // Auto-link any guest orders matching this user's phone/email
+        $this->linkGuestOrders($user);
+
         $recentOrders = $user->orders()->with('items')->orderBy('created_at', 'desc')->take(5)->get();
         $addressCount = $user->addresses()->count();
         $wishlistCount = $user->wishlist()->count();
@@ -156,5 +160,55 @@ class AccountController extends Controller
 
         $wishlistItem->delete();
         return back()->with('success', 'Removed from wishlist.');
+    }
+
+    /**
+     * Link guest orders to this user based on phone/email match
+     */
+    private function linkGuestOrders($user): void
+    {
+        $phone = $user->phone;
+        $email = $user->email;
+
+        if (!$phone && !$email) return;
+
+        $phonePatterns = [];
+        if ($phone && strlen($phone) >= 10) {
+            $last10 = substr($phone, -10);
+            $phonePatterns = [
+                $last10,
+                '+91' . $last10,
+                '+91 ' . $last10,
+                '91' . $last10,
+                '0' . $last10,
+            ];
+        }
+
+        $guestOrders = Order::whereNull('user_id')
+            ->whereHas('address', function ($query) use ($phonePatterns, $email) {
+                $query->where(function ($q) use ($phonePatterns, $email) {
+                    foreach ($phonePatterns as $pattern) {
+                        $q->orWhere('phone', $pattern);
+                    }
+                    if (count($phonePatterns) > 0) {
+                        $q->orWhere('phone', 'LIKE', '%' . $phonePatterns[0]);
+                    }
+                    if ($email) {
+                        $q->orWhere('email', $email);
+                    }
+                });
+            })
+            ->get();
+
+        foreach ($guestOrders as $order) {
+            $order->update(['user_id' => $user->id]);
+            if ($order->address && !$order->address->user_id) {
+                $order->address->update(['user_id' => $user->id]);
+            }
+        }
+
+        if ($guestOrders->count() > 0) {
+            \Log::info("Linked {$guestOrders->count()} guest orders to user {$user->id} from dashboard");
+        }
     }
 }
