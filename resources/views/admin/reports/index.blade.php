@@ -62,10 +62,21 @@
                 <h3 class="text-lg font-bold text-gray-900">Revenue Overview</h3>
                 <p class="text-xs text-gray-500">Track your revenue performance</p>
             </div>
-            <div class="flex gap-1 bg-gray-100 rounded-lg p-1">
-                <button onclick="loadChart('daily')" id="btn-daily" class="px-3 py-1.5 text-xs rounded-md transition text-gray-500 hover:text-gray-700">Daily</button>
-                <button onclick="loadChart('weekly')" id="btn-weekly" class="px-3 py-1.5 text-xs rounded-md transition text-gray-500 hover:text-gray-700">Weekly</button>
-                <button onclick="loadChart('monthly')" id="btn-monthly" class="px-3 py-1.5 text-xs rounded-md transition bg-white shadow-sm text-gray-900 font-semibold">Monthly</button>
+            <div class="flex items-center gap-3">
+                <!-- Date Range Picker (shown when Custom is selected) -->
+                <div id="custom-date-range" class="hidden items-center gap-2">
+                    <input type="date" id="start-date" class="px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-200">
+                    <span class="text-xs text-gray-400">to</span>
+                    <input type="date" id="end-date" class="px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-200">
+                    <button onclick="loadCustomChart()" class="px-3 py-1.5 text-xs bg-espresso-700 text-white rounded-lg hover:bg-espresso-600 transition font-medium">Go</button>
+                </div>
+                <!-- Period Buttons -->
+                <div class="flex gap-1 bg-gray-100 rounded-lg p-1">
+                    <button onclick="loadChart('daily')" id="btn-daily" class="px-3 py-1.5 text-xs rounded-md transition text-gray-500 hover:text-gray-700">Daily</button>
+                    <button onclick="loadChart('weekly')" id="btn-weekly" class="px-3 py-1.5 text-xs rounded-md transition text-gray-500 hover:text-gray-700">Weekly</button>
+                    <button onclick="loadChart('monthly')" id="btn-monthly" class="px-3 py-1.5 text-xs rounded-md transition bg-white shadow-sm text-gray-900 font-semibold">Monthly</button>
+                    <button onclick="showCustomRange()" id="btn-custom" class="px-3 py-1.5 text-xs rounded-md transition text-gray-500 hover:text-gray-700">Custom</button>
+                </div>
             </div>
         </div>
         <div class="relative h-64">
@@ -208,8 +219,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function loadChart(period) {
+    // Hide custom date range
+    document.getElementById('custom-date-range').classList.add('hidden');
+    document.getElementById('custom-date-range').classList.remove('flex');
+
     // Update button styles
-    ['daily','weekly','monthly'].forEach(function(p) {
+    ['daily','weekly','monthly','custom'].forEach(function(p) {
         var btn = document.getElementById('btn-' + p);
         if (p === period) {
             btn.className = 'px-3 py-1.5 text-xs rounded-md transition bg-white shadow-sm text-gray-900 font-semibold';
@@ -218,6 +233,40 @@ function loadChart(period) {
         }
     });
     fetch('/admin/reports/revenue-chart?period=' + period, { headers: { 'Accept': 'application/json' }})
+    .then(function(r) { return r.json(); })
+    .then(function(data) { renderChart(data); });
+}
+
+function showCustomRange() {
+    // Show date range inputs
+    document.getElementById('custom-date-range').classList.remove('hidden');
+    document.getElementById('custom-date-range').classList.add('flex');
+
+    // Update button styles
+    ['daily','weekly','monthly','custom'].forEach(function(p) {
+        var btn = document.getElementById('btn-' + p);
+        if (p === 'custom') {
+            btn.className = 'px-3 py-1.5 text-xs rounded-md transition bg-white shadow-sm text-gray-900 font-semibold';
+        } else {
+            btn.className = 'px-3 py-1.5 text-xs rounded-md transition text-gray-500 hover:text-gray-700';
+        }
+    });
+
+    // Set default dates (last 30 days)
+    var today = new Date();
+    var thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    document.getElementById('end-date').value = today.toISOString().split('T')[0];
+    document.getElementById('start-date').value = thirtyDaysAgo.toISOString().split('T')[0];
+}
+
+function loadCustomChart() {
+    var startDate = document.getElementById('start-date').value;
+    var endDate = document.getElementById('end-date').value;
+    if (!startDate || !endDate) { alert('Please select both dates'); return; }
+    if (startDate > endDate) { alert('Start date must be before end date'); return; }
+
+    fetch('/admin/reports/revenue-chart?period=custom&start_date=' + startDate + '&end_date=' + endDate, { headers: { 'Accept': 'application/json' }})
     .then(function(r) { return r.json(); })
     .then(function(data) { renderChart(data); });
 }

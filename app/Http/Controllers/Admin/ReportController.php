@@ -65,11 +65,13 @@ class ReportController extends Controller
     public function revenueChart(Request $request)
     {
         $period = $request->get('period', 'monthly');
-        $data = $this->getRevenueData($period);
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        $data = $this->getRevenueData($period, $startDate, $endDate);
         return response()->json($data);
     }
 
-    private function getRevenueData(string $period): array
+    private function getRevenueData(string $period, ?string $startDate = null, ?string $endDate = null): array
     {
         $query = Order::where('payment_status', 'paid')->where('status', '!=', 'cancelled');
 
@@ -88,6 +90,28 @@ class ReportController extends Controller
                     ->groupBy('label')
                     ->orderBy('label')
                     ->get();
+                break;
+
+            case 'custom':
+                $from = $startDate ? Carbon::parse($startDate)->startOfDay() : Carbon::now()->subDays(30)->startOfDay();
+                $to = $endDate ? Carbon::parse($endDate)->endOfDay() : Carbon::now()->endOfDay();
+
+                // If range is <= 31 days, show daily; otherwise show monthly
+                $diffDays = $from->diffInDays($to);
+
+                if ($diffDays <= 31) {
+                    $data = $query->whereBetween('created_at', [$from, $to])
+                        ->select(DB::raw("DATE(created_at) as label"), DB::raw('SUM(total_amount) as revenue'), DB::raw('COUNT(*) as orders'))
+                        ->groupBy('label')
+                        ->orderBy('label')
+                        ->get();
+                } else {
+                    $data = $query->whereBetween('created_at', [$from, $to])
+                        ->select(DB::raw("DATE_FORMAT(created_at, '%Y-%m') as label"), DB::raw('SUM(total_amount) as revenue'), DB::raw('COUNT(*) as orders'))
+                        ->groupBy('label')
+                        ->orderBy('label')
+                        ->get();
+                }
                 break;
 
             default: // monthly
