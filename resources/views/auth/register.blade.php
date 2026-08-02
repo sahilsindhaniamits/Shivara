@@ -15,7 +15,7 @@
             <form method="POST" action="{{ route('register') }}" class="space-y-5">
                 @csrf
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Full Name <span class="text-red-500">*</span></label>
                     <input type="text" name="name" value="{{ old('name') }}" required
                            class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-300 focus:bg-white transition"
                            placeholder="John Doe">
@@ -23,7 +23,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Email Address</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Email Address <span class="text-red-500">*</span></label>
                     <input type="email" name="email" value="{{ old('email') }}" required
                            class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-300 focus:bg-white transition"
                            placeholder="you@example.com">
@@ -31,15 +31,20 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Phone (optional)</label>
-                    <input type="text" name="phone" value="{{ old('phone') }}"
-                           class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-300 focus:bg-white transition"
-                           placeholder="+91 XXXXX XXXXX">
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Phone Number <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">+91</span>
+                        <input type="tel" name="phone" value="{{ old('phone') }}" required
+                               class="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-300 focus:bg-white transition"
+                               placeholder="98765 43210" maxlength="15"
+                               pattern="(\+91[\s-]?)?[6-9]\d{9}">
+                    </div>
+                    <p class="text-gray-400 text-xs mt-1">Required for order updates & delivery</p>
                     @error('phone')<p class="text-red-500 text-xs mt-1.5">{{ $message }}</p>@enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Password <span class="text-red-500">*</span></label>
                     <input type="password" name="password" required
                            class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-300 focus:bg-white transition"
                            placeholder="Min. 8 characters">
@@ -47,10 +52,10 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Confirm Password</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Confirm Password <span class="text-red-500">*</span></label>
                     <input type="password" name="password_confirmation" required
                            class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-300 focus:bg-white transition"
-                           placeholder="••••••••">
+                           placeholder="Re-enter password">
                 </div>
 
                 <button type="submit" class="w-full px-6 py-3.5 text-white font-semibold rounded-xl hover:opacity-90 transition shadow-lg" style="background-color:#2C2418">

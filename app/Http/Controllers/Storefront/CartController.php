@@ -67,6 +67,27 @@ class CartController extends Controller
         ]);
 
         $product = Product::findOrFail($request->product_id);
+        $quantity = $request->quantity ?? 1;
+
+        // Stock validation
+        if ($request->variant_id) {
+            $variant = \App\Models\ProductVariant::find($request->variant_id);
+            if ($variant && !is_null($variant->stock) && $quantity > $variant->stock) {
+                $msg = $variant->stock == 0 ? 'This variant is out of stock.' : "Only {$variant->stock} units available.";
+                if ($request->wantsJson() || $request->ajax()) {
+                    return response()->json(['success' => false, 'message' => $msg], 422);
+                }
+                return back()->with('error', $msg);
+            }
+        } else {
+            if (!is_null($product->stock) && $quantity > $product->stock) {
+                $msg = $product->stock == 0 ? 'This product is out of stock.' : "Only {$product->stock} units available.";
+                if ($request->wantsJson() || $request->ajax()) {
+                    return response()->json(['success' => false, 'message' => $msg], 422);
+                }
+                return back()->with('error', $msg);
+            }
+        }
 
         if (auth()->check()) {
             $existing = CartItem::where('user_id', auth()->id())
@@ -144,6 +165,8 @@ class CartController extends Controller
 
     public function remove(Request $request)
     {
+        $request->validate(['item_id' => 'required']);
+
         if (auth()->check()) {
             CartItem::where('id', $request->item_id)->where('user_id', auth()->id())->delete();
         } else {

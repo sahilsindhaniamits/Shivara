@@ -102,11 +102,28 @@ class Product extends Model
 
     public function getAverageRatingAttribute(): float
     {
-        return $this->reviews()->avg('rating') ?? 0;
+        // Use pre-loaded aggregate if available (from withAvg)
+        if (isset($this->attributes['reviews_avg_rating'])) {
+            return round((float) $this->attributes['reviews_avg_rating'], 1);
+        }
+        // Use loaded relation if available to avoid N+1
+        if ($this->relationLoaded('reviews')) {
+            $reviews = $this->getRelation('reviews');
+            return $reviews->count() > 0 ? round($reviews->avg('rating'), 1) : 0;
+        }
+        return round($this->reviews()->avg('rating') ?? 0, 1);
     }
 
     public function getReviewCountAttribute(): int
     {
+        // Use pre-loaded count if available (from withCount)
+        if (isset($this->attributes['reviews_count'])) {
+            return (int) $this->attributes['reviews_count'];
+        }
+        // Use loaded relation if available to avoid N+1
+        if ($this->relationLoaded('reviews')) {
+            return $this->getRelation('reviews')->count();
+        }
         return $this->reviews()->count();
     }
 }

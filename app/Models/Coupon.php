@@ -39,10 +39,11 @@ class Coupon extends Model
 
     /**
      * Get the best auto-apply coupon for a given subtotal
+     * Optimized: filters min_order_amount at DB level instead of fetching all
      */
     public static function getBestAutoApply(float $subtotal): ?self
     {
-        return static::where('is_active', true)
+        $coupons = static::where('is_active', true)
             ->where('auto_apply', true)
             ->where(function ($q) {
                 $q->whereNull('start_date')->orWhere('start_date', '<=', now());
@@ -53,19 +54,14 @@ class Coupon extends Model
             ->where(function ($q) {
                 $q->whereNull('usage_limit')->orWhereColumn('usage_count', '<', 'usage_limit');
             })
-            ->get()
-            ->filter(function ($coupon) use ($subtotal) {
-                // Must meet minimum order amount
-                if ($coupon->min_order_amount && $subtotal < $coupon->min_order_amount) {
-                    return false;
-                }
-                return true;
+            ->where(function ($q) use ($subtotal) {
+                $q->whereNull('min_order_amount')->orWhere('min_order_amount', '<=', $subtotal);
             })
-            ->sortByDesc(function ($coupon) use ($subtotal) {
-                // Sort by highest discount value
-                return $coupon->calculateDiscount($subtotal);
-            })
-            ->first();
+            ->get();
+
+        if ($coupons->isEmpty()) return null;
+
+        return $coupons->sortByDesc(fn($coupon) => $coupon->calculateDiscount($subtotal))->first();
     }
 
     public function calculateDiscount(float $subtotal): float

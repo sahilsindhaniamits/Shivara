@@ -8,26 +8,37 @@ use App\Models\Category;
 use App\Models\Banner;
 use App\Models\Newsletter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 
 class HomeController extends Controller
 {
     public function index()
     {
-        // Load up to 2 products per category + fill remaining spots for 'All' tab
-        $categories = Category::active()
-            ->withCount(['products' => fn($q) => $q->where('is_active', true)])
-            ->orderBy('sort_order')
-            ->get();
+        // Cache categories for 30 minutes (rarely change)
+        $categories = Cache::remember('storefront_categories', 1800, function () {
+            return Category::active()
+                ->withCount(['products' => fn($q) => $q->where('is_active', true)])
+                ->orderBy('sort_order')
+                ->get();
+        });
 
-        $featuredProducts = Product::active()
-            ->with(['primaryImage', 'images', 'category', 'variants'])
-            ->orderBy('is_featured', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->take(32); // Load enough to cover all categories
+        // Cache banners for 30 minutes
+        $banners = Cache::remember('storefront_banners', 1800, function () {
+            return Banner::active()->orderBy('sort_order')->get();
+        });
 
-        $banners = Banner::active()->orderBy('sort_order')->get();
+        // Products - cache for 10 minutes (stock/price can change)
+        $featuredProducts = Cache::remember('home_featured_products', 600, function () {
+            return Product::active()
+                ->with(['primaryImage', 'images', 'category', 'variants'])
+                ->withCount(['reviews as reviews_count'])
+                ->withAvg('reviews as reviews_avg_rating', 'rating')
+                ->orderBy('is_featured', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->take(32)
+                ->get();
+        });
 
         return view('storefront.home', compact('featuredProducts', 'categories', 'banners'));
     }
