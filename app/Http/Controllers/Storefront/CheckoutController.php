@@ -343,7 +343,7 @@ class CheckoutController extends Controller
             $totalAmount = max(1, $subtotal - $discount + $shipping);
 
             // Build line_items — REQUIRED for full 1CC Magic Checkout flow
-            // NOTE: Shipping is NOT in line_items. It comes from shipping-info API.
+            // Shipping is included as a line_item so customer sees breakdown
             $lineItems = [];
             foreach ($cartItems as $item) {
                 $price = $item->variant ? $item->variant->selling_price : $item->product->selling_price;
@@ -380,9 +380,28 @@ class CheckoutController extends Controller
 
             $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
 
-            // amount includes shipping. line_items_total = products only.
-            // Razorpay shows the difference as "Delivery charge" from shipping-info API.
-            // line_items_total must equal sum of line_items prices
+            // Add Shipping as line_item so customer sees it in Order Summary
+            if ($shipping > 0) {
+                $lineItems[] = [
+                    'type' => 'e-commerce',
+                    'sku' => 'SHIPPING',
+                    'variant_id' => '',
+                    'price' => (string) round($shipping * 100),
+                    'offer_price' => (string) round($shipping * 100),
+                    'tax_amount' => 0,
+                    'quantity' => 1,
+                    'name' => 'Shipping',
+                    'description' => 'Standard delivery (Free above ₹999)',
+                    'weight' => 0,
+                    'dimensions' => ['length' => 0, 'width' => 0, 'height' => 0],
+                    'image_url' => url('/shivaralogo1.png'),
+                    'product_url' => url('/shipping-policy'),
+                ];
+            }
+
+            // amount includes shipping. line_items_total = amount (all items + shipping)
+            // shipping-info API returns 0 so Razorpay shows "FREE" for delivery
+            // (shipping is already in the amount via line_item)
             $lineItemsTotal = 0;
             foreach ($lineItems as $li) {
                 $lineItemsTotal += (int)$li['price'] * $li['quantity'];
