@@ -270,6 +270,22 @@ Route::prefix('razorpay-hooks')->withoutMiddleware([\Illuminate\Foundation\Http\
     Route::match(['get', 'post'], '/shipping-info', function (\Illuminate\Http\Request $request) {
         $addresses = $request->input('addresses', []);
         $responseAddresses = [];
+
+        // Try to get order subtotal to determine shipping
+        $orderId = $request->input('order_id', '');
+        $subtotal = 0;
+        if ($orderId) {
+            $cacheFile = storage_path('app/rzp_orders/' . md5($orderId) . '.txt');
+            if (file_exists($cacheFile)) {
+                $subtotal = (float) file_get_contents($cacheFile);
+            }
+        }
+
+        // Determine shipping fee based on subtotal
+        $threshold = config('shivara.free_shipping_threshold', 999);
+        $shippingRate = config('shivara.standard_rate', 50);
+        $shippingFee = ($subtotal >= $threshold) ? 0 : ($shippingRate * 100); // in paise
+
         foreach ($addresses as $address) {
             $zipcode = $address['zipcode'] ?? ($address['pincode'] ?? '');
             $serviceable = (bool) preg_match('/^[1-9]\d{5}$/', $zipcode);
@@ -281,7 +297,7 @@ Route::prefix('razorpay-hooks')->withoutMiddleware([\Illuminate\Foundation\Http\
                 'serviceable' => $serviceable,
                 'cod' => $serviceable,
                 'cod_fee' => 5000, // ₹50 in paise
-                'shipping_fee' => 0,
+                'shipping_fee' => $serviceable ? $shippingFee : 0,
             ];
         }
         return response()->json(['addresses' => $responseAddresses], 200, [

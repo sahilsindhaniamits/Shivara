@@ -343,6 +343,7 @@ class CheckoutController extends Controller
             $totalAmount = max(1, $subtotal - $discount + $shipping);
 
             // Build line_items — REQUIRED for full 1CC Magic Checkout flow
+            // NOTE: Shipping is NOT in line_items. It comes from shipping-info API.
             $lineItems = [];
             foreach ($cartItems as $item) {
                 $price = $item->variant ? $item->variant->selling_price : $item->product->selling_price;
@@ -377,35 +378,22 @@ class CheckoutController extends Controller
                 $lineItems[] = $lineItem;
             }
 
-            // Add Shipping as line item so Grand Total matches amount
-            if ($shipping > 0) {
-                $lineItems[] = [
-                    'type' => 'e-commerce',
-                    'sku' => 'SHIP-STD',
-                    'variant_id' => '',
-                    'price' => (string) round($shipping * 100),
-                    'offer_price' => (string) round($shipping * 100),
-                    'tax_amount' => 0,
-                    'quantity' => 1,
-                    'name' => 'Delivery Charges (Standard)',
-                    'description' => 'Standard delivery charges',
-                    'weight' => 0,
-                    'dimensions' => ['length' => 0, 'width' => 0, 'height' => 0],
-                    'image_url' => url('/shivaralogo1.png'),
-                    'product_url' => url('/shipping-policy'),
-                ];
-            }
-
             $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
 
-            // amount = line_items_total = sum of all line_items (products + shipping)
-            // This ensures Grand Total in popup = amount charged
+            // amount includes shipping. line_items_total = products only.
+            // Razorpay shows the difference as "Delivery charge" from shipping-info API.
+            // line_items_total must equal sum of line_items prices
+            $lineItemsTotal = 0;
+            foreach ($lineItems as $li) {
+                $lineItemsTotal += (int)$li['price'] * $li['quantity'];
+            }
+
             $orderPayload = [
                 'amount' => (int) round($totalAmount * 100),
                 'currency' => 'INR',
                 'receipt' => 'cart_' . time() . '_' . rand(100, 999),
                 'line_items' => $lineItems,
-                'line_items_total' => (int) round($totalAmount * 100),
+                'line_items_total' => $lineItemsTotal,
             ];
 
             \Log::info('Razorpay 1CC order payload', $orderPayload);
