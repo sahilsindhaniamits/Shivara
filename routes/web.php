@@ -88,6 +88,13 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
+// Email OTP Verification (authenticated users only)
+Route::middleware('auth')->group(function () {
+    Route::get('/verify-email', [RegisterController::class, 'showVerifyEmail'])->name('verify.email.form');
+    Route::post('/verify-email', [RegisterController::class, 'verifyEmail'])->name('verify.email');
+    Route::post('/verify-email/resend', [RegisterController::class, 'resendOtp'])->name('verify.email.resend');
+});
+
 // Razorpay Direct Checkout (creates order from cart, returns Razorpay order ID)
 Route::post('/checkout/razorpay', [\App\Http\Controllers\Storefront\CheckoutController::class, 'createRazorpayOrder'])->name('checkout.razorpay');
 

@@ -45,8 +45,8 @@ Route::match(['get', 'post'], '/shipping-info', function (\Illuminate\Http\Reque
 // Uses Basic Authentication (configure username/password in Razorpay Dashboard)
 Route::match(['get', 'post'], '/cod/review', function (\Illuminate\Http\Request $request) {
     // Basic auth verification
-    $username = config('services.razorpay.cod_review_username', 'shivara');
-    $password = config('services.razorpay.cod_review_password', 'shivara_cod_2024');
+    $username = config('services.razorpay.cod_review_username', 'shivara_cod_review');
+    $password = config('services.razorpay.cod_review_password', 'Shivara@COD2024!');
 
     $authHeader = $request->header('Authorization');
     if ($authHeader) {

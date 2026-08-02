@@ -43,8 +43,8 @@
             @endif
             <!-- Rating (dynamic from real reviews) -->
             @php
-                $prodReviewCount = $product->reviews_count ?? $product->reviews()->where('is_approved', true)->count();
-                $prodAvgRating = $prodReviewCount > 0 ? ($product->average_rating ?: $product->reviews()->where('is_approved', true)->avg('rating')) : 0;
+                $prodReviewCount = $product->review_count;
+                $prodAvgRating = $product->average_rating;
             @endphp
             <div class="flex items-center gap-0.5 mt-auto pt-2">
                 @for($s = 1; $s <= 5; $s++)
