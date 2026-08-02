@@ -1,13 +1,19 @@
 @php
-    $fgEnabled = \App\Models\Setting::get('free_gift_enabled', 'false') === 'true';
-    $fgThreshold = (float) \App\Models\Setting::get('free_gift_threshold', config('shivara.free_gift_threshold', 1499));
-    $fgProductId = \App\Models\Setting::get('free_gift_product_id');
-    $fgProduct = $fgProductId ? \App\Models\Product::with('primaryImage')->find($fgProductId) : null;
-    // Only truly enabled if both setting is true AND a gift product exists
-    $fgEnabled = $fgEnabled && $fgProduct;
+    try {
+        $fgEnabled = \App\Models\Setting::get('free_gift_enabled', 'false') === 'true';
+        $fgThreshold = (float) \App\Models\Setting::get('free_gift_threshold', config('shivara.free_gift_threshold', 1499));
+        $fgProductId = \App\Models\Setting::get('free_gift_product_id');
+        $fgProduct = $fgProductId ? \App\Models\Product::with('primaryImage')->find($fgProductId) : null;
+        $fgEnabled = $fgEnabled && $fgProduct;
+        $recs = \App\Models\Product::active()->featured()->with('primaryImage')->take(3)->get();
+    } catch (\Exception $e) {
+        $fgEnabled = false;
+        $fgThreshold = 1499;
+        $fgProduct = null;
+        $recs = collect();
+    }
     $fsThreshold = config('shivara.free_shipping_threshold', 999);
     $shipRate = config('shivara.standard_rate', 50);
-    $recs = \App\Models\Product::active()->featured()->with('primaryImage')->take(3)->get();
 @endphp
 
 <!-- Side Cart -->

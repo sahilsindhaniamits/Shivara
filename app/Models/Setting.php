@@ -15,9 +15,18 @@ class Setting extends Model
      */
     public static function get(string $key, $default = null)
     {
-        return Cache::remember("setting_{$key}", 3600, function () use ($key, $default) {
-            return static::where('key', $key)->value('value') ?? $default;
-        }) ?? $default;
+        try {
+            return Cache::remember("setting_{$key}", 3600, function () use ($key, $default) {
+                return static::where('key', $key)->value('value') ?? $default;
+            }) ?? $default;
+        } catch (\Exception $e) {
+            // Fallback: try direct DB query without cache
+            try {
+                return static::where('key', $key)->value('value') ?? $default;
+            } catch (\Exception $e2) {
+                return $default;
+            }
+        }
     }
 
     /**

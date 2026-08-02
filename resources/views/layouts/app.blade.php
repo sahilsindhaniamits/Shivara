@@ -125,9 +125,13 @@
 
     <!-- Welcome Popup (Dynamic from Coupons with show_as_popup) -->
     @php
-        $popupCoupons = \Illuminate\Support\Facades\Cache::remember('popup_coupons', 1800, function () {
-            return \App\Models\Coupon::where('show_as_popup', true)->where('is_active', true)->where(function($q) { $q->whereNull('end_date')->orWhere('end_date', '>', now()); })->get();
-        });
+        try {
+            $popupCoupons = \Illuminate\Support\Facades\Cache::remember('popup_coupons', 1800, function () {
+                return \App\Models\Coupon::where('show_as_popup', true)->where('is_active', true)->where(function($q) { $q->whereNull('end_date')->orWhere('end_date', '>', now()); })->get();
+            });
+        } catch (\Exception $e) {
+            $popupCoupons = collect();
+        }
     @endphp
     @if($popupCoupons->count())
     <div x-data="{ popup: !sessionStorage.getItem('shivara_popup_closed'), slide: 0 }" x-show="popup" x-cloak
