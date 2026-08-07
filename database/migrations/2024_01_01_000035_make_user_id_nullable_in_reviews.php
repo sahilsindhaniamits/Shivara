@@ -47,7 +47,10 @@ return new class extends Migration
         // 3. Make user_id nullable
         DB::statement('ALTER TABLE reviews MODIFY user_id BIGINT UNSIGNED NULL');
 
-        // 4. Re-add foreign key with nullOnDelete
+        // 4. Set orphaned user_id values to NULL (users that don't exist anymore)
+        DB::statement('UPDATE reviews SET user_id = NULL WHERE user_id IS NOT NULL AND user_id NOT IN (SELECT id FROM users)');
+
+        // 5. Re-add foreign key with nullOnDelete
         DB::statement('ALTER TABLE reviews ADD CONSTRAINT reviews_user_id_foreign FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL');
     }
 
