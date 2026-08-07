@@ -227,6 +227,89 @@ class OrderController extends Controller
     }
 
     /**
+     * Export orders as CSV
+     */
+    public function exportCsv(Request $request)
+    {
+        $query = Order::with(['user', 'address', 'items']);
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('payment')) {
+            if ($request->payment === 'cod') {
+                $query->where('payment_method', 'cod');
+            } else {
+                $query->where('payment_status', $request->payment);
+            }
+        }
+
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('order_number', 'LIKE', "%{$request->search}%")
+                    ->orWhereHas('user', fn($u) => $u->where('name', 'LIKE', "%{$request->search}%")->orWhere('email', 'LIKE', "%{$request->search}%"));
+            });
+        }
+
+        $orders = $query->orderBy('created_at', 'desc')->get();
+
+        $filename = 'orders_' . date('Y-m-d_His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
+
+        $callback = function () use ($orders) {
+            $file = fopen('php://output', 'w');
+
+            // CSV Header
+            fputcsv($file, [
+                'Order Number', 'Date', 'Customer Name', 'Email', 'Phone',
+                'Address', 'City', 'State', 'Pincode',
+                'Products', 'Qty', 'Subtotal', 'Shipping', 'Discount', 'Total',
+                'Payment Method', 'Payment Status', 'Order Status',
+                'Courier', 'AWB/Tracking', 'Shipped At', 'Delivered At',
+            ]);
+
+            foreach ($orders as $order) {
+                $products = $order->items->map(fn($i) => $i->product_name . ' x' . $i->quantity)->implode(' | ');
+                $totalQty = $order->items->sum('quantity');
+
+                fputcsv($file, [
+                    $order->order_number,
+                    $order->created_at->format('d-m-Y H:i'),
+                    $order->address->full_name ?? ($order->user->name ?? 'Guest'),
+                    $order->address->email ?? ($order->user->email ?? ''),
+                    $order->address->phone ?? '',
+                    $order->address ? ($order->address->address_line1 . ($order->address->address_line2 ? ', ' . $order->address->address_line2 : '')) : '',
+                    $order->address->city ?? '',
+                    $order->address->state ?? '',
+                    $order->address->pincode ?? '',
+                    $products,
+                    $totalQty,
+                    $order->subtotal,
+                    $order->shipping_charge,
+                    $order->discount,
+                    $order->total_amount,
+                    strtoupper($order->payment_method),
+                    ucfirst($order->payment_status),
+                    ucfirst($order->status),
+                    $order->courier_name ?? '',
+                    $order->tracking_number ?? '',
+                    $order->shipped_at ? $order->shipped_at->format('d-m-Y') : '',
+                    $order->delivered_at ? $order->delivered_at->format('d-m-Y') : '',
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
      * Ship order via Velocity Shipping (auto-assigns courier + AWB)
      */
     public function shipViaVelocity(Order $order)

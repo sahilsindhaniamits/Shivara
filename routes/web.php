@@ -158,6 +158,7 @@ Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\AdminMiddleware
     Route::get('/orders/create', [AdminOrderController::class, 'create'])->name('orders.create');
     Route::post('/orders', [AdminOrderController::class, 'store'])->name('orders.store');
     Route::post('/orders/bulk-status', [AdminOrderController::class, 'bulkStatus'])->name('orders.bulkStatus');
+    Route::get('/orders/export', [AdminOrderController::class, 'exportCsv'])->name('orders.export');
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::get('/orders/{order}/invoice', [AdminOrderController::class, 'invoice'])->name('orders.invoice');
     Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
