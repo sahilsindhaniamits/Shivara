@@ -124,13 +124,13 @@
 
                 <!-- Ship via Velocity Button -->
                 @if(!$order->tracking_number && in_array($order->status, ['confirmed', 'processing']))
-                <form method="POST" action="{{ route('admin.orders.shipVelocity', $order) }}" class="mb-4">
-                    @csrf
-                    <button type="submit" onclick="return confirm('Ship this order via Velocity Shipping? This will assign a courier and generate AWB.')" class="w-full px-4 py-3 text-white text-sm font-bold rounded-xl hover:opacity-90 transition flex items-center justify-center gap-2" style="background-color:#16a34a;">
+                <div class="mb-4 space-y-2">
+                    <a href="https://app.velocity.in/orders" target="_blank" class="w-full px-4 py-3 text-white text-sm font-bold rounded-xl hover:opacity-90 transition flex items-center justify-center gap-2" style="background-color:#16a34a;">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                        Ship via Velocity (Auto Courier)
-                    </button>
-                </form>
+                        Assign Courier on Velocity →
+                    </a>
+                    <p class="text-[10px] text-gray-400 text-center">Order is in Velocity "New" section. Click above to assign courier & generate AWB.</p>
+                </div>
                 @endif
 
                 <form method="POST" action="{{ route('admin.orders.updateTracking', $order) }}" class="space-y-3">
