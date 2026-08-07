@@ -31,7 +31,8 @@ class VelocityShipping
     }
 
     /**
-     * Create forward shipment (order + auto courier assignment)
+     * Create forward shipment with auto courier assignment via orchestration.
+     * If order already exists in Velocity, uses orchestration to assign courier.
      */
     public function createShipment(\App\Models\Order $order): array
     {
@@ -82,28 +83,35 @@ class VelocityShipping
             'warehouse_id' => config('services.velocity.warehouse_id'),
         ];
 
+        // Use orchestration endpoint (creates order + auto-assigns courier + generates AWB)
         $response = Http::withHeaders([
             'Authorization' => $token,
             'Content-Type' => 'application/json',
-        ])->post($this->baseUrl . '/custom/api/v1/forward-order', $payload);
+        ])->post($this->baseUrl . '/custom/api/v1/forward-order-orchestration', $payload);
 
         $data = $response->json();
 
-        // forward-order creates the order in "New" state (no auto AWB assignment)
-        // Success = order_created:1 in payload
-        if ($response->successful() && isset($data['payload'])) {
-            $p = $data['payload'];
-            if (!empty($p['order_created']) || !empty($p['awb_code'])) {
-                return [
-                    'success' => true,
-                    'awb_code' => $p['awb_code'] ?? null,
-                    'courier_name' => $p['courier_name'] ?? '',
-                    'shipment_id' => $p['shipment_id'] ?? '',
-                    'order_id' => $p['order_id'] ?? '',
-                    'label_url' => $p['label_url'] ?? null,
-                    'charges' => $p['charges'] ?? null,
-                ];
-            }
+        if ($response->successful() && isset($data['payload']['awb_code'])) {
+            return [
+                'success' => true,
+                'awb_code' => $data['payload']['awb_code'],
+                'courier_name' => $data['payload']['courier_name'] ?? '',
+                'shipment_id' => $data['payload']['shipment_id'] ?? '',
+                'order_id' => $data['payload']['order_id'] ?? '',
+                'label_url' => $data['payload']['label_url'] ?? null,
+                'charges' => $data['payload']['charges'] ?? null,
+            ];
+        }
+
+        // If "Order already exists" — the order was previously created via /forward-order
+        // Try orchestration again with a slightly modified order_id or handle gracefully
+        $errorMsg = $data['message'] ?? $data['details'] ?? '';
+        if (stripos($errorMsg, 'order already exists') !== false || stripos(json_encode($data), 'order already exists') !== false) {
+            // Order is already in Velocity "New" section — inform admin to assign courier from Velocity dashboard
+            return [
+                'success' => false,
+                'error' => 'Order already exists in Velocity Dashboard (New section). Please assign courier manually from Velocity Dashboard → Orders → New.',
+            ];
         }
 
         Log::error('Velocity create shipment failed', ['response' => $data, 'order' => $order->order_number]);

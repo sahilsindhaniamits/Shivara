@@ -68,7 +68,7 @@
                     <input type="date" id="start-date" class="px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-200">
                     <span class="text-xs text-gray-400">to</span>
                     <input type="date" id="end-date" class="px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-200">
-                    <button onclick="loadCustomChart()" class="px-3 py-1.5 text-xs bg-espresso-700 text-white rounded-lg hover:bg-espresso-600 transition font-medium">Go</button>
+                    <button onclick="loadCustomChart()" class="px-3 py-1.5 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">Go</button>
                 </div>
                 <!-- Period Buttons -->
                 <div class="flex gap-1 bg-gray-100 rounded-lg p-1">
