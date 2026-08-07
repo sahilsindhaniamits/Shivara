@@ -12,15 +12,42 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Drop the unique constraint on product_id + user_id (guests can review)
-        Schema::table('reviews', function (Blueprint $table) {
-            $table->dropUnique(['product_id', 'user_id']);
+        // Drop unique constraint if it exists (try different possible index names)
+        $indexes = collect(DB::select("SHOW INDEX FROM reviews WHERE Non_unique = 0"))
+            ->pluck('Key_name')
+            ->unique()
+            ->filter(fn($name) => $name !== 'PRIMARY')
+            ->toArray();
+
+        Schema::table('reviews', function (Blueprint $table) use ($indexes) {
+            foreach ($indexes as $indexName) {
+                if (str_contains($indexName, 'product_id') && str_contains($indexName, 'user_id')) {
+                    $table->dropIndex($indexName);
+                    break;
+                }
+            }
         });
 
-        // Make user_id nullable and drop foreign key constraint
+        // Make user_id nullable and update foreign key
         Schema::table('reviews', function (Blueprint $table) {
-            $table->dropForeign(['user_id']);
-            $table->unsignedBigInteger('user_id')->nullable()->change();
+            // Drop existing foreign key (try both naming conventions)
+            try {
+                $table->dropForeign(['user_id']);
+            } catch (\Exception $e) {
+                // Foreign key might have different name, try raw SQL
+                try {
+                    DB::statement('ALTER TABLE reviews DROP FOREIGN KEY reviews_user_id_foreign');
+                } catch (\Exception $e2) {
+                    // No foreign key to drop
+                }
+            }
+        });
+
+        // Modify column to nullable
+        DB::statement('ALTER TABLE reviews MODIFY user_id BIGINT UNSIGNED NULL');
+
+        // Re-add foreign key with nullOnDelete
+        Schema::table('reviews', function (Blueprint $table) {
             $table->foreign('user_id')->references('id')->on('users')->nullOnDelete();
         });
     }
@@ -30,9 +57,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        DB::statement('ALTER TABLE reviews MODIFY user_id BIGINT UNSIGNED NOT NULL');
+
         Schema::table('reviews', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
-            $table->unsignedBigInteger('user_id')->nullable(false)->change();
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
             $table->unique(['product_id', 'user_id']);
         });
