@@ -1,9 +1,8 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -12,44 +11,44 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Drop unique constraint if it exists (try different possible index names)
-        $indexes = collect(DB::select("SHOW INDEX FROM reviews WHERE Non_unique = 0"))
-            ->pluck('Key_name')
-            ->unique()
-            ->filter(fn($name) => $name !== 'PRIMARY')
-            ->toArray();
+        // 1. Find and drop any unique index involving user_id
+        $uniqueIndexes = DB::select("
+            SELECT DISTINCT INDEX_NAME 
+            FROM INFORMATION_SCHEMA.STATISTICS 
+            WHERE TABLE_SCHEMA = DATABASE() 
+            AND TABLE_NAME = 'reviews' 
+            AND NON_UNIQUE = 0 
+            AND INDEX_NAME != 'PRIMARY'
+            AND COLUMN_NAME IN ('product_id', 'user_id')
+        ");
 
-        Schema::table('reviews', function (Blueprint $table) use ($indexes) {
-            foreach ($indexes as $indexName) {
-                if (str_contains($indexName, 'product_id') && str_contains($indexName, 'user_id')) {
-                    $table->dropIndex($indexName);
-                    break;
-                }
+        $droppedIndexes = [];
+        foreach ($uniqueIndexes as $idx) {
+            if (!in_array($idx->INDEX_NAME, $droppedIndexes)) {
+                DB::statement("ALTER TABLE reviews DROP INDEX `{$idx->INDEX_NAME}`");
+                $droppedIndexes[] = $idx->INDEX_NAME;
             }
-        });
+        }
 
-        // Make user_id nullable and update foreign key
-        Schema::table('reviews', function (Blueprint $table) {
-            // Drop existing foreign key (try both naming conventions)
-            try {
-                $table->dropForeign(['user_id']);
-            } catch (\Exception $e) {
-                // Foreign key might have different name, try raw SQL
-                try {
-                    DB::statement('ALTER TABLE reviews DROP FOREIGN KEY reviews_user_id_foreign');
-                } catch (\Exception $e2) {
-                    // No foreign key to drop
-                }
-            }
-        });
+        // 2. Find and drop any foreign key on user_id
+        $foreignKeys = DB::select("
+            SELECT CONSTRAINT_NAME 
+            FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+            WHERE TABLE_SCHEMA = DATABASE() 
+            AND TABLE_NAME = 'reviews' 
+            AND COLUMN_NAME = 'user_id' 
+            AND REFERENCED_TABLE_NAME IS NOT NULL
+        ");
 
-        // Modify column to nullable
+        foreach ($foreignKeys as $fk) {
+            DB::statement("ALTER TABLE reviews DROP FOREIGN KEY `{$fk->CONSTRAINT_NAME}`");
+        }
+
+        // 3. Make user_id nullable
         DB::statement('ALTER TABLE reviews MODIFY user_id BIGINT UNSIGNED NULL');
 
-        // Re-add foreign key with nullOnDelete
-        Schema::table('reviews', function (Blueprint $table) {
-            $table->foreign('user_id')->references('id')->on('users')->nullOnDelete();
-        });
+        // 4. Re-add foreign key with nullOnDelete
+        DB::statement('ALTER TABLE reviews ADD CONSTRAINT reviews_user_id_foreign FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL');
     }
 
     /**
@@ -57,12 +56,22 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement('ALTER TABLE reviews MODIFY user_id BIGINT UNSIGNED NOT NULL');
+        // Drop the FK we added
+        $foreignKeys = DB::select("
+            SELECT CONSTRAINT_NAME 
+            FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+            WHERE TABLE_SCHEMA = DATABASE() 
+            AND TABLE_NAME = 'reviews' 
+            AND COLUMN_NAME = 'user_id' 
+            AND REFERENCED_TABLE_NAME IS NOT NULL
+        ");
 
-        Schema::table('reviews', function (Blueprint $table) {
-            $table->dropForeign(['user_id']);
-            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
-            $table->unique(['product_id', 'user_id']);
-        });
+        foreach ($foreignKeys as $fk) {
+            DB::statement("ALTER TABLE reviews DROP FOREIGN KEY `{$fk->CONSTRAINT_NAME}`");
+        }
+
+        DB::statement('ALTER TABLE reviews MODIFY user_id BIGINT UNSIGNED NOT NULL');
+        DB::statement('ALTER TABLE reviews ADD CONSTRAINT reviews_user_id_foreign FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE');
+        DB::statement('ALTER TABLE reviews ADD UNIQUE INDEX reviews_product_id_user_id_unique (product_id, user_id)');
     }
 };
