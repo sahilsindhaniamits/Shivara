@@ -232,7 +232,7 @@ function loadChart(period) {
             btn.className = 'px-3 py-1.5 text-xs rounded-md transition text-gray-500 hover:text-gray-700';
         }
     });
-    fetch('/admin/reports/revenue-chart?period=' + period, { headers: { 'Accept': 'application/json' }})
+    fetch('/admin/reports/revenue-chart?period=' + period, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin'})
     .then(function(r) { return r.json(); })
     .then(function(data) { renderChart(data); });
 }
@@ -266,7 +266,7 @@ function loadCustomChart() {
     if (!startDate || !endDate) { alert('Please select both dates'); return; }
     if (startDate > endDate) { alert('Start date must be before end date'); return; }
 
-    fetch('/admin/reports/revenue-chart?period=custom&start_date=' + startDate + '&end_date=' + endDate, { headers: { 'Accept': 'application/json' }})
+    fetch('/admin/reports/revenue-chart?period=custom&start_date=' + startDate + '&end_date=' + endDate, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin'})
     .then(function(r) { return r.json(); })
     .then(function(data) { renderChart(data); });
 }

@@ -75,7 +75,7 @@
     <div class="border-t border-espresso-600/50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p class="text-xs text-cream-500">&copy; {{ date('Y') }} Shivara. All rights reserved.</p>
-            <div class="flex items-center gap-3 text-xs text-cream-500"><span>UPI</span><span class="text-cream-600">•</span><span>Cards</span><span class="text-cream-600">•</span><span>Net Banking</span><span class="text-cream-600">•</span><span>COD</span></div>
+            <img src="/public/pam.png" alt="Payment Methods - UPI, Cards, Net Banking, COD" class="h-6 w-auto" loading="lazy">
         </div>
     </div>
 </footer>

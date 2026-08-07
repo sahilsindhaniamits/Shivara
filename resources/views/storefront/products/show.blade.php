@@ -131,7 +131,7 @@
                     </div>
                     <!-- Right: Remaining images — SCROLL naturally -->
                     <div class="w-1/2 space-y-3">
-                        @foreach($product->images->slice(1) as $i => $image)
+                        @foreach($product->images->slice(1)->values() as $i => $image)
                         @php $imgSrc = str_starts_with($image->url, '/storage/') ? '/public' . $image->url : $image->url; @endphp
                         <div class="relative rounded-xl overflow-hidden cursor-pointer" style="background-color:#f8f5f0;" @click="lbImg = {{ $i + 1 }}; lightbox = true">
                             <img src="{{ $imgSrc }}" alt="{{ $product->name }}" class="w-full rounded-xl object-cover" style="aspect-ratio: 3/4;" loading="lazy">

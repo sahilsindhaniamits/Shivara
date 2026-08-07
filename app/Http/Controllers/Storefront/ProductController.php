@@ -72,6 +72,7 @@ class ProductController extends Controller
         $request->validate([
             'rating' => 'required|integer|min:1|max:5',
             'comment' => 'required|string|max:1000',
+            'reviewer_name' => 'nullable|string|max:100',
             'review_images' => 'nullable|array|max:5',
             'review_images.*' => 'nullable|file|mimes:jpeg,png,jpg,webp,gif|max:10240',
         ]);
@@ -92,10 +93,11 @@ class ProductController extends Controller
         }
 
         try {
-            // Allow multiple reviews per user per product
+            // Allow multiple reviews per user per product (guests too)
             \App\Models\Review::create([
                 'product_id' => $product->id,
-                'user_id' => auth()->id(),
+                'user_id' => auth()->id() ?? null,
+                'reviewer_name' => $request->reviewer_name ?? (auth()->user()->name ?? 'Guest'),
                 'rating' => $request->rating,
                 'comment' => $request->comment,
                 'images' => count($imagePaths) ? $imagePaths : null,
