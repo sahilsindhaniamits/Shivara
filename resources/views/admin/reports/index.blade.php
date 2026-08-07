@@ -232,9 +232,10 @@ function loadChart(period) {
             btn.className = 'px-3 py-1.5 text-xs rounded-md transition text-gray-500 hover:text-gray-700';
         }
     });
-    fetch('/admin/reports/revenue-chart?period=' + period, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin'})
-    .then(function(r) { return r.json(); })
-    .then(function(data) { renderChart(data); });
+    fetch('/admin/reports/revenue-chart?period=' + period, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin'})
+    .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(data) { renderChart(data); })
+    .catch(function(e) { console.error('Chart load error:', e); });
 }
 
 function showCustomRange() {
@@ -266,9 +267,10 @@ function loadCustomChart() {
     if (!startDate || !endDate) { alert('Please select both dates'); return; }
     if (startDate > endDate) { alert('Start date must be before end date'); return; }
 
-    fetch('/admin/reports/revenue-chart?period=custom&start_date=' + startDate + '&end_date=' + endDate, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin'})
-    .then(function(r) { return r.json(); })
-    .then(function(data) { renderChart(data); });
+    fetch('/admin/reports/revenue-chart?period=custom&start_date=' + startDate + '&end_date=' + endDate, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin'})
+    .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(data) { renderChart(data); })
+    .catch(function(e) { console.error('Custom chart load error:', e); });
 }
 
 function renderChart(data) {

@@ -1,5 +1,5 @@
 @php
-    $marqueeText = \App\Models\Setting::get('marquee_text', 'Pure Herbs — No Chemical,Free Delivery — On orders above ₹999,Lab Tested — GMP Certified,5000+ Happy Customers,Secure Payments');
+    $marqueeText = \App\Models\Setting::get('marquee_text', 'Pure Herbs — No Chemicals,Free Delivery — On orders above ₹999,Lab Tested — GMP Certified,5000+ Happy Customers,Secure Payments');
     $marqueeItems = array_filter(array_map('trim', explode(',', $marqueeText)));
     $marqueeBg = \App\Models\Setting::get('marquee_bg_color', 'rgb(183, 146, 92)');
     $isHome = request()->routeIs('home');

@@ -425,12 +425,14 @@
         </div>
         @endif
 
-        <!-- Write Review -->
-        @auth
+        <!-- Write Review (open to all - guests & logged-in users) -->
         <div class="mb-8 p-5 rounded-2xl" style="background-color:#fff; border: 1px solid rgba(183,146,92,0.15);">
             <h4 class="text-sm font-bold mb-3" style="color:#2C2418;">Share Your Experience</h4>
             <form method="POST" action="{{ route('products.review', $product->slug) }}" enctype="multipart/form-data" class="space-y-3" x-data="{ rating: 0 }">
                 @csrf
+                @guest
+                <input type="text" name="reviewer_name" placeholder="Your Name" class="w-full px-4 py-3 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold-200" style="border-color:#e5e7eb;">
+                @endguest
                 <div class="flex items-center gap-1">
                     @for($s = 1; $s <= 5; $s++)
                     <button type="button" @click="rating = {{ $s }}" :class="{{ $s }} <= rating ? 'text-amber-400' : 'text-gray-300'" class="transition hover:scale-110">
@@ -444,11 +446,6 @@
                 <button type="submit" class="px-5 py-2 text-white text-xs font-bold uppercase rounded-full hover:opacity-90 transition" style="background-color:#2C2418;">Submit Review</button>
             </form>
         </div>
-        @else
-        <div class="mb-8 p-4 rounded-xl text-center" style="background-color:#fff; border: 1px solid rgba(183,146,92,0.15);">
-            <p class="text-sm" style="color:#6b5442;"><a href="{{ route('login') }}" class="font-bold hover:underline" style="color:#B7925C;">Log in</a> to write a review</p>
-        </div>
-        @endauth
 
         <!-- Reviews List -->
         @if($approvedReviews->count())
