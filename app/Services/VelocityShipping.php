@@ -31,22 +31,12 @@ class VelocityShipping
     }
 
     /**
-     * Create forward shipment with auto courier assignment via orchestration.
-     * If order already exists in Velocity, uses orchestration to assign courier.
+     * Build the standard order payload for Velocity
      */
-    public function createShipment(\App\Models\Order $order): array
+    private function buildPayload(\App\Models\Order $order): array
     {
-        $token = $this->getToken();
-        if (!$token) {
-            return ['success' => false, 'error' => 'Failed to authenticate with Velocity Shipping'];
-        }
-
         $address = $order->address;
-        if (!$address) {
-            return ['success' => false, 'error' => 'Order has no delivery address'];
-        }
 
-        // Build order items
         $items = $order->items->map(function ($item) {
             return [
                 'name' => $item->product_name,
@@ -58,7 +48,7 @@ class VelocityShipping
             ];
         })->toArray();
 
-        $payload = [
+        return [
             'order_id' => $order->order_number,
             'order_date' => $order->created_at->format('Y-m-d H:i'),
             'billing_customer_name' => $address->full_name,
@@ -82,6 +72,70 @@ class VelocityShipping
             'pickup_location' => config('services.velocity.pickup_location', 'Shivara Warehouse'),
             'warehouse_id' => config('services.velocity.warehouse_id'),
         ];
+    }
+
+    /**
+     * Push order to Velocity "New" section (no courier assignment).
+     * Called automatically when a new order is placed.
+     */
+    public function pushOrder(\App\Models\Order $order): array
+    {
+        $token = $this->getToken();
+        if (!$token) {
+            return ['success' => false, 'error' => 'Failed to authenticate with Velocity Shipping'];
+        }
+
+        $address = $order->address;
+        if (!$address) {
+            return ['success' => false, 'error' => 'Order has no delivery address'];
+        }
+
+        $payload = $this->buildPayload($order);
+
+        $response = Http::withHeaders([
+            'Authorization' => $token,
+            'Content-Type' => 'application/json',
+        ])->post($this->baseUrl . '/custom/api/v1/forward-order', $payload);
+
+        $data = $response->json();
+
+        if ($response->successful() && isset($data['payload'])) {
+            $p = $data['payload'];
+            if (!empty($p['order_created']) || !empty($p['shipment_id'])) {
+                return [
+                    'success' => true,
+                    'shipment_id' => $p['shipment_id'] ?? '',
+                    'order_id' => $p['order_id'] ?? '',
+                ];
+            }
+        }
+
+        // If order already exists, that's fine — it's already in Velocity
+        if (stripos(json_encode($data), 'order already exists') !== false) {
+            return ['success' => true, 'shipment_id' => '', 'order_id' => ''];
+        }
+
+        Log::error('Velocity push order failed', ['response' => $data, 'order' => $order->order_number]);
+        return ['success' => false, 'error' => $data['message'] ?? $data['error'] ?? json_encode($data) ?? 'Push failed'];
+    }
+
+    /**
+     * Ship order via orchestration (auto-assigns courier + AWB).
+     * Called when admin clicks "Ship with Velocity" button.
+     */
+    public function createShipment(\App\Models\Order $order): array
+    {
+        $token = $this->getToken();
+        if (!$token) {
+            return ['success' => false, 'error' => 'Failed to authenticate with Velocity Shipping'];
+        }
+
+        $address = $order->address;
+        if (!$address) {
+            return ['success' => false, 'error' => 'Order has no delivery address'];
+        }
+
+        $payload = $this->buildPayload($order);
 
         // Use orchestration endpoint (creates order + auto-assigns courier + generates AWB)
         $response = Http::withHeaders([
@@ -103,19 +157,17 @@ class VelocityShipping
             ];
         }
 
-        // If "Order already exists" — the order was previously created via /forward-order
-        // Try orchestration again with a slightly modified order_id or handle gracefully
-        $errorMsg = $data['message'] ?? $data['details'] ?? '';
-        if (stripos($errorMsg, 'order already exists') !== false || stripos(json_encode($data), 'order already exists') !== false) {
-            // Order is already in Velocity "New" section — inform admin to assign courier from Velocity dashboard
+        // If "Order already exists" — try with a suffixed order_id for orchestration
+        $errorMsg = json_encode($data);
+        if (stripos($errorMsg, 'order already exists') !== false) {
             return [
                 'success' => false,
-                'error' => 'Order already exists in Velocity Dashboard (New section). Please assign courier manually from Velocity Dashboard → Orders → New.',
+                'error' => 'Order already exists in Velocity. Please assign courier from Velocity Dashboard → Orders → New.',
             ];
         }
 
         Log::error('Velocity create shipment failed', ['response' => $data, 'order' => $order->order_number]);
-        return ['success' => false, 'error' => $data['message'] ?? $data['error'] ?? json_encode($data) ?? 'Shipment creation failed'];
+        return ['success' => false, 'error' => $data['message'] ?? $data['error'] ?? $errorMsg ?? 'Shipment creation failed'];
     }
 
     /**
