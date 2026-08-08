@@ -201,6 +201,30 @@ class VelocityShipping
     }
 
     /**
+     * Cancel an order in Velocity by order_id (used before re-creating with orchestration)
+     */
+    public function cancelByOrderId(string $orderId): array
+    {
+        $token = $this->getToken();
+        if (!$token) return ['success' => false, 'error' => 'Auth failed'];
+
+        $response = Http::withHeaders([
+            'Authorization' => $token,
+            'Content-Type' => 'application/json',
+        ])->post($this->baseUrl . '/custom/api/v1/cancel-order', [
+            'order_ids' => [$orderId],
+        ]);
+
+        $data = $response->json();
+        Log::info('Velocity cancel by order_id', ['order_id' => $orderId, 'response' => $data]);
+
+        return [
+            'success' => $response->successful(),
+            'message' => $data['message'] ?? 'Cancel attempted',
+        ];
+    }
+
+    /**
      * Cancel shipment by AWB
      */
     public function cancel(string $awb): array

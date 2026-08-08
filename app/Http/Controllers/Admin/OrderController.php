@@ -311,21 +311,37 @@ class OrderController extends Controller
 
     /**
      * Ship order via Velocity Shipping (auto-assigns courier + AWB)
+     * If order already exists in Velocity (auto-pushed on placement),
+     * cancels it first then re-creates with orchestration for auto-courier.
      */
     public function shipViaVelocity(Order $order)
     {
         $velocity = new \App\Services\VelocityShipping();
         $result = $velocity->createShipment($order->load(['items', 'address']));
 
+        // If "Order already exists", cancel it in Velocity and retry with orchestration
+        if (!$result['success'] && stripos($result['error'] ?? '', 'already exists') !== false) {
+            // Cancel the existing order in Velocity using the order number
+            $velocity->cancelByOrderId($order->order_number);
+            // Small delay then retry
+            usleep(500000); // 0.5 second
+            $result = $velocity->createShipment($order->load(['items', 'address']));
+        }
+
         if ($result['success']) {
-            $order->update([
+            $updateData = [
                 'status' => 'shipped',
                 'shipped_at' => now(),
-                'tracking_number' => $result['awb_code'],
-                'awb_number' => $result['awb_code'],
-                'courier_name' => $result['courier_name'],
-                'tracking_url' => 'https://shipfastt.in/track/' . $result['awb_code'],
-            ]);
+            ];
+
+            if (!empty($result['awb_code'])) {
+                $updateData['tracking_number'] = $result['awb_code'];
+                $updateData['awb_number'] = $result['awb_code'];
+                $updateData['courier_name'] = $result['courier_name'];
+                $updateData['tracking_url'] = 'https://shipfastt.in/track/' . $result['awb_code'];
+            }
+
+            $order->update($updateData);
 
             $order->timeline()->create([
                 'status' => 'shipped',
