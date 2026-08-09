@@ -14,7 +14,7 @@
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         @foreach($blogs as $blog)
         <a href="{{ route('blog.show', $blog->slug) }}" class="group bg-white rounded-2xl border border-gold-100/50 overflow-hidden hover:shadow-xl transition-all duration-400 hover:-translate-y-1">
-            <div class="aspect-[16/10] overflow-hidden bg-cream-100">
+            <div class="aspect-[16/9] overflow-hidden bg-cream-100">
                 @if($blog->featured_image)
                 <img src="{{ str_starts_with($blog->featured_image, '/storage/') ? '/public' . $blog->featured_image : $blog->featured_image }}" alt="{{ $blog->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
                 @else

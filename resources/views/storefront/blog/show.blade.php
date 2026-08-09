@@ -22,9 +22,6 @@
             <span class="text-xs text-espresso-300">&bull; {{ number_format($blog->views) }} views</span>
         </div>
         <h1 class="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-espresso-700 leading-tight">{{ $blog->title }}</h1>
-        @if($blog->excerpt)
-        <p class="text-lg text-espresso-400 mt-4 leading-relaxed">{{ $blog->excerpt }}</p>
-        @endif
     </header>
 
     <!-- Featured Image -->
@@ -35,9 +32,34 @@
     @endif
 
     <!-- Content -->
-    <div class="prose prose-lg max-w-none text-espresso-600 leading-relaxed">
+    <div class="blog-content">
         {!! $blog->content !!}
     </div>
+
+    <style>
+    .blog-content { font-size: 1.05rem; line-height: 1.85; color: #4a3728; }
+    .blog-content h1 { font-size: 2.2rem; font-weight: 800; margin-top: 2.5rem; margin-bottom: 1rem; color: #2C2418; line-height: 1.25; }
+    .blog-content h2 { font-size: 1.7rem; font-weight: 700; margin-top: 2.2rem; margin-bottom: 0.8rem; color: #2C2418; line-height: 1.3; border-bottom: 2px solid rgba(183,146,92,0.2); padding-bottom: 0.5rem; }
+    .blog-content h3 { font-size: 1.35rem; font-weight: 700; margin-top: 1.8rem; margin-bottom: 0.6rem; color: #2C2418; line-height: 1.35; }
+    .blog-content h4 { font-size: 1.15rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #2C2418; }
+    .blog-content p { margin-bottom: 1.2rem; }
+    .blog-content ul, .blog-content ol { margin: 1rem 0; padding-left: 1.8rem; }
+    .blog-content ul { list-style-type: disc; }
+    .blog-content ol { list-style-type: decimal; }
+    .blog-content li { margin-bottom: 0.5rem; padding-left: 0.3rem; }
+    .blog-content a { color: #B7925C; text-decoration: underline; font-weight: 500; }
+    .blog-content a:hover { color: #8B6914; }
+    .blog-content blockquote { border-left: 4px solid #B7925C; padding: 1rem 1.5rem; margin: 1.5rem 0; background: rgba(183,146,92,0.05); border-radius: 0 0.75rem 0.75rem 0; font-style: italic; color: #6b5442; }
+    .blog-content img { max-width: 100%; height: auto; border-radius: 1rem; margin: 1.5rem 0; }
+    .blog-content strong, .blog-content b { font-weight: 700; color: #2C2418; }
+    .blog-content em, .blog-content i { font-style: italic; }
+    .blog-content hr { margin: 2rem 0; border: none; border-top: 2px solid rgba(183,146,92,0.15); }
+    .blog-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+    .blog-content th, .blog-content td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; }
+    .blog-content th { background: #f9fafb; font-weight: 600; color: #2C2418; }
+    .blog-content code { background: rgba(183,146,92,0.1); padding: 0.2rem 0.4rem; border-radius: 0.3rem; font-size: 0.9em; }
+    .blog-content pre { background: #1a1a2e; color: #e0e0e0; padding: 1.5rem; border-radius: 0.75rem; overflow-x: auto; margin: 1.5rem 0; }
+    </style>
 
     <!-- Tags -->
     @if($blog->tags)
