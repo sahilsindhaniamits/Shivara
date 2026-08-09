@@ -173,14 +173,6 @@ class CheckoutController extends Controller
 
         $order->update(['status' => 'confirmed']);
 
-        // Auto-push order to Velocity "New" section
-        try {
-            $velocity = new \App\Services\VelocityShipping();
-            $velocity->pushOrder($order->load(['items', 'address']));
-        } catch (\Exception $e) {
-            \Log::warning('Velocity auto-push failed for COD order: ' . $e->getMessage());
-        }
-
         $customerEmail = $order->address?->email ?? ($order->user?->email ?? null);
         if ($customerEmail) {
             try {
@@ -284,14 +276,6 @@ class CheckoutController extends Controller
             $order->update($updateData);
 
             \Log::info('Order confirmed', ['order' => $order->order_number, 'method' => $isCod ? 'cod' : 'razorpay']);
-
-            // Auto-push order to Velocity "New" section
-            try {
-                $velocity = new \App\Services\VelocityShipping();
-                $velocity->pushOrder($order->load(['items', 'address']));
-            } catch (\Exception $e) {
-                \Log::warning('Velocity auto-push failed: ' . $e->getMessage());
-            }
 
             // Send confirmation email
             $customerEmail = $order->address?->email ?? ($order->user?->email ?? null);
