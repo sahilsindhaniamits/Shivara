@@ -456,6 +456,19 @@ class CheckoutController extends Controller
                 'discount' => $discount,
                 'shipping' => $shipping,
                 'coupon_code' => $couponCode,
+                // Snapshot cart items at checkout time to prevent mismatch
+                'cart_snapshot' => $cartItems->map(function ($item) {
+                    $price = $item->variant ? $item->variant->selling_price : $item->product->selling_price;
+                    return [
+                        'product_id' => $item->product->id,
+                        'variant_id' => $item->variant?->id ?? null,
+                        'product_name' => $item->product->name,
+                        'variant_name' => $item->variant?->name ?? null,
+                        'quantity' => $item->quantity,
+                        'price' => $price,
+                        'gst_rate' => $item->product->gst_rate ?? 0,
+                    ];
+                })->toArray(),
             ]);
 
             return response()->json([
@@ -481,10 +494,29 @@ class CheckoutController extends Controller
 
     private function createOrderFromCart(string $razorpayOrderId, string $razorpayPaymentId): ?Order
     {
-        $cartItems = $this->getCartItems();
-        if ($cartItems->isEmpty()) return null;
-
         $checkoutData = session('razorpay_checkout', []);
+
+        // Use cart snapshot from checkout time (prevents wrong product bug)
+        $cartSnapshot = $checkoutData['cart_snapshot'] ?? null;
+
+        if (!$cartSnapshot || empty($cartSnapshot)) {
+            // Fallback to live cart if no snapshot (shouldn't happen normally)
+            \Log::warning('No cart snapshot found, falling back to live cart', ['razorpay_order_id' => $razorpayOrderId]);
+            $cartItems = $this->getCartItems();
+            if ($cartItems->isEmpty()) return null;
+            $cartSnapshot = $cartItems->map(function ($item) {
+                $price = $item->variant ? $item->variant->selling_price : $item->product->selling_price;
+                return [
+                    'product_id' => $item->product->id,
+                    'variant_id' => $item->variant?->id ?? null,
+                    'product_name' => $item->product->name,
+                    'variant_name' => $item->variant?->name ?? null,
+                    'quantity' => $item->quantity,
+                    'price' => $price,
+                    'gst_rate' => $item->product->gst_rate ?? 0,
+                ];
+            })->toArray();
+        }
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
 
         $customerName = 'Customer';
@@ -601,7 +633,7 @@ class CheckoutController extends Controller
             'pincode' => $pincode,
         ]);
 
-        $subtotal = $checkoutData['subtotal'] ?? $cartItems->sum(fn($i) => ($i->variant ? $i->variant->selling_price : $i->product->selling_price) * $i->quantity);
+        $subtotal = $checkoutData['subtotal'] ?? collect($cartSnapshot)->sum(fn($i) => $i['price'] * $i['quantity']);
         $discount = $checkoutData['discount'] ?? 0;
         $shipping = $checkoutData['shipping'] ?? 0;
         // Shipping is added by Razorpay (not in our order amount), so add it for our records
@@ -623,24 +655,29 @@ class CheckoutController extends Controller
             'shipping_method' => 'standard',
         ]);
 
-        foreach ($cartItems as $item) {
-            $price = $item->variant ? $item->variant->selling_price : $item->product->selling_price;
+        // Create order items from the SNAPSHOT (not live cart)
+        foreach ($cartSnapshot as $snapItem) {
             OrderItem::create([
                 'order_id' => $order->id,
-                'product_id' => $item->product->id,
-                'variant_id' => $item->variant?->id,
-                'product_name' => $item->product->name,
-                'variant_name' => $item->variant?->name,
-                'quantity' => $item->quantity,
-                'price' => $price,
-                'total_price' => $price * $item->quantity,
-                'gst_rate' => $item->product->gst_rate ?? 0,
+                'product_id' => $snapItem['product_id'],
+                'variant_id' => $snapItem['variant_id'],
+                'product_name' => $snapItem['product_name'],
+                'variant_name' => $snapItem['variant_name'],
+                'quantity' => $snapItem['quantity'],
+                'price' => $snapItem['price'],
+                'total_price' => $snapItem['price'] * $snapItem['quantity'],
+                'gst_rate' => $snapItem['gst_rate'] ?? 0,
                 'gst_amount' => 0,
             ]);
-            if ($item->variant) {
-                $item->variant->decrement('stock', $item->quantity);
-            } elseif (!is_null($item->product->stock)) {
-                $item->product->decrement('stock', $item->quantity);
+
+            // Decrement stock
+            if ($snapItem['variant_id']) {
+                \App\Models\ProductVariant::where('id', $snapItem['variant_id'])->decrement('stock', $snapItem['quantity']);
+            } else {
+                $product = \App\Models\Product::find($snapItem['product_id']);
+                if ($product && !is_null($product->stock)) {
+                    $product->decrement('stock', $snapItem['quantity']);
+                }
             }
         }
 
