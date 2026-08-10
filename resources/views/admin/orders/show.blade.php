@@ -122,21 +122,14 @@
             <div class="bg-white rounded-2xl border border-gray-200 p-6">
                 <h3 class="font-bold text-gray-900 mb-4">Shipping & Tracking</h3>
 
-                <!-- Ship via Velocity Buttons -->
+                <!-- Ship via Velocity -->
                 @if(!$order->tracking_number && in_array($order->status, ['confirmed', 'processing']))
-                <div class="mb-4 space-y-2">
-                    <form method="POST" action="{{ route('admin.orders.shipVelocity', $order) }}">
-                        @csrf
-                        <button type="submit" onclick="return confirm('Auto-assign courier via Velocity? This will generate AWB and mark as shipped.')" class="w-full px-4 py-3 text-white text-sm font-bold rounded-xl hover:opacity-90 transition flex items-center justify-center gap-2" style="background-color:#16a34a;">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                            Auto Ship (Assign Courier + AWB)
-                        </button>
-                    </form>
-                    <a href="https://velocity.in/shipping" target="_blank" class="w-full px-4 py-2.5 text-sm font-bold rounded-xl transition flex items-center justify-center gap-2 border-2" style="color:#16a34a; border-color:#16a34a;">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                        Open Velocity Dashboard (Manual)
+                <div class="mb-4">
+                    <a href="https://velocity.in/shipping" target="_blank" class="w-full px-4 py-3 text-white text-sm font-bold rounded-xl hover:opacity-90 transition flex items-center justify-center gap-2" style="background-color:#16a34a;">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        Ship via Velocity Dashboard →
                     </a>
-                    <p class="text-[10px] text-gray-400 text-center">Auto: best courier auto-assigned. Manual: choose courier yourself on Velocity.</p>
+                    <p class="text-[10px] text-gray-400 text-center mt-1.5">Opens Velocity to assign courier & generate AWB for this order.</p>
                 </div>
                 @endif
 
