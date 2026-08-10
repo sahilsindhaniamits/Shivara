@@ -122,14 +122,22 @@
             <div class="bg-white rounded-2xl border border-gray-200 p-6">
                 <h3 class="font-bold text-gray-900 mb-4">Shipping & Tracking</h3>
 
-                <!-- Ship via Velocity -->
-                @if(!$order->tracking_number && in_array($order->status, ['confirmed', 'processing']))
-                <div class="mb-4">
-                    <a href="https://velocity.in/shipping" target="_blank" class="w-full px-4 py-3 text-white text-sm font-bold rounded-xl hover:opacity-90 transition flex items-center justify-center gap-2" style="background-color:#16a34a;">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                        Ship via Velocity Dashboard →
-                    </a>
-                    <p class="text-[10px] text-gray-400 text-center mt-1.5">Opens Velocity to assign courier & generate AWB for this order.</p>
+                <!-- Velocity: order auto-synced, tracking fetched automatically -->
+                @if($order->tracking_number)
+                <div class="mb-4 p-3 rounded-xl bg-green-50 border border-green-200">
+                    <p class="text-xs font-bold text-green-700 flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Shipped via {{ $order->courier_name ?? 'Velocity' }}
+                    </p>
+                    <p class="text-[11px] text-green-600 mt-1">AWB: {{ $order->tracking_number }}</p>
+                </div>
+                @elseif(in_array($order->status, ['confirmed', 'processing']))
+                <div class="mb-4 p-3 rounded-xl bg-blue-50 border border-blue-200">
+                    <p class="text-xs font-semibold text-blue-700 flex items-center gap-1.5">
+                        <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        Synced to Velocity — awaiting courier assignment
+                    </p>
+                    <p class="text-[10px] text-blue-500 mt-1">Tracking will auto-update once shipped from Velocity Dashboard.</p>
                 </div>
                 @endif
 
