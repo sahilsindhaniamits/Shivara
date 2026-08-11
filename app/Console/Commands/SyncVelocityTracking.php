@@ -112,100 +112,44 @@ class SyncVelocityTracking extends Command
     }
 
     /**
-     * Fetch order status from Velocity by order_id
-     * Tries multiple API approaches since Velocity docs are limited
+     * Fetch order status from Velocity using /shipments API (Order Details endpoint)
+     * This endpoint supports searching by order display ID and returns tracking details
      */
     private function fetchOrderStatus(VelocityShipping $velocity, string $token, string $orderId): ?array
     {
-        // Approach 1: Try /order-tracking with order_ids
+        // Use /shipments API with search parameter to find our order
         $response = \Illuminate\Support\Facades\Http::withHeaders([
             'Authorization' => $token,
             'Content-Type' => 'application/json',
-        ])->post('https://shazam.velocity.in/custom/api/v1/order-tracking', [
-            'order_ids' => [$orderId],
+        ])->post('https://shazam.velocity.in/custom/api/v1/shipments', [
+            'page' => 1,
+            'per_page' => 5,
+            'search' => $orderId,
         ]);
 
         $data = $response->json();
-        Log::info("Velocity API /order-tracking for {$orderId}", ['status' => $response->status(), 'body' => json_encode($data)]);
-        $this->line("    /order-tracking [{$response->status()}]: " . json_encode($data));
+        $this->line("    /shipments [{$response->status()}]: " . mb_substr(json_encode($data), 0, 500));
 
-        if ($response->successful() && isset($data['result'][$orderId])) {
-            $orderData = $data['result'][$orderId];
-            $trackingData = $orderData['tracking_data'] ?? $orderData;
+        if ($response->successful() && isset($data['data']) && is_array($data['data'])) {
+            foreach ($data['data'] as $shipment) {
+                $attrs = $shipment['attributes'] ?? $shipment;
+                $trackingNumber = $attrs['tracking_number'] ?? null;
+                $status = $attrs['status'] ?? '';
+                $carrier = $attrs['carrier']['name'] ?? ($attrs['carrier_name'] ?? null);
 
-            $awb = $trackingData['awb_code'] ?? ($orderData['awb_code'] ?? null);
-            $courier = $trackingData['courier_name'] ?? ($orderData['courier_name'] ?? null);
-
-            if ($awb) {
-                return [
-                    'awb_code' => $awb,
-                    'courier_name' => $courier ?? 'Velocity Courier',
-                    'status' => $trackingData['shipment_status'] ?? '',
-                ];
-            }
-        }
-
-        // Approach 2: Try /order-tracking with awb field (some APIs use this)
-        // Maybe the result key is different - check all keys in result
-        if ($response->successful() && isset($data['result']) && is_array($data['result'])) {
-            foreach ($data['result'] as $key => $val) {
-                $this->line("    Found result key: {$key}");
-                $trackingData = $val['tracking_data'] ?? $val;
-                $awb = $trackingData['awb_code'] ?? ($val['awb_code'] ?? null);
-                $courier = $trackingData['courier_name'] ?? ($val['courier_name'] ?? null);
-                if ($awb) {
+                // Check if this shipment has an AWB/tracking number assigned
+                if ($trackingNumber) {
+                    Log::info("Velocity sync found AWB for {$orderId}", [
+                        'awb' => $trackingNumber,
+                        'courier' => $carrier,
+                        'status' => $status,
+                    ]);
                     return [
-                        'awb_code' => $awb,
-                        'courier_name' => $courier ?? 'Velocity Courier',
-                        'status' => $trackingData['shipment_status'] ?? '',
+                        'awb_code' => $trackingNumber,
+                        'courier_name' => $carrier ?? 'Velocity Courier',
+                        'status' => $status,
                     ];
                 }
-            }
-        }
-
-        // Approach 3: Try /order-status endpoint
-        $response2 = \Illuminate\Support\Facades\Http::withHeaders([
-            'Authorization' => $token,
-            'Content-Type' => 'application/json',
-        ])->post('https://shazam.velocity.in/custom/api/v1/order-status', [
-            'order_id' => $orderId,
-        ]);
-
-        $data2 = $response2->json();
-        $this->line("    /order-status [{$response2->status()}]: " . json_encode($data2));
-
-        if ($response2->successful() && $data2) {
-            $awb = $data2['awb_code'] ?? ($data2['payload']['awb_code'] ?? ($data2['data']['awb_code'] ?? null));
-            $courier = $data2['courier_name'] ?? ($data2['payload']['courier_name'] ?? ($data2['data']['courier_name'] ?? null));
-            if ($awb) {
-                return [
-                    'awb_code' => $awb,
-                    'courier_name' => $courier ?? 'Velocity Courier',
-                    'status' => $data2['status'] ?? '',
-                ];
-            }
-        }
-
-        // Approach 4: Try /shipment-details endpoint
-        $response3 = \Illuminate\Support\Facades\Http::withHeaders([
-            'Authorization' => $token,
-            'Content-Type' => 'application/json',
-        ])->post('https://shazam.velocity.in/custom/api/v1/shipment-details', [
-            'order_id' => $orderId,
-        ]);
-
-        $data3 = $response3->json();
-        $this->line("    /shipment-details [{$response3->status()}]: " . json_encode($data3));
-
-        if ($response3->successful() && $data3) {
-            $awb = $data3['awb_code'] ?? ($data3['payload']['awb_code'] ?? ($data3['data']['awb_code'] ?? null));
-            $courier = $data3['courier_name'] ?? ($data3['payload']['courier_name'] ?? ($data3['data']['courier_name'] ?? null));
-            if ($awb) {
-                return [
-                    'awb_code' => $awb,
-                    'courier_name' => $courier ?? 'Velocity Courier',
-                    'status' => $data3['status'] ?? '',
-                ];
             }
         }
 
