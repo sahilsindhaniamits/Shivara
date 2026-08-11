@@ -106,9 +106,11 @@ class SyncVelocityTracking extends Command
 
     /**
      * Fetch order status from Velocity by order_id
+     * Tries multiple API approaches since Velocity docs are limited
      */
     private function fetchOrderStatus(VelocityShipping $velocity, string $token, string $orderId): ?array
     {
+        // Approach 1: Try /order-tracking with order_ids
         $response = \Illuminate\Support\Facades\Http::withHeaders([
             'Authorization' => $token,
             'Content-Type' => 'application/json',
@@ -117,6 +119,7 @@ class SyncVelocityTracking extends Command
         ]);
 
         $data = $response->json();
+        Log::info("Velocity sync attempt for {$orderId}", ['status' => $response->status(), 'response' => $data]);
 
         if ($response->successful() && isset($data['result'][$orderId])) {
             $orderData = $data['result'][$orderId];
@@ -124,14 +127,56 @@ class SyncVelocityTracking extends Command
 
             $awb = $trackingData['awb_code'] ?? ($orderData['awb_code'] ?? null);
             $courier = $trackingData['courier_name'] ?? ($orderData['courier_name'] ?? null);
-            $status = $trackingData['shipment_status'] ?? ($orderData['status'] ?? '');
 
-            // Only return if AWB is assigned (means courier was assigned in Velocity)
             if ($awb) {
                 return [
                     'awb_code' => $awb,
                     'courier_name' => $courier ?? 'Velocity Courier',
-                    'status' => $status,
+                    'status' => $trackingData['shipment_status'] ?? '',
+                ];
+            }
+        }
+
+        // Approach 2: Try /order-status endpoint
+        $response2 = \Illuminate\Support\Facades\Http::withHeaders([
+            'Authorization' => $token,
+            'Content-Type' => 'application/json',
+        ])->post('https://shazam.velocity.in/custom/api/v1/order-status', [
+            'order_id' => $orderId,
+        ]);
+
+        $data2 = $response2->json();
+        if ($response2->successful()) {
+            Log::info("Velocity order-status for {$orderId}", ['response' => $data2]);
+            $awb = $data2['awb_code'] ?? ($data2['payload']['awb_code'] ?? ($data2['data']['awb_code'] ?? null));
+            $courier = $data2['courier_name'] ?? ($data2['payload']['courier_name'] ?? ($data2['data']['courier_name'] ?? null));
+            if ($awb) {
+                return [
+                    'awb_code' => $awb,
+                    'courier_name' => $courier ?? 'Velocity Courier',
+                    'status' => $data2['status'] ?? '',
+                ];
+            }
+        }
+
+        // Approach 3: Try /shipment-details endpoint
+        $response3 = \Illuminate\Support\Facades\Http::withHeaders([
+            'Authorization' => $token,
+            'Content-Type' => 'application/json',
+        ])->post('https://shazam.velocity.in/custom/api/v1/shipment-details', [
+            'order_id' => $orderId,
+        ]);
+
+        $data3 = $response3->json();
+        if ($response3->successful()) {
+            Log::info("Velocity shipment-details for {$orderId}", ['response' => $data3]);
+            $awb = $data3['awb_code'] ?? ($data3['payload']['awb_code'] ?? ($data3['data']['awb_code'] ?? null));
+            $courier = $data3['courier_name'] ?? ($data3['payload']['courier_name'] ?? ($data3['data']['courier_name'] ?? null));
+            if ($awb) {
+                return [
+                    'awb_code' => $awb,
+                    'courier_name' => $courier ?? 'Velocity Courier',
+                    'status' => $data3['status'] ?? '',
                 ];
             }
         }
