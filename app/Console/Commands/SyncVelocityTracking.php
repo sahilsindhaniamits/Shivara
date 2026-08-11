@@ -40,6 +40,7 @@ class SyncVelocityTracking extends Command
 
         foreach ($orders as $order) {
             try {
+                $this->line("  Checking: {$order->order_number}...");
                 // Use Velocity's order tracking by order_id
                 $result = $this->fetchOrderStatus($velocity, $token, $order->order_number);
 
@@ -125,7 +126,8 @@ class SyncVelocityTracking extends Command
         ]);
 
         $data = $response->json();
-        Log::info("Velocity sync attempt for {$orderId}", ['status' => $response->status(), 'response' => $data]);
+        Log::info("Velocity API /order-tracking for {$orderId}", ['status' => $response->status(), 'body' => json_encode($data)]);
+        $this->line("    /order-tracking [{$response->status()}]: " . json_encode($data));
 
         if ($response->successful() && isset($data['result'][$orderId])) {
             $orderData = $data['result'][$orderId];
@@ -143,7 +145,25 @@ class SyncVelocityTracking extends Command
             }
         }
 
-        // Approach 2: Try /order-status endpoint
+        // Approach 2: Try /order-tracking with awb field (some APIs use this)
+        // Maybe the result key is different - check all keys in result
+        if ($response->successful() && isset($data['result']) && is_array($data['result'])) {
+            foreach ($data['result'] as $key => $val) {
+                $this->line("    Found result key: {$key}");
+                $trackingData = $val['tracking_data'] ?? $val;
+                $awb = $trackingData['awb_code'] ?? ($val['awb_code'] ?? null);
+                $courier = $trackingData['courier_name'] ?? ($val['courier_name'] ?? null);
+                if ($awb) {
+                    return [
+                        'awb_code' => $awb,
+                        'courier_name' => $courier ?? 'Velocity Courier',
+                        'status' => $trackingData['shipment_status'] ?? '',
+                    ];
+                }
+            }
+        }
+
+        // Approach 3: Try /order-status endpoint
         $response2 = \Illuminate\Support\Facades\Http::withHeaders([
             'Authorization' => $token,
             'Content-Type' => 'application/json',
@@ -152,8 +172,9 @@ class SyncVelocityTracking extends Command
         ]);
 
         $data2 = $response2->json();
-        if ($response2->successful()) {
-            Log::info("Velocity order-status for {$orderId}", ['response' => $data2]);
+        $this->line("    /order-status [{$response2->status()}]: " . json_encode($data2));
+
+        if ($response2->successful() && $data2) {
             $awb = $data2['awb_code'] ?? ($data2['payload']['awb_code'] ?? ($data2['data']['awb_code'] ?? null));
             $courier = $data2['courier_name'] ?? ($data2['payload']['courier_name'] ?? ($data2['data']['courier_name'] ?? null));
             if ($awb) {
@@ -165,7 +186,7 @@ class SyncVelocityTracking extends Command
             }
         }
 
-        // Approach 3: Try /shipment-details endpoint
+        // Approach 4: Try /shipment-details endpoint
         $response3 = \Illuminate\Support\Facades\Http::withHeaders([
             'Authorization' => $token,
             'Content-Type' => 'application/json',
@@ -174,8 +195,9 @@ class SyncVelocityTracking extends Command
         ]);
 
         $data3 = $response3->json();
-        if ($response3->successful()) {
-            Log::info("Velocity shipment-details for {$orderId}", ['response' => $data3]);
+        $this->line("    /shipment-details [{$response3->status()}]: " . json_encode($data3));
+
+        if ($response3->successful() && $data3) {
             $awb = $data3['awb_code'] ?? ($data3['payload']['awb_code'] ?? ($data3['data']['awb_code'] ?? null));
             $courier = $data3['courier_name'] ?? ($data3['payload']['courier_name'] ?? ($data3['data']['courier_name'] ?? null));
             if ($awb) {
