@@ -51,7 +51,7 @@ class SyncVelocityTracking extends Command
                         'tracking_number' => $result['awb_code'],
                         'awb_number' => $result['awb_code'],
                         'courier_name' => $result['courier_name'] ?? 'Velocity',
-                        'tracking_url' => 'https://shipfastt.in/track/' . $result['awb_code'],
+                        'tracking_url' => $result['track_url'] ?? ('https://velocity.in/tracking/' . $result['awb_code']),
                     ]);
 
                     $order->timeline()->create([
@@ -157,6 +157,22 @@ class SyncVelocityTracking extends Command
 
                 // Check if this shipment has an AWB/tracking number assigned
                 if ($trackingNumber) {
+                    // Build tracking URL based on courier
+                    $courierLower = strtolower($carrier ?? '');
+                    if (str_contains($courierLower, 'bluedart')) {
+                        $trackUrl = 'https://www.bluedart.com/tracking/' . $trackingNumber;
+                    } elseif (str_contains($courierLower, 'delhivery')) {
+                        $trackUrl = 'https://www.delhivery.com/track/package/' . $trackingNumber;
+                    } elseif (str_contains($courierLower, 'ekart')) {
+                        $trackUrl = 'https://ekartlogistics.com/track/' . $trackingNumber;
+                    } elseif (str_contains($courierLower, 'xpressbees')) {
+                        $trackUrl = 'https://www.xpressbees.com/track?awb=' . $trackingNumber;
+                    } elseif (str_contains($courierLower, 'dtdc')) {
+                        $trackUrl = 'https://www.dtdc.in/tracking.asp?strCnno=' . $trackingNumber;
+                    } else {
+                        $trackUrl = 'https://velocity.in/tracking/' . $trackingNumber;
+                    }
+
                     Log::info("Velocity sync found AWB for {$orderId}", [
                         'awb' => $trackingNumber,
                         'courier' => $carrier,
@@ -166,6 +182,7 @@ class SyncVelocityTracking extends Command
                         'awb_code' => $trackingNumber,
                         'courier_name' => $carrier ?? 'Velocity Courier',
                         'status' => $status,
+                        'track_url' => $trackUrl,
                     ];
                 }
             }
