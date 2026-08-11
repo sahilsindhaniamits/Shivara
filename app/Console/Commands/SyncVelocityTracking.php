@@ -122,8 +122,8 @@ class SyncVelocityTracking extends Command
             'Authorization' => $token,
             'Content-Type' => 'application/json',
         ])->post('https://shazam.velocity.in/custom/api/v1/shipments', [
-            'page' => 1,
-            'per_page' => 5,
+            'page' => ['number' => '1'],
+            'per_page' => '5',
             'search' => $orderId,
         ]);
 
