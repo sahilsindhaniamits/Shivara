@@ -15,12 +15,18 @@ class SyncVelocityTracking extends Command
     public function handle()
     {
         $velocity = new VelocityShipping();
+
+        // Clear any stale cached token first
+        \Illuminate\Support\Facades\Cache::forget('velocity_token');
+
         $token = $velocity->getToken();
 
         if (!$token) {
-            $this->error('Failed to authenticate with Velocity');
+            $this->error('Failed to authenticate with Velocity. Check VELOCITY_USERNAME and VELOCITY_PASSWORD in .env');
             return 1;
         }
+
+        $this->info("Authenticated with Velocity successfully.");
 
         // Get all confirmed/processing orders without tracking number (these are in Velocity "New" or "Ready to Ship")
         $orders = Order::whereIn('status', ['confirmed', 'processing'])

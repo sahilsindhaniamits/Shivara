@@ -11,23 +11,33 @@ class VelocityShipping
     private string $baseUrl = 'https://shazam.velocity.in';
 
     /**
-     * Get auth token (cached for 23 hours)
+     * Get auth token (cached for 23 hours, auto-refreshes on failure)
      */
     public function getToken(): ?string
     {
-        return Cache::remember('velocity_token', 82800, function () {
-            $response = Http::post($this->baseUrl . '/custom/api/v1/auth-token', [
-                'username' => config('services.velocity.username'),
-                'password' => config('services.velocity.password'),
-            ]);
+        // Try cached token first
+        $token = Cache::get('velocity_token');
 
-            if ($response->successful()) {
-                return $response->json('token');
-            }
+        if ($token) {
+            return $token;
+        }
 
-            Log::error('Velocity auth failed: ' . $response->body());
-            return null;
-        });
+        // Fetch fresh token
+        $response = Http::post($this->baseUrl . '/custom/api/v1/auth-token', [
+            'username' => config('services.velocity.username'),
+            'password' => config('services.velocity.password'),
+        ]);
+
+        if ($response->successful() && $response->json('token')) {
+            $token = $response->json('token');
+            Cache::put('velocity_token', $token, 82800); // 23 hours
+            return $token;
+        }
+
+        Log::error('Velocity auth failed: ' . $response->body());
+        // Clear any stale cached token
+        Cache::forget('velocity_token');
+        return null;
     }
 
     /**
