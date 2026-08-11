@@ -137,6 +137,24 @@ class SyncVelocityTracking extends Command
                 $status = $attrs['status'] ?? '';
                 $carrier = $attrs['carrier']['name'] ?? ($attrs['carrier_name'] ?? null);
 
+                // Verify this shipment actually belongs to our order
+                $orderInfo = $attrs['order'] ?? [];
+                $displayId = $orderInfo['display_id'] ?? ($orderInfo['external_id'] ?? '');
+                $externalId = $orderInfo['external_id'] ?? '';
+
+                // Match: the display_id or external_id should contain our order number
+                $isMatch = (
+                    stripos($displayId, $orderId) !== false ||
+                    stripos($externalId, $orderId) !== false ||
+                    $displayId === $orderId ||
+                    $externalId === $orderId
+                );
+
+                if (!$isMatch) {
+                    $this->line("    Skipped: shipment belongs to {$displayId}, not {$orderId}");
+                    continue;
+                }
+
                 // Check if this shipment has an AWB/tracking number assigned
                 if ($trackingNumber) {
                     Log::info("Velocity sync found AWB for {$orderId}", [
