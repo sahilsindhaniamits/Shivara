@@ -71,3 +71,8 @@ Route::match(['get', 'post'], '/cod/review', function (\Illuminate\Http\Request 
 
 // Razorpay Webhook (accepts both GET for validation and POST for events)
 Route::match(['get', 'post'], '/razorpay/webhook', [RazorpayWebhookController::class, 'handle']);
+
+
+// Velocity Shipping Webhook
+// Configure this URL in Velocity Dashboard: https://theshivara.com/api/velocity/webhook
+Route::match(['get', 'post'], '/velocity/webhook', [\App\Http\Controllers\Api\VelocityWebhookController::class, 'handle']);

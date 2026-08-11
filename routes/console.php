@@ -8,5 +8,4 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-// Sync tracking info from Velocity every 15 minutes
-Schedule::command('velocity:sync-tracking')->everyFifteenMinutes()->withoutOverlapping();
+// Velocity webhook handles tracking sync (no cron needed - Velocity pushes to us)
