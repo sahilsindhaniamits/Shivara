@@ -71,6 +71,7 @@ class VelocityShipping
             'billing_email' => $address->email ?? '',
             'billing_phone' => $address->phone,
             'shipping_is_billing' => true,
+            'print_label' => true,
             'order_items' => $items,
             'payment_method' => $order->payment_method === 'cod' ? 'COD' : 'PREPAID',
             'sub_total' => (float) $order->subtotal,

@@ -27,6 +27,10 @@
                     <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Phone *</label>
                     <input type="text" name="phone" required class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition">
                 </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Email</label>
+                    <input type="email" name="email" placeholder="customer@email.com" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition">
+                </div>
                 <div class="sm:col-span-2">
                     <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Address *</label>
                     <input type="text" name="address_line1" required placeholder="House no, Street, Area" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-300 transition">

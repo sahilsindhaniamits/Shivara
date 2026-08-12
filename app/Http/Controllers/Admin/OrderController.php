@@ -33,6 +33,7 @@ class OrderController extends Controller
             'user_id' => auth()->id(),
             'full_name' => $request->full_name,
             'phone' => $request->phone,
+            'email' => $request->email,
             'address_line1' => $request->address_line1,
             'city' => $request->city,
             'state' => $request->state,
