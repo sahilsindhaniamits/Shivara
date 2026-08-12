@@ -95,6 +95,14 @@ class OrderController extends Controller
             'message' => 'Order created manually by admin',
         ]);
 
+        // Auto-push to Velocity "New" section
+        try {
+            $velocity = new \App\Services\VelocityShipping();
+            $velocity->pushOrder($order->load(['items', 'address']));
+        } catch (\Exception $e) {
+            \Log::warning('Velocity push failed for admin order: ' . $e->getMessage());
+        }
+
         return redirect()->route('admin.orders.show', $order)->with('success', 'Manual order created!');
     }
 
