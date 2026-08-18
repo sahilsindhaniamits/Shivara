@@ -14,22 +14,26 @@ class HomeController extends Controller
 {
     public function index()
     {
-        // Load up to 2 products per category + fill remaining spots for 'All' tab
-        $categories = Category::active()
-            ->withCount(['products' => fn($q) => $q->where('is_active', true)])
-            ->orderBy('sort_order')
-            ->get();
+        // Cache home page data for 10 minutes (reduces DB load significantly)
+        $data = \Illuminate\Support\Facades\Cache::remember('home_page_data', 600, function () {
+            $categories = Category::active()
+                ->withCount(['products' => fn($q) => $q->where('is_active', true)])
+                ->orderBy('sort_order')
+                ->get();
 
-        $featuredProducts = Product::active()
-            ->with(['primaryImage', 'images', 'category', 'variants'])
-            ->orderBy('is_featured', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->take(32); // Load enough to cover all categories
+            $featuredProducts = Product::active()
+                ->with(['primaryImage', 'images', 'category', 'variants'])
+                ->orderBy('is_featured', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->take(32)
+                ->get();
 
-        $banners = Banner::active()->orderBy('sort_order')->get();
+            $banners = Banner::active()->orderBy('sort_order')->get();
 
-        return view('storefront.home', compact('featuredProducts', 'categories', 'banners'));
+            return compact('featuredProducts', 'categories', 'banners');
+        });
+
+        return view('storefront.home', $data);
     }
 
     public function contact()

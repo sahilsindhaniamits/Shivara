@@ -59,14 +59,10 @@ class Order extends Model
 
     public static function generateOrderNumber(): string
     {
-        $lastOrder = static::orderBy('id', 'desc')->first();
+        do {
+            $number = 'SHV' . rand(1000, 9999);
+        } while (static::where('order_number', $number)->exists());
 
-        if ($lastOrder && preg_match('/^SHV(\d+)$/', $lastOrder->order_number, $matches)) {
-            $nextNumber = intval($matches[1]) + 1;
-        } else {
-            $nextNumber = 1;
-        }
-
-        return 'SHV' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        return $number;
     }
 }
