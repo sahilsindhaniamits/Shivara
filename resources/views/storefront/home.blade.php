@@ -374,11 +374,12 @@
 <section class="py-6 overflow-hidden" style="background-color: #FBF7F0;">
     <div class="flex items-center" style="animation: certScroll 10s linear infinite;">
         @for($loop = 0; $loop < 3; $loop++)
-        <img src="/public/our_manufacture_logo1.webp" alt="FSSAI" class="h-14 sm:h-16 md:h-20 mx-6 sm:mx-8 object-contain shrink-0">
-        <img src="/public/our_manufacture_logo2.avif" alt="OHSAS" class="h-14 sm:h-16 md:h-20 mx-6 sm:mx-8 object-contain shrink-0">
-        <img src="/public/our_manufacture_logo3.webp" alt="ISO" class="h-14 sm:h-16 md:h-20 mx-6 sm:mx-8 object-contain shrink-0">
-        <img src="/public/our_manufacture_logo4.webp" alt="GMP" class="h-14 sm:h-16 md:h-20 mx-6 sm:mx-8 object-contain shrink-0">
-        <img src="/public/ayushlogo.webp" alt="AYUSH" class="h-14 sm:h-16 md:h-20 mx-6 sm:mx-8 object-contain shrink-0">
+        <img src="/public/gmp.png" alt="GMP" class="h-14 sm:h-16 md:h-20 mx-6 sm:mx-8 object-contain shrink-0">
+        <img src="/public/haccp.png" alt="HACCP" class="h-14 sm:h-16 md:h-20 mx-6 sm:mx-8 object-contain shrink-0">
+        <img src="/public/halal.png" alt="HALAL" class="h-14 sm:h-16 md:h-20 mx-6 sm:mx-8 object-contain shrink-0">
+        <img src="/public/iso.png" alt="ISO" class="h-14 sm:h-16 md:h-20 mx-6 sm:mx-8 object-contain shrink-0">
+        <img src="/public/ayush.png" alt="AYUSH" class="h-14 sm:h-16 md:h-20 mx-6 sm:mx-8 object-contain shrink-0">
+        <img src="/public/organic.png" alt="ORGANIC" class="h-14 sm:h-16 md:h-20 mx-6 sm:mx-8 object-contain shrink-0">
         @endfor
     </div>
 </section>
@@ -393,12 +394,15 @@
         <div class="grid md:grid-cols-2 gap-12 items-center">
             <div class="order-2 md:order-1">
                 <span class="text-[11px] font-bold uppercase tracking-[0.3em] text-gold-500 mb-4 block">About Shivara</span>
-                <h2 class="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-espresso-700 leading-tight mb-6">Rooted in tradition.<br>Built on trust.</h2>
+                <h2 class="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-espresso-700 leading-tight mb-6">Power of Ayurveda.<br>Purposeful Wellness.</h2>
                 <p class="text-espresso-400 leading-relaxed mb-4">
-                    At Shivara, every product is a promise — a promise of purity, efficacy, and reverence for the ancient science of Ayurveda. We source the finest single-origin herbs from heritage farms in Rajasthan.
+                    Zeegra-पौरुष is a thoughtfully crafted Ayurvedic wellness range designed for men seeking everyday vitality and reproductive wellness. Its combination of traditional herbal ingredients supports a balanced approach to male wellness.
+                </p>
+                <p class="text-espresso-400 leading-relaxed mb-4">
+                    The range includes Zeegra-पौरुष Capsules and Zeegra-पौरुष Massage Oil for a complete wellness routine.
                 </p>
                 <p class="text-espresso-400 leading-relaxed mb-8">
-                    Our formulations are crafted in GMP-certified facilities, tested in certified laboratories, and delivered with the care your wellness deserves. No shortcuts. No compromises.
+                    With ingredients such as Ashwagandha, Safed Musli, Kaunch and Shilajit, it brings traditional Ayurvedic wisdom into modern daily care.
                 </p>
                 <div class="flex flex-wrap gap-8">
                     <div><p class="text-3xl font-display font-bold text-gold-600">5K+</p><p class="text-[10px] uppercase tracking-[0.2em] text-espresso-400">Happy Customers</p></div>
@@ -408,7 +412,7 @@
             </div>
             <div class="order-1 md:order-2 relative">
                 <div class="aspect-[4/5] rounded-3xl overflow-hidden border-4 border-white shadow-2xl">
-                    <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=600&h=750&fit=crop" alt="Ayurvedic herbs and formulations" class="w-full h-full object-cover">
+                    <img src="/public/zeehome2.jpg" alt="Zeegra Ayurvedic Wellness Range" class="w-full h-full object-cover">
                 </div>
                 <div class="absolute -bottom-4 -left-4 w-24 h-24 bg-olive-200 rounded-2xl -z-10"></div>
                 <div class="absolute -top-4 -right-4 w-16 h-16 bg-gold-300 rounded-full -z-10"></div>
