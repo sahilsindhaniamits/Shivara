@@ -404,11 +404,6 @@
                 <p class="text-espresso-400 leading-relaxed mb-8">
                     With ingredients such as Ashwagandha, Safed Musli, Kaunch and Shilajit, it brings traditional Ayurvedic wisdom into modern daily care.
                 </p>
-                <div class="flex flex-wrap gap-8">
-                    <div><p class="text-3xl font-display font-bold text-gold-600">5K+</p><p class="text-[10px] uppercase tracking-[0.2em] text-espresso-400">Happy Customers</p></div>
-                    <div><p class="text-3xl font-display font-bold text-gold-600">50+</p><p class="text-[10px] uppercase tracking-[0.2em] text-espresso-400">Products</p></div>
-                    <div><p class="text-3xl font-display font-bold text-gold-600">4.8★</p><p class="text-[10px] uppercase tracking-[0.2em] text-espresso-400">Avg Rating</p></div>
-                </div>
             </div>
             <div class="order-1 md:order-2 relative">
                 <div class="aspect-[4/5] rounded-3xl overflow-hidden border-4 border-white shadow-2xl">
