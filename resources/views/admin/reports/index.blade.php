@@ -282,14 +282,14 @@ function renderChart(data) {
         type: 'bar',
         data: {
             labels: data.labels.map(function(l) {
-                if (l.includes('-W')) return 'W' + l.split('-W')[1];
-                if (l.length === 7) { var d = new Date(l + '-01'); return d.toLocaleDateString('en-IN', {month:'short', year:'2-digit'}); }
+                if (l.includes('-W')) return 'Week ' + l.split('-W')[1];
+                if (l.length === 7) { var d = new Date(l + '-01'); return d.toLocaleDateString('en-IN', {month:'short', year:'numeric'}); }
                 if (l.length === 10) { var d = new Date(l); return d.toLocaleDateString('en-IN', {day:'numeric', month:'short'}); }
                 return l;
             }),
             datasets: [
-                { label: 'Revenue', data: data.revenue, backgroundColor: 'rgba(192,109,34,0.7)', borderColor: '#c06d22', borderWidth: 1, borderRadius: 6, yAxisID: 'y' },
-                { label: 'Orders', data: data.orders, type: 'line', borderColor: '#B08840', backgroundColor: 'rgba(176,136,64,0.1)', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#B08840', fill: true, tension: 0.3, yAxisID: 'y1' }
+                { label: 'Revenue', data: data.revenue, backgroundColor: 'rgba(192,109,34,0.7)', borderColor: '#c06d22', borderWidth: 1, borderRadius: 6, yAxisID: 'y', maxBarThickness: 60, categoryPercentage: 0.5, barPercentage: 0.7 },
+                { label: 'Orders', data: data.orders, type: 'line', borderColor: '#B08840', backgroundColor: 'rgba(176,136,64,0.1)', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#B08840', fill: false, tension: 0.3, yAxisID: 'y1' }
             ]
         },
         options: {
@@ -297,9 +297,9 @@ function renderChart(data) {
             interaction: { mode: 'index', intersect: false },
             plugins: { legend: { display: false } },
             scales: {
-                y: { type: 'linear', position: 'left', grid: { color: '#f3f4f6' }, ticks: { callback: function(v) { return '₹' + (v >= 1000 ? (v/1000).toFixed(0) + 'k' : v); } } },
-                y1: { type: 'linear', position: 'right', grid: { display: false }, ticks: { stepSize: 1 } },
-                x: { grid: { display: false } }
+                y: { type: 'linear', position: 'left', beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: function(v) { return '₹' + (v >= 1000 ? (v/1000).toFixed(1) + 'k' : v); } } },
+                y1: { type: 'linear', position: 'right', beginAtZero: true, grid: { display: false }, ticks: { stepSize: 1, precision: 0 } },
+                x: { grid: { display: false }, offset: true }
             }
         }
     });

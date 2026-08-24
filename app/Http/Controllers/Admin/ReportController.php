@@ -77,56 +77,81 @@ class ReportController extends Controller
 
         switch ($period) {
             case 'daily':
-                $data = $query->where('created_at', '>=', Carbon::now()->subDays(30))
+                $from = Carbon::now()->subDays(13)->startOfDay();
+                $to = Carbon::now()->endOfDay();
+                $raw = $query->whereBetween('created_at', [$from, $to])
                     ->select(DB::raw("DATE(created_at) as label"), DB::raw('SUM(total_amount) as revenue'), DB::raw('COUNT(*) as orders'))
-                    ->groupBy('label')
-                    ->orderBy('label')
-                    ->get();
-                break;
+                    ->groupBy('label')->get()->keyBy('label');
+                return $this->fillDateRange($from, $to, 'day', $raw);
 
             case 'weekly':
-                $data = $query->where('created_at', '>=', Carbon::now()->subWeeks(12))
-                    ->select(DB::raw("CONCAT(YEAR(created_at), '-W', LPAD(WEEK(created_at), 2, '0')) as label"), DB::raw('SUM(total_amount) as revenue'), DB::raw('COUNT(*) as orders'))
-                    ->groupBy('label')
-                    ->orderBy('label')
-                    ->get();
-                break;
+                $from = Carbon::now()->subWeeks(11)->startOfWeek();
+                $to = Carbon::now()->endOfWeek();
+                $raw = $query->whereBetween('created_at', [$from, $to])
+                    ->select(DB::raw("CONCAT(YEAR(created_at), '-W', LPAD(WEEK(created_at, 3), 2, '0')) as label"), DB::raw('SUM(total_amount) as revenue'), DB::raw('COUNT(*) as orders'))
+                    ->groupBy('label')->get()->keyBy('label');
+                return $this->fillDateRange($from, $to, 'week', $raw);
 
             case 'custom':
                 $from = $startDate ? Carbon::parse($startDate)->startOfDay() : Carbon::now()->subDays(30)->startOfDay();
                 $to = $endDate ? Carbon::parse($endDate)->endOfDay() : Carbon::now()->endOfDay();
-
-                // If range is <= 31 days, show daily; otherwise show monthly
                 $diffDays = $from->diffInDays($to);
 
-                if ($diffDays <= 31) {
-                    $data = $query->whereBetween('created_at', [$from, $to])
+                if ($diffDays <= 62) {
+                    $raw = $query->whereBetween('created_at', [$from, $to])
                         ->select(DB::raw("DATE(created_at) as label"), DB::raw('SUM(total_amount) as revenue'), DB::raw('COUNT(*) as orders'))
-                        ->groupBy('label')
-                        ->orderBy('label')
-                        ->get();
-                } else {
-                    $data = $query->whereBetween('created_at', [$from, $to])
-                        ->select(DB::raw("DATE_FORMAT(created_at, '%Y-%m') as label"), DB::raw('SUM(total_amount) as revenue'), DB::raw('COUNT(*) as orders'))
-                        ->groupBy('label')
-                        ->orderBy('label')
-                        ->get();
+                        ->groupBy('label')->get()->keyBy('label');
+                    return $this->fillDateRange($from, $to, 'day', $raw);
                 }
-                break;
+                $raw = $query->whereBetween('created_at', [$from, $to])
+                    ->select(DB::raw("DATE_FORMAT(created_at, '%Y-%m') as label"), DB::raw('SUM(total_amount) as revenue'), DB::raw('COUNT(*) as orders'))
+                    ->groupBy('label')->get()->keyBy('label');
+                return $this->fillDateRange($from, $to, 'month', $raw);
 
             default: // monthly
-                $data = $query->where('created_at', '>=', Carbon::now()->subMonths(12))
+                $from = Carbon::now()->subMonths(11)->startOfMonth();
+                $to = Carbon::now()->endOfMonth();
+                $raw = $query->whereBetween('created_at', [$from, $to])
                     ->select(DB::raw("DATE_FORMAT(created_at, '%Y-%m') as label"), DB::raw('SUM(total_amount) as revenue'), DB::raw('COUNT(*) as orders'))
-                    ->groupBy('label')
-                    ->orderBy('label')
-                    ->get();
-                break;
+                    ->groupBy('label')->get()->keyBy('label');
+                return $this->fillDateRange($from, $to, 'month', $raw);
+        }
+    }
+
+    /**
+     * Fill in all intervals between from and to with zero values where no data exists.
+     * This ensures the chart shows a complete timeline, not just days with sales.
+     */
+    private function fillDateRange(Carbon $from, Carbon $to, string $unit, $raw): array
+    {
+        $labels = [];
+        $revenue = [];
+        $orders = [];
+
+        $cursor = $from->copy();
+
+        while ($cursor->lte($to)) {
+            if ($unit === 'day') {
+                $key = $cursor->format('Y-m-d');
+                $cursor->addDay();
+            } elseif ($unit === 'week') {
+                $key = $cursor->format('Y') . '-W' . str_pad($cursor->weekOfYear, 2, '0', STR_PAD_LEFT);
+                $cursor->addWeek();
+            } else { // month
+                $key = $cursor->format('Y-m');
+                $cursor->addMonth();
+            }
+
+            $row = $raw->get($key);
+            $labels[] = $key;
+            $revenue[] = $row ? (float) $row->revenue : 0;
+            $orders[] = $row ? (int) $row->orders : 0;
         }
 
         return [
-            'labels' => $data->pluck('label')->toArray(),
-            'revenue' => $data->pluck('revenue')->map(fn($v) => (float) $v)->toArray(),
-            'orders' => $data->pluck('orders')->toArray(),
+            'labels' => $labels,
+            'revenue' => $revenue,
+            'orders' => $orders,
         ];
     }
 }
